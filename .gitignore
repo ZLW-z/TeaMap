@@ -1,0 +1,62 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build output
+dist/
+dist-ssr/
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Backup files
+*.bak
+*.bak.*
+
+# OS files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Large data files (exceeds GitHub 100MB limit)
+data/1/高程.tif
+data/1/高程.tfw
+data/1/高程.tif.*
+data/2/soil_ph.tif
+data/2/soil_ph.tfw
+data/2/soil_ph.tif.*
+data/2/soil_ph_suitability.tif
+data/2/ph_*.tif
+data/2/radiation_suitability_reclass.tif
+data/2/radiation_suitability_reclass.tfw
+data/2/radiation_suitability_reclass.tif.*
+data/2/多年均温.tif
+data/2/多年均温.tfw
+data/2/多年均温.tif.*
+data/2/多年平均活动积温.tif
+data/2/多年平均活动积温.tfw
+data/2/多年平均活动积温.tif.*
+
+# Python scripts (data processing, not needed for deployment)
+_diagnose2.py
+_diagnose_align.py
+process_ch1*.py
+process_ch2*.py

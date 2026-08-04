@@ -1,0 +1,2877 @@
+[
+  {
+    "province": "上海市",
+    "years": [
+      {
+        "year": 2011,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2012,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2013,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2014,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2015,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2016,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2017,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2018,
+        "gardenArea": 0.11,
+        "pickingArea": 0.11,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2019,
+        "gardenArea": 0.1,
+        "pickingArea": 0.1,
+        "totalOutput": 0.01,
+        "blackTea": 0.0,
+        "greenTea": 0.01
+      },
+      {
+        "year": 2020,
+        "gardenArea": 0.12,
+        "pickingArea": 0.12,
+        "totalOutput": 0.01,
+        "blackTea": 0.0,
+        "greenTea": 0.01
+      },
+      {
+        "year": 2021,
+        "gardenArea": 0.17,
+        "pickingArea": 0.11,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2022,
+        "gardenArea": 0.14,
+        "pickingArea": 0.14,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2023,
+        "gardenArea": 0.16,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2024,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2025,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      }
+    ]
+  },
+  {
+    "province": "云南省",
+    "years": [
+      {
+        "year": 2011,
+        "gardenArea": 374.35,
+        "pickingArea": 285.98,
+        "totalOutput": 23.83,
+        "blackTea": 2.54,
+        "greenTea": 17.24
+      },
+      {
+        "year": 2012,
+        "gardenArea": 382.74,
+        "pickingArea": 303.18,
+        "totalOutput": 27.17,
+        "blackTea": 3.07,
+        "greenTea": 19.98
+      },
+      {
+        "year": 2013,
+        "gardenArea": 392.25,
+        "pickingArea": 320.9,
+        "totalOutput": 30.17,
+        "blackTea": 4.03,
+        "greenTea": 21.09
+      },
+      {
+        "year": 2014,
+        "gardenArea": 399.68,
+        "pickingArea": 337.8,
+        "totalOutput": 33.55,
+        "blackTea": 4.14,
+        "greenTea": 22.71
+      },
+      {
+        "year": 2015,
+        "gardenArea": 413.52,
+        "pickingArea": 354.34,
+        "totalOutput": 36.58,
+        "blackTea": 5.21,
+        "greenTea": 23.79
+      },
+      {
+        "year": 2016,
+        "gardenArea": 422.06,
+        "pickingArea": 362.6,
+        "totalOutput": 37.31,
+        "blackTea": 5.27,
+        "greenTea": 23.74
+      },
+      {
+        "year": 2017,
+        "gardenArea": 437.86,
+        "pickingArea": 371.85,
+        "totalOutput": 39.35,
+        "blackTea": 5.12,
+        "greenTea": 25.53
+      },
+      {
+        "year": 2018,
+        "gardenArea": 466.58,
+        "pickingArea": 397.14,
+        "totalOutput": 42.33,
+        "blackTea": 5.33,
+        "greenTea": 27.57
+      },
+      {
+        "year": 2019,
+        "gardenArea": 480.9,
+        "pickingArea": 416.53,
+        "totalOutput": 43.72,
+        "blackTea": 5.65,
+        "greenTea": 30.86
+      },
+      {
+        "year": 2020,
+        "gardenArea": 493.52,
+        "pickingArea": 428.84,
+        "totalOutput": 46.32,
+        "blackTea": 5.68,
+        "greenTea": 36.27
+      },
+      {
+        "year": 2021,
+        "gardenArea": 504.61,
+        "pickingArea": 443.72,
+        "totalOutput": 50.21,
+        "blackTea": 5.87,
+        "greenTea": 43.94
+      },
+      {
+        "year": 2022,
+        "gardenArea": 530.31,
+        "pickingArea": 468.66,
+        "totalOutput": 53.39,
+        "blackTea": 6.41,
+        "greenTea": 46.51
+      },
+      {
+        "year": 2023,
+        "gardenArea": 535.51,
+        "pickingArea": 0.0,
+        "totalOutput": 55.68,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2024,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 58.62,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2025,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      }
+    ]
+  },
+  {
+    "province": "四川省",
+    "years": [
+      {
+        "year": 2011,
+        "gardenArea": 246.74,
+        "pickingArea": 176.87,
+        "totalOutput": 18.97,
+        "blackTea": 0.25,
+        "greenTea": 15.31
+      },
+      {
+        "year": 2012,
+        "gardenArea": 270.83,
+        "pickingArea": 190.26,
+        "totalOutput": 21.03,
+        "blackTea": 0.32,
+        "greenTea": 17.17
+      },
+      {
+        "year": 2013,
+        "gardenArea": 287.63,
+        "pickingArea": 203.18,
+        "totalOutput": 21.97,
+        "blackTea": 0.36,
+        "greenTea": 18.22
+      },
+      {
+        "year": 2014,
+        "gardenArea": 307.09,
+        "pickingArea": 215.38,
+        "totalOutput": 23.47,
+        "blackTea": 0.37,
+        "greenTea": 19.61
+      },
+      {
+        "year": 2015,
+        "gardenArea": 319.03,
+        "pickingArea": 228.49,
+        "totalOutput": 24.61,
+        "blackTea": 0.41,
+        "greenTea": 20.67
+      },
+      {
+        "year": 2016,
+        "gardenArea": 341.68,
+        "pickingArea": 236.49,
+        "totalOutput": 26.51,
+        "blackTea": 0.44,
+        "greenTea": 22.34
+      },
+      {
+        "year": 2017,
+        "gardenArea": 356.28,
+        "pickingArea": 252.38,
+        "totalOutput": 27.78,
+        "blackTea": 0.54,
+        "greenTea": 23.25
+      },
+      {
+        "year": 2018,
+        "gardenArea": 375.4,
+        "pickingArea": 277.03,
+        "totalOutput": 30.07,
+        "blackTea": 0.71,
+        "greenTea": 24.93
+      },
+      {
+        "year": 2019,
+        "gardenArea": 387.0,
+        "pickingArea": 295.0,
+        "totalOutput": 32.54,
+        "blackTea": 1.04,
+        "greenTea": 26.98
+      },
+      {
+        "year": 2020,
+        "gardenArea": 396.38,
+        "pickingArea": 305.86,
+        "totalOutput": 34.42,
+        "blackTea": 1.16,
+        "greenTea": 28.48
+      },
+      {
+        "year": 2021,
+        "gardenArea": 404.85,
+        "pickingArea": 319.06,
+        "totalOutput": 37.48,
+        "blackTea": 1.37,
+        "greenTea": 31.03
+      },
+      {
+        "year": 2022,
+        "gardenArea": 410.6,
+        "pickingArea": 331.32,
+        "totalOutput": 39.28,
+        "blackTea": 1.68,
+        "greenTea": 32.33
+      },
+      {
+        "year": 2023,
+        "gardenArea": 414.38,
+        "pickingArea": 0.0,
+        "totalOutput": 42.46,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2024,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 45.39,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2025,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      }
+    ]
+  },
+  {
+    "province": "宁夏回族自治区",
+    "years": [
+      {
+        "year": 2011,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2012,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2013,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2014,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2015,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2016,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2017,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2018,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2019,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2020,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2021,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2022,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2023,
+        "gardenArea": 0.04,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2024,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2025,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      }
+    ]
+  },
+  {
+    "province": "安徽省",
+    "years": [
+      {
+        "year": 2011,
+        "gardenArea": 138.0,
+        "pickingArea": 122.26,
+        "totalOutput": 8.76,
+        "blackTea": 0.42,
+        "greenTea": 8.14
+      },
+      {
+        "year": 2012,
+        "gardenArea": 149.69,
+        "pickingArea": 131.05,
+        "totalOutput": 9.54,
+        "blackTea": 0.44,
+        "greenTea": 8.92
+      },
+      {
+        "year": 2013,
+        "gardenArea": 155.32,
+        "pickingArea": 135.03,
+        "totalOutput": 10.09,
+        "blackTea": 0.52,
+        "greenTea": 9.36
+      },
+      {
+        "year": 2014,
+        "gardenArea": 166.56,
+        "pickingArea": 144.6,
+        "totalOutput": 11.12,
+        "blackTea": 0.57,
+        "greenTea": 10.37
+      },
+      {
+        "year": 2015,
+        "gardenArea": 167.9,
+        "pickingArea": 143.69,
+        "totalOutput": 11.29,
+        "blackTea": 0.64,
+        "greenTea": 10.48
+      },
+      {
+        "year": 2016,
+        "gardenArea": 160.82,
+        "pickingArea": 136.73,
+        "totalOutput": 10.5,
+        "blackTea": 0.56,
+        "greenTea": 9.78
+      },
+      {
+        "year": 2017,
+        "gardenArea": 165.44,
+        "pickingArea": 145.03,
+        "totalOutput": 10.78,
+        "blackTea": 0.58,
+        "greenTea": 9.98
+      },
+      {
+        "year": 2018,
+        "gardenArea": 176.32,
+        "pickingArea": 151.47,
+        "totalOutput": 11.24,
+        "blackTea": 0.64,
+        "greenTea": 10.22
+      },
+      {
+        "year": 2019,
+        "gardenArea": 187.1,
+        "pickingArea": 165.59,
+        "totalOutput": 12.2,
+        "blackTea": 0.69,
+        "greenTea": 10.63
+      },
+      {
+        "year": 2020,
+        "gardenArea": 194.71,
+        "pickingArea": 171.66,
+        "totalOutput": 12.86,
+        "blackTea": 0.72,
+        "greenTea": 11.35
+      },
+      {
+        "year": 2021,
+        "gardenArea": 205.01,
+        "pickingArea": 178.13,
+        "totalOutput": 13.73,
+        "blackTea": 0.77,
+        "greenTea": 11.73
+      },
+      {
+        "year": 2022,
+        "gardenArea": 209.27,
+        "pickingArea": 184.24,
+        "totalOutput": 14.16,
+        "blackTea": 0.76,
+        "greenTea": 12.35
+      },
+      {
+        "year": 2023,
+        "gardenArea": 211.9,
+        "pickingArea": 0.0,
+        "totalOutput": 14.62,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2024,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 15.07,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2025,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      }
+    ]
+  },
+  {
+    "province": "山东省",
+    "years": [
+      {
+        "year": 2011,
+        "gardenArea": 17.28,
+        "pickingArea": 11.98,
+        "totalOutput": 1.45,
+        "blackTea": 0.0,
+        "greenTea": 1.45
+      },
+      {
+        "year": 2012,
+        "gardenArea": 17.83,
+        "pickingArea": 12.7,
+        "totalOutput": 1.48,
+        "blackTea": 0.0,
+        "greenTea": 1.48
+      },
+      {
+        "year": 2013,
+        "gardenArea": 18.83,
+        "pickingArea": 13.51,
+        "totalOutput": 1.58,
+        "blackTea": 0.0,
+        "greenTea": 1.58
+      },
+      {
+        "year": 2014,
+        "gardenArea": 19.62,
+        "pickingArea": 14.21,
+        "totalOutput": 1.67,
+        "blackTea": 0.0,
+        "greenTea": 1.67
+      },
+      {
+        "year": 2015,
+        "gardenArea": 21.01,
+        "pickingArea": 15.36,
+        "totalOutput": 1.78,
+        "blackTea": 0.0,
+        "greenTea": 1.78
+      },
+      {
+        "year": 2016,
+        "gardenArea": 21.4,
+        "pickingArea": 15.51,
+        "totalOutput": 1.89,
+        "blackTea": 0.0,
+        "greenTea": 1.89
+      },
+      {
+        "year": 2017,
+        "gardenArea": 20.67,
+        "pickingArea": 16.17,
+        "totalOutput": 1.95,
+        "blackTea": 0.0,
+        "greenTea": 1.95
+      },
+      {
+        "year": 2018,
+        "gardenArea": 23.14,
+        "pickingArea": 17.76,
+        "totalOutput": 2.22,
+        "blackTea": 0.0,
+        "greenTea": 2.22
+      },
+      {
+        "year": 2019,
+        "gardenArea": 25.1,
+        "pickingArea": 18.22,
+        "totalOutput": 2.48,
+        "blackTea": 0.0,
+        "greenTea": 2.48
+      },
+      {
+        "year": 2020,
+        "gardenArea": 27.17,
+        "pickingArea": 19.41,
+        "totalOutput": 2.59,
+        "blackTea": 0.03,
+        "greenTea": 2.55
+      },
+      {
+        "year": 2021,
+        "gardenArea": 26.93,
+        "pickingArea": 20.57,
+        "totalOutput": 2.85,
+        "blackTea": 0.04,
+        "greenTea": 2.81
+      },
+      {
+        "year": 2022,
+        "gardenArea": 26.74,
+        "pickingArea": 21.16,
+        "totalOutput": 2.93,
+        "blackTea": 0.02,
+        "greenTea": 2.91
+      },
+      {
+        "year": 2023,
+        "gardenArea": 27.16,
+        "pickingArea": 0.0,
+        "totalOutput": 3.14,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2024,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 3.27,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2025,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      }
+    ]
+  },
+  {
+    "province": "山西省",
+    "years": [
+      {
+        "year": 2011,
+        "gardenArea": 0.04,
+        "pickingArea": 0.04,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2012,
+        "gardenArea": 0.05,
+        "pickingArea": 0.05,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2013,
+        "gardenArea": 0.05,
+        "pickingArea": 0.05,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2014,
+        "gardenArea": 0.05,
+        "pickingArea": 0.05,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2015,
+        "gardenArea": 0.05,
+        "pickingArea": 0.05,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2016,
+        "gardenArea": 0.15,
+        "pickingArea": 0.15,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2017,
+        "gardenArea": 0.15,
+        "pickingArea": 0.15,
+        "totalOutput": 0.01,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2018,
+        "gardenArea": 0.13,
+        "pickingArea": 0.13,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2019,
+        "gardenArea": 0.2,
+        "pickingArea": 0.2,
+        "totalOutput": 0.01,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2020,
+        "gardenArea": 0.8,
+        "pickingArea": 0.54,
+        "totalOutput": 0.09,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2021,
+        "gardenArea": 1.13,
+        "pickingArea": 0.63,
+        "totalOutput": 0.13,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2022,
+        "gardenArea": 1.33,
+        "pickingArea": 1.02,
+        "totalOutput": 0.23,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2023,
+        "gardenArea": 0.96,
+        "pickingArea": 0.0,
+        "totalOutput": 0.18,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2024,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2025,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      }
+    ]
+  },
+  {
+    "province": "广东省",
+    "years": [
+      {
+        "year": 2011,
+        "gardenArea": 42.48,
+        "pickingArea": 33.98,
+        "totalOutput": 6.04,
+        "blackTea": 0.13,
+        "greenTea": 2.62
+      },
+      {
+        "year": 2012,
+        "gardenArea": 43.53,
+        "pickingArea": 34.82,
+        "totalOutput": 6.39,
+        "blackTea": 0.13,
+        "greenTea": 2.69
+      },
+      {
+        "year": 2013,
+        "gardenArea": 46.34,
+        "pickingArea": 37.07,
+        "totalOutput": 7.09,
+        "blackTea": 0.19,
+        "greenTea": 3.0
+      },
+      {
+        "year": 2014,
+        "gardenArea": 50.88,
+        "pickingArea": 40.71,
+        "totalOutput": 7.51,
+        "blackTea": 0.32,
+        "greenTea": 3.11
+      },
+      {
+        "year": 2015,
+        "gardenArea": 52.05,
+        "pickingArea": 41.64,
+        "totalOutput": 8.07,
+        "blackTea": 0.45,
+        "greenTea": 3.25
+      },
+      {
+        "year": 2016,
+        "gardenArea": 56.4,
+        "pickingArea": 44.69,
+        "totalOutput": 8.92,
+        "blackTea": 0.55,
+        "greenTea": 3.64
+      },
+      {
+        "year": 2017,
+        "gardenArea": 58.42,
+        "pickingArea": 46.73,
+        "totalOutput": 9.29,
+        "blackTea": 0.64,
+        "greenTea": 3.76
+      },
+      {
+        "year": 2018,
+        "gardenArea": 63.39,
+        "pickingArea": 50.71,
+        "totalOutput": 9.99,
+        "blackTea": 0.68,
+        "greenTea": 4.12
+      },
+      {
+        "year": 2019,
+        "gardenArea": 72.2,
+        "pickingArea": 57.77,
+        "totalOutput": 11.08,
+        "blackTea": 0.97,
+        "greenTea": 4.48
+      },
+      {
+        "year": 2020,
+        "gardenArea": 78.19,
+        "pickingArea": 49.88,
+        "totalOutput": 12.82,
+        "blackTea": 1.22,
+        "greenTea": 5.2
+      },
+      {
+        "year": 2021,
+        "gardenArea": 89.27,
+        "pickingArea": 81.12,
+        "totalOutput": 13.95,
+        "blackTea": 1.28,
+        "greenTea": 5.59
+      },
+      {
+        "year": 2022,
+        "gardenArea": 99.46,
+        "pickingArea": 89.71,
+        "totalOutput": 16.08,
+        "blackTea": 2.06,
+        "greenTea": 6.37
+      },
+      {
+        "year": 2023,
+        "gardenArea": 112.66,
+        "pickingArea": 0.0,
+        "totalOutput": 17.89,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2024,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 19.17,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2025,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      }
+    ]
+  },
+  {
+    "province": "广西壮族自治区",
+    "years": [
+      {
+        "year": 2011,
+        "gardenArea": 53.31,
+        "pickingArea": 45.72,
+        "totalOutput": 4.4,
+        "blackTea": 0.56,
+        "greenTea": 3.28
+      },
+      {
+        "year": 2012,
+        "gardenArea": 55.01,
+        "pickingArea": 47.01,
+        "totalOutput": 4.88,
+        "blackTea": 0.87,
+        "greenTea": 3.41
+      },
+      {
+        "year": 2013,
+        "gardenArea": 62.1,
+        "pickingArea": 53.53,
+        "totalOutput": 5.32,
+        "blackTea": 1.13,
+        "greenTea": 3.56
+      },
+      {
+        "year": 2014,
+        "gardenArea": 66.1,
+        "pickingArea": 53.76,
+        "totalOutput": 5.79,
+        "blackTea": 1.18,
+        "greenTea": 3.97
+      },
+      {
+        "year": 2015,
+        "gardenArea": 67.7,
+        "pickingArea": 56.02,
+        "totalOutput": 6.25,
+        "blackTea": 1.38,
+        "greenTea": 4.26
+      },
+      {
+        "year": 2016,
+        "gardenArea": 70.34,
+        "pickingArea": 58.68,
+        "totalOutput": 6.68,
+        "blackTea": 1.65,
+        "greenTea": 4.34
+      },
+      {
+        "year": 2017,
+        "gardenArea": 74.69,
+        "pickingArea": 60.85,
+        "totalOutput": 7.19,
+        "blackTea": 1.6,
+        "greenTea": 4.86
+      },
+      {
+        "year": 2018,
+        "gardenArea": 71.73,
+        "pickingArea": 58.45,
+        "totalOutput": 7.52,
+        "blackTea": 1.44,
+        "greenTea": 4.98
+      },
+      {
+        "year": 2019,
+        "gardenArea": 77.3,
+        "pickingArea": 67.37,
+        "totalOutput": 8.28,
+        "blackTea": 1.87,
+        "greenTea": 5.6
+      },
+      {
+        "year": 2020,
+        "gardenArea": 91.28,
+        "pickingArea": 71.87,
+        "totalOutput": 8.84,
+        "blackTea": 2.07,
+        "greenTea": 5.89
+      },
+      {
+        "year": 2021,
+        "gardenArea": 96.07,
+        "pickingArea": 73.92,
+        "totalOutput": 9.6,
+        "blackTea": 2.32,
+        "greenTea": 6.22
+      },
+      {
+        "year": 2022,
+        "gardenArea": 102.51,
+        "pickingArea": 79.84,
+        "totalOutput": 10.77,
+        "blackTea": 3.04,
+        "greenTea": 6.2
+      },
+      {
+        "year": 2023,
+        "gardenArea": 107.23,
+        "pickingArea": 0.0,
+        "totalOutput": 12.01,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2024,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 12.97,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2025,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      }
+    ]
+  },
+  {
+    "province": "江苏省",
+    "years": [
+      {
+        "year": 2011,
+        "gardenArea": 32.25,
+        "pickingArea": 26.68,
+        "totalOutput": 1.46,
+        "blackTea": 0.24,
+        "greenTea": 1.2
+      },
+      {
+        "year": 2012,
+        "gardenArea": 34.04,
+        "pickingArea": 28.82,
+        "totalOutput": 1.54,
+        "blackTea": 0.25,
+        "greenTea": 1.27
+      },
+      {
+        "year": 2013,
+        "gardenArea": 33.98,
+        "pickingArea": 28.42,
+        "totalOutput": 1.39,
+        "blackTea": 0.19,
+        "greenTea": 1.19
+      },
+      {
+        "year": 2014,
+        "gardenArea": 34.28,
+        "pickingArea": 28.47,
+        "totalOutput": 1.46,
+        "blackTea": 0.23,
+        "greenTea": 1.23
+      },
+      {
+        "year": 2015,
+        "gardenArea": 33.77,
+        "pickingArea": 30.3,
+        "totalOutput": 1.45,
+        "blackTea": 0.24,
+        "greenTea": 1.2
+      },
+      {
+        "year": 2016,
+        "gardenArea": 33.78,
+        "pickingArea": 30.57,
+        "totalOutput": 1.4,
+        "blackTea": 0.25,
+        "greenTea": 1.13
+      },
+      {
+        "year": 2017,
+        "gardenArea": 33.71,
+        "pickingArea": 30.46,
+        "totalOutput": 1.39,
+        "blackTea": 0.3,
+        "greenTea": 1.08
+      },
+      {
+        "year": 2018,
+        "gardenArea": 33.74,
+        "pickingArea": 31.33,
+        "totalOutput": 1.4,
+        "blackTea": 0.33,
+        "greenTea": 1.07
+      },
+      {
+        "year": 2019,
+        "gardenArea": 33.8,
+        "pickingArea": 30.26,
+        "totalOutput": 1.43,
+        "blackTea": 0.36,
+        "greenTea": 1.07
+      },
+      {
+        "year": 2020,
+        "gardenArea": 34.24,
+        "pickingArea": 30.72,
+        "totalOutput": 1.12,
+        "blackTea": 0.23,
+        "greenTea": 0.89
+      },
+      {
+        "year": 2021,
+        "gardenArea": 34.21,
+        "pickingArea": 30.82,
+        "totalOutput": 1.09,
+        "blackTea": 0.25,
+        "greenTea": 0.84
+      },
+      {
+        "year": 2022,
+        "gardenArea": 33.9,
+        "pickingArea": 30.72,
+        "totalOutput": 1.08,
+        "blackTea": 0.26,
+        "greenTea": 0.8
+      },
+      {
+        "year": 2023,
+        "gardenArea": 33.97,
+        "pickingArea": 0.0,
+        "totalOutput": 1.08,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2024,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 1.09,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2025,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      }
+    ]
+  },
+  {
+    "province": "江西省",
+    "years": [
+      {
+        "year": 2011,
+        "gardenArea": 58.99,
+        "pickingArea": 45.3,
+        "totalOutput": 3.27,
+        "blackTea": 0.45,
+        "greenTea": 2.47
+      },
+      {
+        "year": 2012,
+        "gardenArea": 65.49,
+        "pickingArea": 49.93,
+        "totalOutput": 3.87,
+        "blackTea": 0.51,
+        "greenTea": 2.93
+      },
+      {
+        "year": 2013,
+        "gardenArea": 72.59,
+        "pickingArea": 55.02,
+        "totalOutput": 4.31,
+        "blackTea": 0.49,
+        "greenTea": 3.41
+      },
+      {
+        "year": 2014,
+        "gardenArea": 78.1,
+        "pickingArea": 59.12,
+        "totalOutput": 4.71,
+        "blackTea": 0.56,
+        "greenTea": 3.77
+      },
+      {
+        "year": 2015,
+        "gardenArea": 85.06,
+        "pickingArea": 63.82,
+        "totalOutput": 5.19,
+        "blackTea": 0.55,
+        "greenTea": 4.2
+      },
+      {
+        "year": 2016,
+        "gardenArea": 93.28,
+        "pickingArea": 67.83,
+        "totalOutput": 5.75,
+        "blackTea": 0.58,
+        "greenTea": 4.7
+      },
+      {
+        "year": 2017,
+        "gardenArea": 104.37,
+        "pickingArea": 73.34,
+        "totalOutput": 6.14,
+        "blackTea": 0.72,
+        "greenTea": 4.93
+      },
+      {
+        "year": 2018,
+        "gardenArea": 103.55,
+        "pickingArea": 79.18,
+        "totalOutput": 6.54,
+        "blackTea": 0.81,
+        "greenTea": 5.17
+      },
+      {
+        "year": 2019,
+        "gardenArea": 109.1,
+        "pickingArea": 85.25,
+        "totalOutput": 6.68,
+        "blackTea": 0.85,
+        "greenTea": 5.23
+      },
+      {
+        "year": 2020,
+        "gardenArea": 113.2,
+        "pickingArea": 85.18,
+        "totalOutput": 7.16,
+        "blackTea": 1.15,
+        "greenTea": 5.37
+      },
+      {
+        "year": 2021,
+        "gardenArea": 117.13,
+        "pickingArea": 89.08,
+        "totalOutput": 7.38,
+        "blackTea": 1.25,
+        "greenTea": 5.73
+      },
+      {
+        "year": 2022,
+        "gardenArea": 120.02,
+        "pickingArea": 91.48,
+        "totalOutput": 7.72,
+        "blackTea": 1.27,
+        "greenTea": 6.01
+      },
+      {
+        "year": 2023,
+        "gardenArea": 122.09,
+        "pickingArea": 0.0,
+        "totalOutput": 7.94,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2024,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 8.29,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2025,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      }
+    ]
+  },
+  {
+    "province": "河北省",
+    "years": [
+      {
+        "year": 2011,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2012,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2013,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2014,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2015,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2016,
+        "gardenArea": 0.04,
+        "pickingArea": 0.04,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2017,
+        "gardenArea": 0.04,
+        "pickingArea": 0.04,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2018,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2019,
+        "gardenArea": 0.0,
+        "pickingArea": 0.01,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2020,
+        "gardenArea": 0.01,
+        "pickingArea": 0.01,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2021,
+        "gardenArea": 0.02,
+        "pickingArea": 0.01,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2022,
+        "gardenArea": 0.03,
+        "pickingArea": 0.01,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2023,
+        "gardenArea": 0.02,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2024,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2025,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      }
+    ]
+  },
+  {
+    "province": "河南省",
+    "years": [
+      {
+        "year": 2011,
+        "gardenArea": 78.52,
+        "pickingArea": 71.9,
+        "totalOutput": 4.94,
+        "blackTea": 0.51,
+        "greenTea": 4.44
+      },
+      {
+        "year": 2012,
+        "gardenArea": 87.63,
+        "pickingArea": 73.52,
+        "totalOutput": 5.14,
+        "blackTea": 0.59,
+        "greenTea": 4.55
+      },
+      {
+        "year": 2013,
+        "gardenArea": 97.69,
+        "pickingArea": 78.98,
+        "totalOutput": 5.59,
+        "blackTea": 0.68,
+        "greenTea": 4.91
+      },
+      {
+        "year": 2014,
+        "gardenArea": 105.47,
+        "pickingArea": 88.49,
+        "totalOutput": 6.11,
+        "blackTea": 0.72,
+        "greenTea": 5.39
+      },
+      {
+        "year": 2015,
+        "gardenArea": 114.0,
+        "pickingArea": 93.04,
+        "totalOutput": 6.49,
+        "blackTea": 0.58,
+        "greenTea": 5.9
+      },
+      {
+        "year": 2016,
+        "gardenArea": 118.29,
+        "pickingArea": 99.33,
+        "totalOutput": 6.86,
+        "blackTea": 0.5,
+        "greenTea": 6.36
+      },
+      {
+        "year": 2017,
+        "gardenArea": 115.76,
+        "pickingArea": 97.56,
+        "totalOutput": 6.4,
+        "blackTea": 0.56,
+        "greenTea": 5.82
+      },
+      {
+        "year": 2018,
+        "gardenArea": 115.67,
+        "pickingArea": 97.87,
+        "totalOutput": 6.34,
+        "blackTea": 0.54,
+        "greenTea": 5.8
+      },
+      {
+        "year": 2019,
+        "gardenArea": 114.6,
+        "pickingArea": 94.94,
+        "totalOutput": 6.53,
+        "blackTea": 0.41,
+        "greenTea": 6.1
+      },
+      {
+        "year": 2020,
+        "gardenArea": 113.0,
+        "pickingArea": 94.45,
+        "totalOutput": 7.1,
+        "blackTea": 0.31,
+        "greenTea": 6.76
+      },
+      {
+        "year": 2021,
+        "gardenArea": 115.78,
+        "pickingArea": 94.01,
+        "totalOutput": 7.5,
+        "blackTea": 0.42,
+        "greenTea": 7.06
+      },
+      {
+        "year": 2022,
+        "gardenArea": 116.63,
+        "pickingArea": 94.76,
+        "totalOutput": 7.52,
+        "blackTea": 0.42,
+        "greenTea": 7.07
+      },
+      {
+        "year": 2023,
+        "gardenArea": 116.79,
+        "pickingArea": 0.0,
+        "totalOutput": 7.3,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2024,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 7.51,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2025,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      }
+    ]
+  },
+  {
+    "province": "浙江省",
+    "years": [
+      {
+        "year": 2011,
+        "gardenArea": 181.96,
+        "pickingArea": 164.39,
+        "totalOutput": 16.97,
+        "blackTea": 0.13,
+        "greenTea": 16.38
+      },
+      {
+        "year": 2012,
+        "gardenArea": 183.03,
+        "pickingArea": 164.56,
+        "totalOutput": 17.49,
+        "blackTea": 0.14,
+        "greenTea": 16.87
+      },
+      {
+        "year": 2013,
+        "gardenArea": 184.03,
+        "pickingArea": 167.85,
+        "totalOutput": 16.86,
+        "blackTea": 0.13,
+        "greenTea": 16.27
+      },
+      {
+        "year": 2014,
+        "gardenArea": 195.63,
+        "pickingArea": 175.29,
+        "totalOutput": 16.54,
+        "blackTea": 0.13,
+        "greenTea": 15.96
+      },
+      {
+        "year": 2015,
+        "gardenArea": 194.54,
+        "pickingArea": 177.91,
+        "totalOutput": 25.88,
+        "blackTea": 0.2,
+        "greenTea": 24.98
+      },
+      {
+        "year": 2016,
+        "gardenArea": 196.98,
+        "pickingArea": 179.35,
+        "totalOutput": 17.22,
+        "blackTea": 0.13,
+        "greenTea": 16.62
+      },
+      {
+        "year": 2017,
+        "gardenArea": 198.53,
+        "pickingArea": 180.32,
+        "totalOutput": 17.83,
+        "blackTea": 0.14,
+        "greenTea": 17.21
+      },
+      {
+        "year": 2018,
+        "gardenArea": 200.5,
+        "pickingArea": 180.58,
+        "totalOutput": 17.52,
+        "blackTea": 0.14,
+        "greenTea": 16.91
+      },
+      {
+        "year": 2019,
+        "gardenArea": 201.4,
+        "pickingArea": 182.67,
+        "totalOutput": 17.72,
+        "blackTea": 0.14,
+        "greenTea": 17.1
+      },
+      {
+        "year": 2020,
+        "gardenArea": 206.6,
+        "pickingArea": 186.65,
+        "totalOutput": 17.72,
+        "blackTea": 0.78,
+        "greenTea": 16.46
+      },
+      {
+        "year": 2021,
+        "gardenArea": 206.16,
+        "pickingArea": 189.77,
+        "totalOutput": 18.1,
+        "blackTea": 0.7,
+        "greenTea": 17.01
+      },
+      {
+        "year": 2022,
+        "gardenArea": 208.73,
+        "pickingArea": 193.15,
+        "totalOutput": 18.12,
+        "blackTea": 0.7,
+        "greenTea": 17.03
+      },
+      {
+        "year": 2023,
+        "gardenArea": 210.69,
+        "pickingArea": 0.0,
+        "totalOutput": 18.93,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2024,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 19.88,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2025,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      }
+    ]
+  },
+  {
+    "province": "海南省",
+    "years": [
+      {
+        "year": 2011,
+        "gardenArea": 1.11,
+        "pickingArea": 0.98,
+        "totalOutput": 0.12,
+        "blackTea": 0.01,
+        "greenTea": 0.11
+      },
+      {
+        "year": 2012,
+        "gardenArea": 1.06,
+        "pickingArea": 0.79,
+        "totalOutput": 0.12,
+        "blackTea": 0.01,
+        "greenTea": 0.1
+      },
+      {
+        "year": 2013,
+        "gardenArea": 1.3,
+        "pickingArea": 0.97,
+        "totalOutput": 0.1,
+        "blackTea": 0.04,
+        "greenTea": 0.06
+      },
+      {
+        "year": 2014,
+        "gardenArea": 1.34,
+        "pickingArea": 1.09,
+        "totalOutput": 0.1,
+        "blackTea": 0.06,
+        "greenTea": 0.04
+      },
+      {
+        "year": 2015,
+        "gardenArea": 1.41,
+        "pickingArea": 1.07,
+        "totalOutput": 0.09,
+        "blackTea": 0.04,
+        "greenTea": 0.04
+      },
+      {
+        "year": 2016,
+        "gardenArea": 1.65,
+        "pickingArea": 1.14,
+        "totalOutput": 0.1,
+        "blackTea": 0.04,
+        "greenTea": 0.04
+      },
+      {
+        "year": 2017,
+        "gardenArea": 2.07,
+        "pickingArea": 1.29,
+        "totalOutput": 0.1,
+        "blackTea": 0.03,
+        "greenTea": 0.05
+      },
+      {
+        "year": 2018,
+        "gardenArea": 1.95,
+        "pickingArea": 1.33,
+        "totalOutput": 0.11,
+        "blackTea": 0.04,
+        "greenTea": 0.05
+      },
+      {
+        "year": 2019,
+        "gardenArea": 1.8,
+        "pickingArea": 1.3,
+        "totalOutput": 0.13,
+        "blackTea": 0.04,
+        "greenTea": 0.07
+      },
+      {
+        "year": 2020,
+        "gardenArea": 2.2,
+        "pickingArea": 1.42,
+        "totalOutput": 0.13,
+        "blackTea": 0.01,
+        "greenTea": 0.07
+      },
+      {
+        "year": 2021,
+        "gardenArea": 2.33,
+        "pickingArea": 1.61,
+        "totalOutput": 0.13,
+        "blackTea": 0.01,
+        "greenTea": 0.07
+      },
+      {
+        "year": 2022,
+        "gardenArea": 2.34,
+        "pickingArea": 1.63,
+        "totalOutput": 0.17,
+        "blackTea": 0.01,
+        "greenTea": 0.11
+      },
+      {
+        "year": 2023,
+        "gardenArea": 2.61,
+        "pickingArea": 0.0,
+        "totalOutput": 0.16,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2024,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.18,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2025,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      }
+    ]
+  },
+  {
+    "province": "湖北省",
+    "years": [
+      {
+        "year": 2011,
+        "gardenArea": 215.67,
+        "pickingArea": 155.72,
+        "totalOutput": 18.13,
+        "blackTea": 1.9,
+        "greenTea": 14.68
+      },
+      {
+        "year": 2012,
+        "gardenArea": 225.45,
+        "pickingArea": 164.95,
+        "totalOutput": 20.41,
+        "blackTea": 2.12,
+        "greenTea": 16.28
+      },
+      {
+        "year": 2013,
+        "gardenArea": 246.91,
+        "pickingArea": 174.84,
+        "totalOutput": 21.71,
+        "blackTea": 2.3,
+        "greenTea": 16.77
+      },
+      {
+        "year": 2014,
+        "gardenArea": 251.03,
+        "pickingArea": 182.11,
+        "totalOutput": 24.41,
+        "blackTea": 2.65,
+        "greenTea": 18.31
+      },
+      {
+        "year": 2015,
+        "gardenArea": 261.5,
+        "pickingArea": 188.02,
+        "totalOutput": 26.13,
+        "blackTea": 2.97,
+        "greenTea": 19.06
+      },
+      {
+        "year": 2016,
+        "gardenArea": 267.53,
+        "pickingArea": 193.32,
+        "totalOutput": 28.7,
+        "blackTea": 2.99,
+        "greenTea": 20.74
+      },
+      {
+        "year": 2017,
+        "gardenArea": 283.31,
+        "pickingArea": 202.9,
+        "totalOutput": 30.33,
+        "blackTea": 3.42,
+        "greenTea": 21.12
+      },
+      {
+        "year": 2018,
+        "gardenArea": 321.5,
+        "pickingArea": 232.68,
+        "totalOutput": 32.98,
+        "blackTea": 3.34,
+        "greenTea": 23.54
+      },
+      {
+        "year": 2019,
+        "gardenArea": 347.7,
+        "pickingArea": 264.79,
+        "totalOutput": 35.25,
+        "blackTea": 3.7,
+        "greenTea": 24.12
+      },
+      {
+        "year": 2020,
+        "gardenArea": 358.39,
+        "pickingArea": 273.95,
+        "totalOutput": 36.08,
+        "blackTea": 4.23,
+        "greenTea": 25.57
+      },
+      {
+        "year": 2021,
+        "gardenArea": 369.08,
+        "pickingArea": 290.15,
+        "totalOutput": 40.44,
+        "blackTea": 4.19,
+        "greenTea": 28.41
+      },
+      {
+        "year": 2022,
+        "gardenArea": 376.06,
+        "pickingArea": 302.54,
+        "totalOutput": 41.99,
+        "blackTea": 4.2,
+        "greenTea": 28.99
+      },
+      {
+        "year": 2023,
+        "gardenArea": 383.11,
+        "pickingArea": 0.0,
+        "totalOutput": 44.86,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2024,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 47.41,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2025,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      }
+    ]
+  },
+  {
+    "province": "湖南省",
+    "years": [
+      {
+        "year": 2011,
+        "gardenArea": 104.18,
+        "pickingArea": 81.88,
+        "totalOutput": 13.21,
+        "blackTea": 1.48,
+        "greenTea": 6.78
+      },
+      {
+        "year": 2012,
+        "gardenArea": 111.03,
+        "pickingArea": 85.05,
+        "totalOutput": 13.42,
+        "blackTea": 1.51,
+        "greenTea": 5.88
+      },
+      {
+        "year": 2013,
+        "gardenArea": 118.25,
+        "pickingArea": 88.97,
+        "totalOutput": 14.47,
+        "blackTea": 1.58,
+        "greenTea": 6.33
+      },
+      {
+        "year": 2014,
+        "gardenArea": 130.97,
+        "pickingArea": 95.77,
+        "totalOutput": 16.04,
+        "blackTea": 1.62,
+        "greenTea": 7.27
+      },
+      {
+        "year": 2015,
+        "gardenArea": 135.23,
+        "pickingArea": 100.2,
+        "totalOutput": 17.38,
+        "blackTea": 1.82,
+        "greenTea": 7.41
+      },
+      {
+        "year": 2016,
+        "gardenArea": 143.46,
+        "pickingArea": 106.7,
+        "totalOutput": 18.16,
+        "blackTea": 1.96,
+        "greenTea": 7.93
+      },
+      {
+        "year": 2017,
+        "gardenArea": 155.82,
+        "pickingArea": 114.09,
+        "totalOutput": 19.71,
+        "blackTea": 2.12,
+        "greenTea": 8.85
+      },
+      {
+        "year": 2018,
+        "gardenArea": 164.99,
+        "pickingArea": 122.34,
+        "totalOutput": 21.47,
+        "blackTea": 2.28,
+        "greenTea": 9.51
+      },
+      {
+        "year": 2019,
+        "gardenArea": 174.9,
+        "pickingArea": 131.29,
+        "totalOutput": 23.35,
+        "blackTea": 2.35,
+        "greenTea": 10.44
+      },
+      {
+        "year": 2020,
+        "gardenArea": 185.77,
+        "pickingArea": 136.04,
+        "totalOutput": 25.01,
+        "blackTea": 2.44,
+        "greenTea": 11.45
+      },
+      {
+        "year": 2021,
+        "gardenArea": 203.3,
+        "pickingArea": 142.73,
+        "totalOutput": 25.85,
+        "blackTea": 2.56,
+        "greenTea": 12.2
+      },
+      {
+        "year": 2022,
+        "gardenArea": 210.47,
+        "pickingArea": 151.28,
+        "totalOutput": 26.53,
+        "blackTea": 2.87,
+        "greenTea": 12.55
+      },
+      {
+        "year": 2023,
+        "gardenArea": 216.1,
+        "pickingArea": 0.0,
+        "totalOutput": 27.57,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2024,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 28.68,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2025,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      }
+    ]
+  },
+  {
+    "province": "甘肃省",
+    "years": [
+      {
+        "year": 2011,
+        "gardenArea": 9.59,
+        "pickingArea": 3.82,
+        "totalOutput": 0.09,
+        "blackTea": 0.0,
+        "greenTea": 0.09
+      },
+      {
+        "year": 2012,
+        "gardenArea": 9.72,
+        "pickingArea": 3.83,
+        "totalOutput": 0.1,
+        "blackTea": 0.0,
+        "greenTea": 0.1
+      },
+      {
+        "year": 2013,
+        "gardenArea": 10.2,
+        "pickingArea": 4.23,
+        "totalOutput": 0.1,
+        "blackTea": 0.0,
+        "greenTea": 0.1
+      },
+      {
+        "year": 2014,
+        "gardenArea": 10.62,
+        "pickingArea": 5.22,
+        "totalOutput": 0.11,
+        "blackTea": 0.0,
+        "greenTea": 0.11
+      },
+      {
+        "year": 2015,
+        "gardenArea": 11.27,
+        "pickingArea": 5.81,
+        "totalOutput": 0.12,
+        "blackTea": 0.0,
+        "greenTea": 0.12
+      },
+      {
+        "year": 2016,
+        "gardenArea": 11.45,
+        "pickingArea": 6.11,
+        "totalOutput": 0.12,
+        "blackTea": 0.0,
+        "greenTea": 0.12
+      },
+      {
+        "year": 2017,
+        "gardenArea": 11.75,
+        "pickingArea": 6.15,
+        "totalOutput": 0.12,
+        "blackTea": 0.0,
+        "greenTea": 0.12
+      },
+      {
+        "year": 2018,
+        "gardenArea": 12.11,
+        "pickingArea": 6.45,
+        "totalOutput": 0.13,
+        "blackTea": 0.0,
+        "greenTea": 0.13
+      },
+      {
+        "year": 2019,
+        "gardenArea": 12.3,
+        "pickingArea": 6.42,
+        "totalOutput": 0.15,
+        "blackTea": 0.0,
+        "greenTea": 0.15
+      },
+      {
+        "year": 2020,
+        "gardenArea": 12.31,
+        "pickingArea": 6.38,
+        "totalOutput": 0.16,
+        "blackTea": 0.0,
+        "greenTea": 0.16
+      },
+      {
+        "year": 2021,
+        "gardenArea": 12.27,
+        "pickingArea": 7.79,
+        "totalOutput": 0.16,
+        "blackTea": 0.0,
+        "greenTea": 0.16
+      },
+      {
+        "year": 2022,
+        "gardenArea": 12.7,
+        "pickingArea": 6.37,
+        "totalOutput": 0.18,
+        "blackTea": 0.0,
+        "greenTea": 0.18
+      },
+      {
+        "year": 2023,
+        "gardenArea": 12.93,
+        "pickingArea": 0.0,
+        "totalOutput": 0.2,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2024,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.22,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2025,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      }
+    ]
+  },
+  {
+    "province": "福建省",
+    "years": [
+      {
+        "year": 2011,
+        "gardenArea": 190.61,
+        "pickingArea": 167.76,
+        "totalOutput": 27.67,
+        "blackTea": 2.12,
+        "greenTea": 9.94
+      },
+      {
+        "year": 2012,
+        "gardenArea": 195.65,
+        "pickingArea": 172.74,
+        "totalOutput": 29.6,
+        "blackTea": 2.52,
+        "greenTea": 10.15
+      },
+      {
+        "year": 2013,
+        "gardenArea": 201.03,
+        "pickingArea": 178.05,
+        "totalOutput": 31.57,
+        "blackTea": 3.35,
+        "greenTea": 10.0
+      },
+      {
+        "year": 2014,
+        "gardenArea": 205.94,
+        "pickingArea": 183.33,
+        "totalOutput": 33.4,
+        "blackTea": 3.89,
+        "greenTea": 10.31
+      },
+      {
+        "year": 2015,
+        "gardenArea": 207.7,
+        "pickingArea": 188.38,
+        "totalOutput": 35.63,
+        "blackTea": 4.2,
+        "greenTea": 10.74
+      },
+      {
+        "year": 2016,
+        "gardenArea": 204.43,
+        "pickingArea": 190.32,
+        "totalOutput": 37.29,
+        "blackTea": 4.36,
+        "greenTea": 11.36
+      },
+      {
+        "year": 2017,
+        "gardenArea": 207.11,
+        "pickingArea": 193.43,
+        "totalOutput": 39.49,
+        "blackTea": 4.74,
+        "greenTea": 11.75
+      },
+      {
+        "year": 2018,
+        "gardenArea": 210.89,
+        "pickingArea": 199.22,
+        "totalOutput": 41.83,
+        "blackTea": 4.9,
+        "greenTea": 12.62
+      },
+      {
+        "year": 2019,
+        "gardenArea": 219.8,
+        "pickingArea": 203.32,
+        "totalOutput": 43.99,
+        "blackTea": 5.25,
+        "greenTea": 12.77
+      },
+      {
+        "year": 2020,
+        "gardenArea": 223.94,
+        "pickingArea": 209.93,
+        "totalOutput": 46.14,
+        "blackTea": 5.54,
+        "greenTea": 12.93
+      },
+      {
+        "year": 2021,
+        "gardenArea": 232.09,
+        "pickingArea": 217.82,
+        "totalOutput": 48.79,
+        "blackTea": 5.7,
+        "greenTea": 12.48
+      },
+      {
+        "year": 2022,
+        "gardenArea": 241.0,
+        "pickingArea": 225.37,
+        "totalOutput": 52.08,
+        "blackTea": 6.15,
+        "greenTea": 12.76
+      },
+      {
+        "year": 2023,
+        "gardenArea": 248.47,
+        "pickingArea": 0.0,
+        "totalOutput": 55.01,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2024,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 57.79,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2025,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      }
+    ]
+  },
+  {
+    "province": "西藏自治区",
+    "years": [
+      {
+        "year": 2011,
+        "gardenArea": 0.16,
+        "pickingArea": 0.02,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2012,
+        "gardenArea": 0.16,
+        "pickingArea": 0.02,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2013,
+        "gardenArea": 0.2,
+        "pickingArea": 0.1,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2014,
+        "gardenArea": 0.47,
+        "pickingArea": 0.12,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2015,
+        "gardenArea": 0.55,
+        "pickingArea": 0.13,
+        "totalOutput": 0.01,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2016,
+        "gardenArea": 0.69,
+        "pickingArea": 0.32,
+        "totalOutput": 0.01,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2017,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2018,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2019,
+        "gardenArea": 2.4,
+        "pickingArea": 0.52,
+        "totalOutput": 0.01,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2020,
+        "gardenArea": 3.59,
+        "pickingArea": 0.82,
+        "totalOutput": 0.02,
+        "blackTea": 0.0,
+        "greenTea": 0.01
+      },
+      {
+        "year": 2021,
+        "gardenArea": 4.33,
+        "pickingArea": 1.11,
+        "totalOutput": 0.01,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2022,
+        "gardenArea": 3.47,
+        "pickingArea": 1.4,
+        "totalOutput": 0.01,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2023,
+        "gardenArea": 3.78,
+        "pickingArea": 0.0,
+        "totalOutput": 0.02,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2024,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.04,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2025,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      }
+    ]
+  },
+  {
+    "province": "贵州省",
+    "years": [
+      {
+        "year": 2011,
+        "gardenArea": 192.07,
+        "pickingArea": 95.81,
+        "totalOutput": 5.84,
+        "blackTea": 0.09,
+        "greenTea": 4.79
+      },
+      {
+        "year": 2012,
+        "gardenArea": 244.92,
+        "pickingArea": 121.28,
+        "totalOutput": 7.37,
+        "blackTea": 0.1,
+        "greenTea": 6.26
+      },
+      {
+        "year": 2013,
+        "gardenArea": 303.68,
+        "pickingArea": 145.86,
+        "totalOutput": 8.94,
+        "blackTea": 0.15,
+        "greenTea": 7.77
+      },
+      {
+        "year": 2014,
+        "gardenArea": 356.41,
+        "pickingArea": 174.74,
+        "totalOutput": 10.71,
+        "blackTea": 0.49,
+        "greenTea": 8.87
+      },
+      {
+        "year": 2015,
+        "gardenArea": 402.53,
+        "pickingArea": 217.88,
+        "totalOutput": 11.8,
+        "blackTea": 0.5,
+        "greenTea": 9.83
+      },
+      {
+        "year": 2016,
+        "gardenArea": 420.78,
+        "pickingArea": 231.39,
+        "totalOutput": 14.13,
+        "blackTea": 0.71,
+        "greenTea": 11.62
+      },
+      {
+        "year": 2017,
+        "gardenArea": 456.22,
+        "pickingArea": 281.3,
+        "totalOutput": 17.65,
+        "blackTea": 1.26,
+        "greenTea": 14.13
+      },
+      {
+        "year": 2018,
+        "gardenArea": 465.84,
+        "pickingArea": 284.69,
+        "totalOutput": 18.03,
+        "blackTea": 1.34,
+        "greenTea": 14.45
+      },
+      {
+        "year": 2019,
+        "gardenArea": 464.4,
+        "pickingArea": 312.74,
+        "totalOutput": 19.78,
+        "blackTea": 1.67,
+        "greenTea": 15.83
+      },
+      {
+        "year": 2020,
+        "gardenArea": 476.42,
+        "pickingArea": 341.38,
+        "totalOutput": 21.1,
+        "blackTea": 2.24,
+        "greenTea": 16.33
+      },
+      {
+        "year": 2021,
+        "gardenArea": 472.23,
+        "pickingArea": 354.94,
+        "totalOutput": 24.59,
+        "blackTea": 2.69,
+        "greenTea": 19.41
+      },
+      {
+        "year": 2022,
+        "gardenArea": 470.6,
+        "pickingArea": 360.98,
+        "totalOutput": 26.62,
+        "blackTea": 3.09,
+        "greenTea": 21.22
+      },
+      {
+        "year": 2023,
+        "gardenArea": 450.02,
+        "pickingArea": 0.0,
+        "totalOutput": 28.75,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2024,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 30.77,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2025,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      }
+    ]
+  },
+  {
+    "province": "重庆市",
+    "years": [
+      {
+        "year": 2011,
+        "gardenArea": 33.66,
+        "pickingArea": 24.67,
+        "totalOutput": 2.78,
+        "blackTea": 0.28,
+        "greenTea": 2.22
+      },
+      {
+        "year": 2012,
+        "gardenArea": 34.31,
+        "pickingArea": 25.21,
+        "totalOutput": 3.13,
+        "blackTea": 0.31,
+        "greenTea": 2.4
+      },
+      {
+        "year": 2013,
+        "gardenArea": 35.38,
+        "pickingArea": 22.27,
+        "totalOutput": 3.41,
+        "blackTea": 0.31,
+        "greenTea": 2.68
+      },
+      {
+        "year": 2014,
+        "gardenArea": 37.44,
+        "pickingArea": 28.25,
+        "totalOutput": 3.37,
+        "blackTea": 0.37,
+        "greenTea": 2.81
+      },
+      {
+        "year": 2015,
+        "gardenArea": 39.86,
+        "pickingArea": 28.6,
+        "totalOutput": 3.5,
+        "blackTea": 0.36,
+        "greenTea": 3.02
+      },
+      {
+        "year": 2016,
+        "gardenArea": 39.53,
+        "pickingArea": 29.19,
+        "totalOutput": 3.66,
+        "blackTea": 0.36,
+        "greenTea": 3.18
+      },
+      {
+        "year": 2017,
+        "gardenArea": 39.94,
+        "pickingArea": 29.98,
+        "totalOutput": 3.88,
+        "blackTea": 0.37,
+        "greenTea": 3.36
+      },
+      {
+        "year": 2018,
+        "gardenArea": 42.35,
+        "pickingArea": 31.19,
+        "totalOutput": 4.2,
+        "blackTea": 0.39,
+        "greenTea": 3.66
+      },
+      {
+        "year": 2019,
+        "gardenArea": 47.5,
+        "pickingArea": 32.93,
+        "totalOutput": 4.48,
+        "blackTea": 0.39,
+        "greenTea": 3.93
+      },
+      {
+        "year": 2020,
+        "gardenArea": 52.09,
+        "pickingArea": 38.87,
+        "totalOutput": 4.81,
+        "blackTea": 0.42,
+        "greenTea": 4.22
+      },
+      {
+        "year": 2021,
+        "gardenArea": 54.34,
+        "pickingArea": 39.97,
+        "totalOutput": 5.08,
+        "blackTea": 0.41,
+        "greenTea": 4.48
+      },
+      {
+        "year": 2022,
+        "gardenArea": 55.71,
+        "pickingArea": 41.83,
+        "totalOutput": 5.3,
+        "blackTea": 0.39,
+        "greenTea": 4.71
+      },
+      {
+        "year": 2023,
+        "gardenArea": 56.01,
+        "pickingArea": 0.0,
+        "totalOutput": 5.63,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2024,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 5.8,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2025,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      }
+    ]
+  },
+  {
+    "province": "陕西省",
+    "years": [
+      {
+        "year": 2011,
+        "gardenArea": 84.53,
+        "pickingArea": 62.18,
+        "totalOutput": 2.82,
+        "blackTea": 0.0,
+        "greenTea": 2.82
+      },
+      {
+        "year": 2012,
+        "gardenArea": 89.16,
+        "pickingArea": 63.51,
+        "totalOutput": 3.49,
+        "blackTea": 0.0,
+        "greenTea": 3.49
+      },
+      {
+        "year": 2013,
+        "gardenArea": 99.31,
+        "pickingArea": 66.99,
+        "totalOutput": 4.02,
+        "blackTea": 0.0,
+        "greenTea": 4.02
+      },
+      {
+        "year": 2014,
+        "gardenArea": 108.29,
+        "pickingArea": 66.95,
+        "totalOutput": 4.85,
+        "blackTea": 0.0,
+        "greenTea": 4.85
+      },
+      {
+        "year": 2015,
+        "gardenArea": 112.16,
+        "pickingArea": 73.21,
+        "totalOutput": 5.41,
+        "blackTea": 0.0,
+        "greenTea": 5.41
+      },
+      {
+        "year": 2016,
+        "gardenArea": 118.03,
+        "pickingArea": 80.93,
+        "totalOutput": 6.11,
+        "blackTea": 0.3,
+        "greenTea": 5.73
+      },
+      {
+        "year": 2017,
+        "gardenArea": 126.57,
+        "pickingArea": 87.05,
+        "totalOutput": 6.66,
+        "blackTea": 0.41,
+        "greenTea": 6.06
+      },
+      {
+        "year": 2018,
+        "gardenArea": 135.89,
+        "pickingArea": 91.08,
+        "totalOutput": 7.1,
+        "blackTea": 0.41,
+        "greenTea": 6.5
+      },
+      {
+        "year": 2019,
+        "gardenArea": 145.2,
+        "pickingArea": 102.62,
+        "totalOutput": 7.93,
+        "blackTea": 0.45,
+        "greenTea": 7.13
+      },
+      {
+        "year": 2020,
+        "gardenArea": 152.72,
+        "pickingArea": 116.5,
+        "totalOutput": 8.7,
+        "blackTea": 0.57,
+        "greenTea": 7.67
+      },
+      {
+        "year": 2021,
+        "gardenArea": 156.53,
+        "pickingArea": 124.55,
+        "totalOutput": 9.32,
+        "blackTea": 0.62,
+        "greenTea": 8.2
+      },
+      {
+        "year": 2022,
+        "gardenArea": 160.68,
+        "pickingArea": 129.57,
+        "totalOutput": 10.04,
+        "blackTea": 0.72,
+        "greenTea": 8.73
+      },
+      {
+        "year": 2023,
+        "gardenArea": 163.29,
+        "pickingArea": 0.0,
+        "totalOutput": 10.68,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2024,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 11.53,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      },
+      {
+        "year": 2025,
+        "gardenArea": 0.0,
+        "pickingArea": 0.0,
+        "totalOutput": 0.0,
+        "blackTea": 0.0,
+        "greenTea": 0.0
+      }
+    ]
+  }
+]

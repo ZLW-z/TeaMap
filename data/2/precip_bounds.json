@@ -1,0 +1,47 @@
+{
+  "south": 3.82,
+  "west": 73.49,
+  "north": 53.57,
+  "east": 135.1,
+  "southWest": [
+    3.82,
+    73.49
+  ],
+  "northEast": [
+    53.57,
+    135.1
+  ],
+  "center": [
+    28.695,
+    104.29499999999999
+  ],
+  "imageSize": [
+    924,
+    746
+  ],
+  "crs": "EPSG:4326",
+  "factor": "precip",
+  "factorName": "降水适宜性",
+  "levels": [
+    {
+      "value": 0,
+      "label": "不适宜",
+      "color": "#E8E2D0"
+    },
+    {
+      "value": 1,
+      "label": "限制适宜",
+      "color": "#A8C5A0"
+    },
+    {
+      "value": 2,
+      "label": "较适宜",
+      "color": "#6BA368"
+    },
+    {
+      "value": 3,
+      "label": "最适宜",
+      "color": "#2F6B2F"
+    }
+  ]
+}

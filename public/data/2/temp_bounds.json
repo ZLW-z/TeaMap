@@ -1,0 +1,47 @@
+{
+  "south": 3.82,
+  "west": 73.49,
+  "north": 53.57,
+  "east": 135.1,
+  "southWest": [
+    3.82,
+    73.49
+  ],
+  "northEast": [
+    53.57,
+    135.1
+  ],
+  "center": [
+    28.695,
+    104.29499999999999
+  ],
+  "imageSize": [
+    924,
+    746
+  ],
+  "crs": "EPSG:4326",
+  "factor": "temp",
+  "factorName": "气温适宜性",
+  "levels": [
+    {
+      "value": 0,
+      "label": "不适宜",
+      "color": "#E8E2D0"
+    },
+    {
+      "value": 1,
+      "label": "低温适宜",
+      "color": "#9AC4D6"
+    },
+    {
+      "value": 2,
+      "label": "中温适宜",
+      "color": "#5C9EAF"
+    },
+    {
+      "value": 3,
+      "label": "高温适宜",
+      "color": "#C8462E"
+    }
+  ]
+}

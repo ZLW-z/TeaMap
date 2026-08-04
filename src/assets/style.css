@@ -1,0 +1,245 @@
+/* ============================================================
+   茶之中国 · 全局样式（Vue 项目）
+   固定六色主调 + 色带相近辅助色
+   #EFE9DA #F7F4EB #516D33 #B28F4C #C3C19A #5C7C3A
+   ============================================================ */
+
+:root{
+  /* ---- 主色（用户指定六色） ---- */
+  --c-paper:    #F7F4EB;   /* 最浅米白 */
+  --c-paper-2:  #EFE9DA;   /* 浅米色 */
+  --c-olive:    #516D33;   /* 深橄榄绿（主色） */
+  --c-gold:     #B28F4C;   /* 褐金（强调色） */
+  --c-beige:    #C3C19A;   /* 米灰 */
+  --c-olive-mid:#5C7C3A;   /* 中橄榄绿 */
+
+  /* ---- 色带辅助色（六色相近衍生） ---- */
+  --c-paper-3:  #DDD5C0;   /* 深一档纸色 */
+  --c-olive-dark:#3D5428;  /* 更深橄榄绿 */
+  --c-olive-deep2:#46612C; /* 深橄榄绿二档 */
+  --c-olive-light:#7A9A55; /* 亮橄榄绿 */
+  --c-gold-deep:#8E6F38;   /* 深褐金 */
+  --c-gold-light:#C5A66A;  /* 浅褐金 */
+  --c-beige-light:#D8D5BC; /* 浅米灰 */
+  --c-beige-dark:#A5A37A;  /* 深米灰 */
+
+  /* ---- 语义映射 ---- */
+  --tea-900: var(--c-olive-dark);
+  --tea-800: var(--c-olive-deep2);
+  --tea-700: var(--c-olive);       /* 深橄榄绿 主色 */
+  --tea-600: var(--c-olive-mid);
+  --tea-500: var(--c-olive-light);
+  --tea-400: var(--c-beige);
+  --tea-300: var(--c-beige-light);
+  --paper:   var(--c-paper-2);
+  --paper-2: var(--c-paper-3);
+  --ink:     #2a2a24;
+  --ink-soft:#4a4a40;
+  --muted:   #8a8478;
+  --line:    rgba(81,109,51,.18);
+  --accent:  var(--c-gold);          /* 褐金 · 唐代茶区 */
+  --t1: #C8462E;       /* 古茶树 野生型 → 朱红 */
+  --t2: #B28F4C;        /* 古茶树 过渡/其他 → 褐金 */
+  --t3: #2F5D3A;         /* 古茶树 栽培型 → 深森林绿 */
+  --serif:'Noto Serif SC',Georgia,'Times New Roman',serif;
+  --sans:'Noto Sans SC','Helvetica Neue',Arial,sans-serif;
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:var(--sans);
+  color:var(--ink);
+  background:var(--c-paper-2);
+  line-height:1.75;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ---------- Leaflet 全局控件微调 ---------- */
+.leaflet-control-zoom a{
+  background:var(--c-paper)!important;
+  color:var(--c-olive)!important;
+  border-color:var(--line)!important;
+  font-family:var(--sans)!important;
+}
+.leaflet-control-attribution{
+  background:rgba(247,244,235,.85)!important;
+  color:var(--muted)!important;
+  font-size:10px!important;
+}
+.leaflet-container{
+  font-family:var(--sans)!important;
+  background:var(--c-paper-3)!important;
+  outline:none;
+}
+.leaflet-tooltip{
+  font-family:var(--sans)!important;
+  background:rgba(247,244,235,.96)!important;
+  border-color:var(--line)!important;
+  color:var(--c-olive-deep2)!important;
+  border-radius:6px!important;
+}
+
+/* ---------- 顶部进度条 ---------- */
+.progress-bar{
+  position:fixed;top:0;left:0;right:0;height:3px;z-index:1000;
+  background:rgba(81,109,51,.12);
+}
+.progress-bar > span{
+  display:block;height:100%;width:0;
+  background:linear-gradient(90deg,var(--c-olive),var(--c-olive-light));
+  transition:width .15s linear;
+}
+
+/* ---------- 侧边章节导航 ---------- */
+.dot-nav{
+  position:fixed;right:22px;top:50%;transform:translateY(-50%);
+  display:flex;flex-direction:column;gap:16px;z-index:900;
+}
+.dot-nav a{
+  position:relative;width:11px;height:11px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  text-decoration:none;cursor:pointer;
+}
+.dot-nav a i{
+  width:9px;height:9px;border-radius:50%;
+  background:rgba(81,109,51,.30);transition:all .25s ease;
+  border:1px solid rgba(255,255,255,.4);display:block;
+}
+.dot-nav a:hover i{background:var(--c-olive-mid);transform:scale(1.25);}
+.dot-nav a.active i{background:var(--c-olive);transform:scale(1.35);box-shadow:0 0 0 4px rgba(81,109,51,.15);}
+.dot-nav a::after{
+  content:attr(data-label);
+  position:absolute;right:20px;top:50%;transform:translateY(-50%) translateX(6px);
+  white-space:nowrap;font:500 12px/1 var(--sans);color:var(--c-olive-deep2);
+  background:var(--c-paper-2);border:1px solid var(--line);padding:5px 10px;border-radius:4px;
+  opacity:0;pointer-events:none;transition:all .2s ease;
+}
+.dot-nav a:hover::after{opacity:1;transform:translateY(-50%) translateX(0);}
+
+/* ============================================================
+   通用章节头
+   ============================================================ */
+main#story{display:block;}
+.chapter{position:relative;}
+
+.ch-header{
+  max-width:880px;margin:0 auto;padding:120px 32px 36px;text-align:center;
+}
+.ch-no{
+  display:inline-block;font:500 13px/1 var(--sans);letter-spacing:.4em;
+  color:var(--c-olive-mid);padding:6px 14px;border:1px solid var(--c-olive-light);
+  border-radius:30px;margin-bottom:22px;background:rgba(247,244,235,.5);
+}
+.ch-name{
+  font:900 46px/1.15 var(--serif);color:var(--c-olive);margin:0 0 18px;letter-spacing:.04em;
+}
+.ch-desc{
+  font:400 16px/1.9 var(--serif);color:var(--ink-soft);max-width:680px;margin:0 auto;
+}
+
+/* ============================================================
+   序章 hero
+   ============================================================ */
+.hero{
+  height:100vh;min-height:620px;display:flex;align-items:center;justify-content:center;
+  overflow:hidden;position:relative;
+}
+.hero-bg{
+  position:absolute;inset:0;z-index:0;
+  background:
+    radial-gradient(1200px 700px at 70% 30%, rgba(122,154,85,.30), transparent 60%),
+    radial-gradient(900px 600px at 20% 80%, rgba(81,109,51,.50), transparent 65%),
+    linear-gradient(160deg,var(--c-olive-dark) 0%, var(--c-olive-deep2) 45%, var(--c-olive) 100%);
+}
+.hero-bg::after{
+  content:"";position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 80% 40% at 50% 100%, rgba(0,0,0,.30), transparent 70%),
+    repeating-linear-gradient(90deg, transparent 0 60px, rgba(255,255,255,.012) 60px 61px);
+  opacity:.8;
+}
+.hero-inner{position:relative;z-index:2;text-align:center;color:var(--c-paper);padding:0 24px;}
+.hero-kicker{
+  font:500 14px/1 var(--sans);letter-spacing:.5em;color:var(--c-beige);
+  margin:0 0 26px;text-transform:uppercase;
+}
+.hero-title{
+  font:900 clamp(60px,11vw,140px)/1 var(--serif);margin:0 0 28px;letter-spacing:.08em;
+  color:var(--c-paper);text-shadow:0 6px 30px rgba(0,0,0,.35);
+}
+.hero-title span{color:var(--c-beige);font-weight:500;margin:0 .12em;}
+.hero-sub{
+  font:400 clamp(15px,2vw,19px)/2 var(--serif);color:rgba(247,244,235,.85);
+  max-width:620px;margin:0 auto 30px;
+}
+.hero-meta{
+  font:400 13px/1 var(--sans);letter-spacing:.18em;color:var(--c-beige);
+  display:flex;gap:14px;justify-content:center;align-items:center;flex-wrap:wrap;
+}
+.hero-meta .sep{opacity:.5;}
+.scroll-hint{
+  position:absolute;left:50%;bottom:46px;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+  font:400 12px/1 var(--sans);letter-spacing:.3em;color:rgba(247,244,235,.6);
+  animation:bob 2.2s ease-in-out infinite;
+}
+.scroll-hint .arrow{
+  width:1px;height:38px;background:linear-gradient(rgba(247,244,235,.6),transparent);
+  position:relative;display:block;
+}
+.scroll-hint .arrow::after{
+  content:"";position:absolute;left:-3px;bottom:0;width:7px;height:7px;
+  border-right:1px solid rgba(247,244,235,.6);border-bottom:1px solid rgba(247,244,235,.6);
+  transform:rotate(45deg);
+}
+@keyframes bob{0%,100%{transform:translate(-50%,0);}50%{transform:translate(-50%,8px);}}
+
+/* ============================================================
+   章节占位骨架（二~五章 + 拓展）
+   ============================================================ */
+.chapter-scaffold{padding-bottom:120px;}
+.scaffold{
+  max-width:1180px;margin:30px auto 0;padding:0 24px;
+  display:grid;grid-template-columns:1.4fr 1fr;gap:32px;align-items:stretch;
+}
+.scaffold-visual{
+  min-height:440px;border-radius:12px;border:1px dashed var(--c-olive-light);
+  background:
+    repeating-linear-gradient(45deg, rgba(81,109,51,.025) 0 14px, transparent 14px 28px),
+    linear-gradient(160deg,var(--c-paper-2),var(--c-paper-3));
+  display:flex;align-items:center;justify-content:center;
+  position:relative;color:var(--c-olive);text-align:center;padding:24px;
+}
+.scaffold-visual::before{
+  content:attr(data-placeholder);font:500 15px/1.8 var(--serif);max-width:340px;
+  letter-spacing:.04em;color:var(--c-olive);opacity:.75;
+}
+.scaffold-note{
+  background:rgba(247,244,235,.6);border:1px solid var(--line);border-radius:12px;padding:26px 28px;
+}
+.scaffold-note p{font:400 14.5px/1.9 var(--serif);color:var(--ink-soft);margin:0 0 14px;}
+.scaffold-note p.muted{font:400 12.5px/1.7 var(--sans);color:var(--muted);border-top:1px dashed var(--line);padding-top:14px;margin-top:18px;}
+.scaffold-note b{color:var(--c-olive);}
+
+/* ============================================================
+   页脚
+   ============================================================ */
+.credits{
+  background:var(--c-olive-dark);color:rgba(247,244,235,.75);
+  padding:54px 24px 46px;text-align:center;
+}
+.credits p{margin:0 0 8px;font:400 14px/1.8 var(--serif);}
+.credits p:first-child{font:600 17px/1 var(--serif);color:var(--c-paper);letter-spacing:.1em;margin-bottom:16px;}
+.credits p.muted{font:400 11.5px/1.8 var(--sans);color:rgba(247,244,235,.5);max-width:760px;margin:4px auto 0;}
+
+/* ============================================================
+   响应式
+   ============================================================ */
+@media (max-width:880px){
+  .ch-name{font-size:34px;}
+  .ch-header{padding:90px 24px 28px;}
+  .scaffold{grid-template-columns:1fr;}
+  .dot-nav{right:10px;gap:12px;}
+}

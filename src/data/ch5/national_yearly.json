@@ -1,0 +1,122 @@
+[
+  {
+    "year": 2011,
+    "gardenArea": 2055.51,
+    "pickingArea": 1577.96,
+    "totalOutput": 160.76,
+    "blackTea": 11.1,
+    "greenTea": 113.97
+  },
+  {
+    "year": 2012,
+    "gardenArea": 2201.35,
+    "pickingArea": 1673.28,
+    "totalOutput": 176.15,
+    "blackTea": 12.88,
+    "greenTea": 123.91
+  },
+  {
+    "year": 2013,
+    "gardenArea": 2367.05,
+    "pickingArea": 1775.81,
+    "totalOutput": 188.72,
+    "blackTea": 15.48,
+    "greenTea": 130.32
+  },
+  {
+    "year": 2014,
+    "gardenArea": 2525.97,
+    "pickingArea": 1895.46,
+    "totalOutput": 204.93,
+    "blackTea": 17.29,
+    "greenTea": 140.36
+  },
+  {
+    "year": 2015,
+    "gardenArea": 2640.84,
+    "pickingArea": 2007.97,
+    "totalOutput": 227.66,
+    "blackTea": 19.55,
+    "greenTea": 156.13
+  },
+  {
+    "year": 2016,
+    "gardenArea": 2722.77,
+    "pickingArea": 2071.41,
+    "totalOutput": 231.33,
+    "blackTea": 20.65,
+    "greenTea": 155.25
+  },
+  {
+    "year": 2017,
+    "gardenArea": 2848.72,
+    "pickingArea": 2191.07,
+    "totalOutput": 246.04,
+    "blackTea": 22.55,
+    "greenTea": 163.82
+  },
+  {
+    "year": 2018,
+    "gardenArea": 2985.8,
+    "pickingArea": 2310.76,
+    "totalOutput": 261.04,
+    "blackTea": 23.33,
+    "greenTea": 173.46
+  },
+  {
+    "year": 2019,
+    "gardenArea": 3104.77,
+    "pickingArea": 2469.82,
+    "totalOutput": 277.72,
+    "blackTea": 25.83,
+    "greenTea": 184.99
+  },
+  {
+    "year": 2020,
+    "gardenArea": 3216.66,
+    "pickingArea": 2570.47,
+    "totalOutput": 293.18,
+    "blackTea": 28.81,
+    "greenTea": 197.63
+  },
+  {
+    "year": 2021,
+    "gardenArea": 3307.84,
+    "pickingArea": 2701.62,
+    "totalOutput": 316.4,
+    "blackTea": 30.45,
+    "greenTea": 217.36
+  },
+  {
+    "year": 2022,
+    "gardenArea": 3392.71,
+    "pickingArea": 2807.19,
+    "totalOutput": 334.21,
+    "blackTea": 34.03,
+    "greenTea": 226.85
+  },
+  {
+    "year": 2023,
+    "gardenArea": 3429.95,
+    "pickingArea": 0.0,
+    "totalOutput": 354.11,
+    "blackTea": 0.0,
+    "greenTea": 0.0
+  },
+  {
+    "year": 2024,
+    "gardenArea": 3449.03,
+    "pickingArea": 0.0,
+    "totalOutput": 373.69,
+    "blackTea": 0.0,
+    "greenTea": 0.0
+  },
+  {
+    "year": 2025,
+    "gardenArea": 0.0,
+    "pickingArea": 0.0,
+    "totalOutput": 392.0,
+    "blackTea": 0.0,
+    "greenTea": 0.0
+  }
+]

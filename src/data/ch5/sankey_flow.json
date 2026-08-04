@@ -1,0 +1,7776 @@
+[
+  {
+    "year": 2015,
+    "nodes": [
+      {
+        "name": "浙江省",
+        "category": "province"
+      },
+      {
+        "name": "安徽省",
+        "category": "province"
+      },
+      {
+        "name": "福建省",
+        "category": "province"
+      },
+      {
+        "name": "湖南省",
+        "category": "province"
+      },
+      {
+        "name": "上海市",
+        "category": "province"
+      },
+      {
+        "name": "湖北省",
+        "category": "province"
+      },
+      {
+        "name": "江西省",
+        "category": "province"
+      },
+      {
+        "name": "广东省",
+        "category": "province"
+      },
+      {
+        "name": "摩洛哥",
+        "category": "country"
+      },
+      {
+        "name": "中国香港",
+        "category": "country"
+      },
+      {
+        "name": "美国",
+        "category": "country"
+      },
+      {
+        "name": "塞内加尔",
+        "category": "country"
+      },
+      {
+        "name": "越南",
+        "category": "country"
+      },
+      {
+        "name": "多哥",
+        "category": "country"
+      },
+      {
+        "name": "日本",
+        "category": "country"
+      },
+      {
+        "name": "毛里塔尼亚",
+        "category": "country"
+      },
+      {
+        "name": "阿尔及利亚",
+        "category": "country"
+      },
+      {
+        "name": "乌兹别克斯坦",
+        "category": "country"
+      },
+      {
+        "name": "德国",
+        "category": "country"
+      },
+      {
+        "name": "加纳",
+        "category": "country"
+      },
+      {
+        "name": "俄罗斯",
+        "category": "country"
+      },
+      {
+        "name": "马来西亚",
+        "category": "country"
+      }
+    ],
+    "links": [
+      {
+        "source": "浙江省",
+        "target": "摩洛哥",
+        "value": 1008791340.0
+      },
+      {
+        "source": "安徽省",
+        "target": "多哥",
+        "value": 291098786.0
+      },
+      {
+        "source": "浙江省",
+        "target": "毛里塔尼亚",
+        "value": 289913668.0
+      },
+      {
+        "source": "福建省",
+        "target": "中国香港",
+        "value": 243742012.0
+      },
+      {
+        "source": "安徽省",
+        "target": "塞内加尔",
+        "value": 233938516.0
+      },
+      {
+        "source": "浙江省",
+        "target": "塞内加尔",
+        "value": 209208795.0
+      },
+      {
+        "source": "安徽省",
+        "target": "摩洛哥",
+        "value": 184273961.0
+      },
+      {
+        "source": "福建省",
+        "target": "日本",
+        "value": 180215971.0
+      },
+      {
+        "source": "上海市",
+        "target": "美国",
+        "value": 170444138.0
+      },
+      {
+        "source": "安徽省",
+        "target": "加纳",
+        "value": 156424477.0
+      },
+      {
+        "source": "福建省",
+        "target": "越南",
+        "value": 144042025.0
+      },
+      {
+        "source": "安徽省",
+        "target": "阿尔及利亚",
+        "value": 138144503.0
+      },
+      {
+        "source": "福建省",
+        "target": "美国",
+        "value": 137075360.0
+      },
+      {
+        "source": "湖南省",
+        "target": "俄罗斯",
+        "value": 124479536.0
+      },
+      {
+        "source": "浙江省",
+        "target": "乌兹别克斯坦",
+        "value": 124343428.0
+      },
+      {
+        "source": "湖北省",
+        "target": "中国香港",
+        "value": 118463434.0
+      },
+      {
+        "source": "浙江省",
+        "target": "美国",
+        "value": 117712999.0
+      },
+      {
+        "source": "广东省",
+        "target": "中国香港",
+        "value": 108455810.0
+      },
+      {
+        "source": "浙江省",
+        "target": "阿尔及利亚",
+        "value": 100444512.0
+      },
+      {
+        "source": "浙江省",
+        "target": "日本",
+        "value": 89988040.0
+      },
+      {
+        "source": "江西省",
+        "target": "中国香港",
+        "value": 87614770.0
+      },
+      {
+        "source": "安徽省",
+        "target": "乌兹别克斯坦",
+        "value": 83202051.0
+      },
+      {
+        "source": "浙江省",
+        "target": "德国",
+        "value": 77701316.0
+      },
+      {
+        "source": "浙江省",
+        "target": "加纳",
+        "value": 76128238.0
+      },
+      {
+        "source": "湖南省",
+        "target": "乌兹别克斯坦",
+        "value": 73259815.0
+      },
+      {
+        "source": "湖南省",
+        "target": "德国",
+        "value": 71623772.0
+      },
+      {
+        "source": "湖北省",
+        "target": "马来西亚",
+        "value": 70444925.0
+      },
+      {
+        "source": "浙江省",
+        "target": "多哥",
+        "value": 69159174.0
+      },
+      {
+        "source": "湖北省",
+        "target": "越南",
+        "value": 66469323.0
+      },
+      {
+        "source": "安徽省",
+        "target": "中国香港",
+        "value": 62852899.0
+      },
+      {
+        "source": "湖北省",
+        "target": "摩洛哥",
+        "value": 55515999.0
+      },
+      {
+        "source": "福建省",
+        "target": "马来西亚",
+        "value": 51187302.0
+      },
+      {
+        "source": "安徽省",
+        "target": "德国",
+        "value": 45219570.0
+      },
+      {
+        "source": "湖南省",
+        "target": "摩洛哥",
+        "value": 41963233.0
+      },
+      {
+        "source": "浙江省",
+        "target": "俄罗斯",
+        "value": 40004866.0
+      },
+      {
+        "source": "广东省",
+        "target": "日本",
+        "value": 35475397.0
+      },
+      {
+        "source": "湖北省",
+        "target": "阿尔及利亚",
+        "value": 34895962.0
+      },
+      {
+        "source": "广东省",
+        "target": "马来西亚",
+        "value": 33282773.0
+      },
+      {
+        "source": "浙江省",
+        "target": "越南",
+        "value": 33052183.0
+      },
+      {
+        "source": "湖北省",
+        "target": "德国",
+        "value": 32402748.0
+      },
+      {
+        "source": "上海市",
+        "target": "日本",
+        "value": 31569023.0
+      },
+      {
+        "source": "安徽省",
+        "target": "毛里塔尼亚",
+        "value": 29533751.0
+      },
+      {
+        "source": "湖南省",
+        "target": "美国",
+        "value": 28672237.0
+      },
+      {
+        "source": "福建省",
+        "target": "德国",
+        "value": 28378338.0
+      },
+      {
+        "source": "湖北省",
+        "target": "美国",
+        "value": 26145884.0
+      },
+      {
+        "source": "湖南省",
+        "target": "阿尔及利亚",
+        "value": 24540840.0
+      },
+      {
+        "source": "江西省",
+        "target": "俄罗斯",
+        "value": 24307118.0
+      },
+      {
+        "source": "江西省",
+        "target": "毛里塔尼亚",
+        "value": 23696547.0
+      },
+      {
+        "source": "江西省",
+        "target": "德国",
+        "value": 23394128.0
+      },
+      {
+        "source": "安徽省",
+        "target": "美国",
+        "value": 23333670.0
+      },
+      {
+        "source": "福建省",
+        "target": "摩洛哥",
+        "value": 21191317.0
+      },
+      {
+        "source": "江西省",
+        "target": "美国",
+        "value": 17921322.0
+      },
+      {
+        "source": "上海市",
+        "target": "中国香港",
+        "value": 17077813.0
+      },
+      {
+        "source": "福建省",
+        "target": "俄罗斯",
+        "value": 16662807.0
+      },
+      {
+        "source": "福建省",
+        "target": "乌兹别克斯坦",
+        "value": 16627639.0
+      },
+      {
+        "source": "浙江省",
+        "target": "中国香港",
+        "value": 13251981.0
+      },
+      {
+        "source": "上海市",
+        "target": "德国",
+        "value": 13240651.0
+      },
+      {
+        "source": "江西省",
+        "target": "摩洛哥",
+        "value": 12976957.0
+      },
+      {
+        "source": "安徽省",
+        "target": "越南",
+        "value": 12934440.0
+      },
+      {
+        "source": "江西省",
+        "target": "多哥",
+        "value": 12264821.0
+      },
+      {
+        "source": "广东省",
+        "target": "美国",
+        "value": 11822465.0
+      },
+      {
+        "source": "浙江省",
+        "target": "马来西亚",
+        "value": 10848379.0
+      },
+      {
+        "source": "湖南省",
+        "target": "塞内加尔",
+        "value": 7496695.0
+      },
+      {
+        "source": "上海市",
+        "target": "加纳",
+        "value": 6878515.0
+      },
+      {
+        "source": "安徽省",
+        "target": "日本",
+        "value": 5166660.0
+      },
+      {
+        "source": "湖南省",
+        "target": "越南",
+        "value": 4761176.0
+      },
+      {
+        "source": "江西省",
+        "target": "阿尔及利亚",
+        "value": 3985530.0
+      },
+      {
+        "source": "湖南省",
+        "target": "中国香港",
+        "value": 3917540.0
+      },
+      {
+        "source": "上海市",
+        "target": "阿尔及利亚",
+        "value": 3145015.0
+      },
+      {
+        "source": "江西省",
+        "target": "越南",
+        "value": 3123356.0
+      },
+      {
+        "source": "广东省",
+        "target": "德国",
+        "value": 2842183.0
+      },
+      {
+        "source": "湖南省",
+        "target": "毛里塔尼亚",
+        "value": 2447603.0
+      },
+      {
+        "source": "江西省",
+        "target": "乌兹别克斯坦",
+        "value": 1781807.0
+      },
+      {
+        "source": "湖南省",
+        "target": "日本",
+        "value": 1080070.0
+      },
+      {
+        "source": "江西省",
+        "target": "马来西亚",
+        "value": 1018749.0
+      },
+      {
+        "source": "上海市",
+        "target": "摩洛哥",
+        "value": 644429.0
+      },
+      {
+        "source": "安徽省",
+        "target": "俄罗斯",
+        "value": 551587.0
+      },
+      {
+        "source": "湖北省",
+        "target": "乌兹别克斯坦",
+        "value": 550530.0
+      },
+      {
+        "source": "江西省",
+        "target": "塞内加尔",
+        "value": 528346.0
+      },
+      {
+        "source": "江西省",
+        "target": "加纳",
+        "value": 514458.0
+      },
+      {
+        "source": "上海市",
+        "target": "越南",
+        "value": 435739.0
+      },
+      {
+        "source": "湖北省",
+        "target": "俄罗斯",
+        "value": 201608.0
+      },
+      {
+        "source": "广东省",
+        "target": "越南",
+        "value": 149476.0
+      },
+      {
+        "source": "湖北省",
+        "target": "日本",
+        "value": 138975.0
+      },
+      {
+        "source": "江西省",
+        "target": "日本",
+        "value": 115101.0
+      },
+      {
+        "source": "湖北省",
+        "target": "加纳",
+        "value": 82573.0
+      },
+      {
+        "source": "湖南省",
+        "target": "马来西亚",
+        "value": 40205.0
+      },
+      {
+        "source": "安徽省",
+        "target": "马来西亚",
+        "value": 34093.0
+      },
+      {
+        "source": "上海市",
+        "target": "俄罗斯",
+        "value": 11100.0
+      },
+      {
+        "source": "上海市",
+        "target": "马来西亚",
+        "value": 4413.0
+      }
+    ],
+    "topProvinces": [
+      {
+        "name": "浙江省",
+        "value": 3228186052.0
+      },
+      {
+        "name": "安徽省",
+        "value": 1409958651.0
+      },
+      {
+        "name": "福建省",
+        "value": 1083626415.0
+      },
+      {
+        "name": "湖南省",
+        "value": 569234945.0
+      },
+      {
+        "name": "上海市",
+        "value": 557565561.0
+      },
+      {
+        "name": "湖北省",
+        "value": 493570522.0
+      },
+      {
+        "name": "江西省",
+        "value": 276423300.0
+      },
+      {
+        "name": "广东省",
+        "value": 253035785.0
+      }
+    ],
+    "topCountries": [
+      {
+        "name": "摩洛哥",
+        "value": 1408962595.0
+      },
+      {
+        "name": "中国香港",
+        "value": 729201858.0
+      },
+      {
+        "name": "美国",
+        "value": 566062565.0
+      },
+      {
+        "name": "塞内加尔",
+        "value": 468570887.0
+      },
+      {
+        "name": "越南",
+        "value": 378174911.0
+      },
+      {
+        "name": "多哥",
+        "value": 373090453.0
+      },
+      {
+        "name": "日本",
+        "value": 351688928.0
+      },
+      {
+        "name": "毛里塔尼亚",
+        "value": 346658452.0
+      },
+      {
+        "name": "阿尔及利亚",
+        "value": 324225143.0
+      },
+      {
+        "name": "乌兹别克斯坦",
+        "value": 313339256.0
+      },
+      {
+        "name": "德国",
+        "value": 309499031.0
+      },
+      {
+        "name": "加纳",
+        "value": 240028261.0
+      },
+      {
+        "name": "俄罗斯",
+        "value": 230370012.0
+      },
+      {
+        "name": "马来西亚",
+        "value": 187733843.0
+      }
+    ]
+  },
+  {
+    "year": 2016,
+    "nodes": [
+      {
+        "name": "浙江省",
+        "category": "province"
+      },
+      {
+        "name": "安徽省",
+        "category": "province"
+      },
+      {
+        "name": "福建省",
+        "category": "province"
+      },
+      {
+        "name": "湖北省",
+        "category": "province"
+      },
+      {
+        "name": "湖南省",
+        "category": "province"
+      },
+      {
+        "name": "上海市",
+        "category": "province"
+      },
+      {
+        "name": "广东省",
+        "category": "province"
+      },
+      {
+        "name": "江西省",
+        "category": "province"
+      },
+      {
+        "name": "摩洛哥",
+        "category": "country"
+      },
+      {
+        "name": "中国香港",
+        "category": "country"
+      },
+      {
+        "name": "越南",
+        "category": "country"
+      },
+      {
+        "name": "美国",
+        "category": "country"
+      },
+      {
+        "name": "塞内加尔",
+        "category": "country"
+      },
+      {
+        "name": "加纳",
+        "category": "country"
+      },
+      {
+        "name": "毛里塔尼亚",
+        "category": "country"
+      },
+      {
+        "name": "日本",
+        "category": "country"
+      },
+      {
+        "name": "马来西亚",
+        "category": "country"
+      },
+      {
+        "name": "阿尔及利亚",
+        "category": "country"
+      },
+      {
+        "name": "德国",
+        "category": "country"
+      },
+      {
+        "name": "俄罗斯",
+        "category": "country"
+      },
+      {
+        "name": "多哥",
+        "category": "country"
+      },
+      {
+        "name": "泰国",
+        "category": "country"
+      }
+    ],
+    "links": [
+      {
+        "source": "浙江省",
+        "target": "摩洛哥",
+        "value": 1028650870.0
+      },
+      {
+        "source": "安徽省",
+        "target": "加纳",
+        "value": 393044817.0
+      },
+      {
+        "source": "浙江省",
+        "target": "毛里塔尼亚",
+        "value": 304395026.0
+      },
+      {
+        "source": "福建省",
+        "target": "中国香港",
+        "value": 295240454.0
+      },
+      {
+        "source": "广东省",
+        "target": "中国香港",
+        "value": 264348389.0
+      },
+      {
+        "source": "安徽省",
+        "target": "塞内加尔",
+        "value": 250400469.0
+      },
+      {
+        "source": "湖北省",
+        "target": "中国香港",
+        "value": 250207382.0
+      },
+      {
+        "source": "浙江省",
+        "target": "塞内加尔",
+        "value": 225038287.0
+      },
+      {
+        "source": "福建省",
+        "target": "越南",
+        "value": 213938865.0
+      },
+      {
+        "source": "上海市",
+        "target": "美国",
+        "value": 197069740.0
+      },
+      {
+        "source": "安徽省",
+        "target": "多哥",
+        "value": 187945525.0
+      },
+      {
+        "source": "安徽省",
+        "target": "摩洛哥",
+        "value": 161885332.0
+      },
+      {
+        "source": "福建省",
+        "target": "日本",
+        "value": 159510060.0
+      },
+      {
+        "source": "福建省",
+        "target": "美国",
+        "value": 140404153.0
+      },
+      {
+        "source": "湖南省",
+        "target": "俄罗斯",
+        "value": 132627143.0
+      },
+      {
+        "source": "安徽省",
+        "target": "越南",
+        "value": 121244034.0
+      },
+      {
+        "source": "安徽省",
+        "target": "阿尔及利亚",
+        "value": 119652368.0
+      },
+      {
+        "source": "福建省",
+        "target": "马来西亚",
+        "value": 101601472.0
+      },
+      {
+        "source": "湖北省",
+        "target": "越南",
+        "value": 98171228.0
+      },
+      {
+        "source": "浙江省",
+        "target": "日本",
+        "value": 93823038.0
+      },
+      {
+        "source": "福建省",
+        "target": "摩洛哥",
+        "value": 89633602.0
+      },
+      {
+        "source": "福建省",
+        "target": "泰国",
+        "value": 86171128.0
+      },
+      {
+        "source": "浙江省",
+        "target": "美国",
+        "value": 84206187.0
+      },
+      {
+        "source": "浙江省",
+        "target": "加纳",
+        "value": 83937931.0
+      },
+      {
+        "source": "浙江省",
+        "target": "阿尔及利亚",
+        "value": 79751528.0
+      },
+      {
+        "source": "江西省",
+        "target": "中国香港",
+        "value": 77080453.0
+      },
+      {
+        "source": "湖南省",
+        "target": "德国",
+        "value": 76497600.0
+      },
+      {
+        "source": "湖北省",
+        "target": "马来西亚",
+        "value": 75700643.0
+      },
+      {
+        "source": "浙江省",
+        "target": "德国",
+        "value": 60484865.0
+      },
+      {
+        "source": "湖南省",
+        "target": "摩洛哥",
+        "value": 57517010.0
+      },
+      {
+        "source": "安徽省",
+        "target": "中国香港",
+        "value": 54796278.0
+      },
+      {
+        "source": "广东省",
+        "target": "泰国",
+        "value": 53837051.0
+      },
+      {
+        "source": "浙江省",
+        "target": "多哥",
+        "value": 53487813.0
+      },
+      {
+        "source": "江西省",
+        "target": "越南",
+        "value": 53035157.0
+      },
+      {
+        "source": "湖北省",
+        "target": "摩洛哥",
+        "value": 45773673.0
+      },
+      {
+        "source": "安徽省",
+        "target": "毛里塔尼亚",
+        "value": 42327883.0
+      },
+      {
+        "source": "浙江省",
+        "target": "俄罗斯",
+        "value": 41671551.0
+      },
+      {
+        "source": "湖南省",
+        "target": "美国",
+        "value": 41216619.0
+      },
+      {
+        "source": "安徽省",
+        "target": "德国",
+        "value": 38576964.0
+      },
+      {
+        "source": "广东省",
+        "target": "马来西亚",
+        "value": 38172059.0
+      },
+      {
+        "source": "湖南省",
+        "target": "阿尔及利亚",
+        "value": 38080511.0
+      },
+      {
+        "source": "湖北省",
+        "target": "阿尔及利亚",
+        "value": 36803683.0
+      },
+      {
+        "source": "广东省",
+        "target": "日本",
+        "value": 35697091.0
+      },
+      {
+        "source": "湖北省",
+        "target": "美国",
+        "value": 34707201.0
+      },
+      {
+        "source": "湖北省",
+        "target": "俄罗斯",
+        "value": 33785849.0
+      },
+      {
+        "source": "浙江省",
+        "target": "越南",
+        "value": 31932846.0
+      },
+      {
+        "source": "湖北省",
+        "target": "泰国",
+        "value": 31498518.0
+      },
+      {
+        "source": "上海市",
+        "target": "日本",
+        "value": 31092301.0
+      },
+      {
+        "source": "安徽省",
+        "target": "美国",
+        "value": 29394619.0
+      },
+      {
+        "source": "福建省",
+        "target": "德国",
+        "value": 28191471.0
+      },
+      {
+        "source": "湖北省",
+        "target": "德国",
+        "value": 27638847.0
+      },
+      {
+        "source": "福建省",
+        "target": "毛里塔尼亚",
+        "value": 25147148.0
+      },
+      {
+        "source": "上海市",
+        "target": "中国香港",
+        "value": 22839629.0
+      },
+      {
+        "source": "江西省",
+        "target": "德国",
+        "value": 20805283.0
+      },
+      {
+        "source": "福建省",
+        "target": "俄罗斯",
+        "value": 18707522.0
+      },
+      {
+        "source": "广东省",
+        "target": "越南",
+        "value": 15862528.0
+      },
+      {
+        "source": "广东省",
+        "target": "美国",
+        "value": 15256350.0
+      },
+      {
+        "source": "江西省",
+        "target": "毛里塔尼亚",
+        "value": 15107723.0
+      },
+      {
+        "source": "上海市",
+        "target": "德国",
+        "value": 14682802.0
+      },
+      {
+        "source": "江西省",
+        "target": "美国",
+        "value": 14655686.0
+      },
+      {
+        "source": "江西省",
+        "target": "加纳",
+        "value": 13934407.0
+      },
+      {
+        "source": "江西省",
+        "target": "俄罗斯",
+        "value": 12770800.0
+      },
+      {
+        "source": "江西省",
+        "target": "摩洛哥",
+        "value": 12446761.0
+      },
+      {
+        "source": "浙江省",
+        "target": "马来西亚",
+        "value": 12226214.0
+      },
+      {
+        "source": "湖南省",
+        "target": "中国香港",
+        "value": 10718032.0
+      },
+      {
+        "source": "江西省",
+        "target": "多哥",
+        "value": 9935643.0
+      },
+      {
+        "source": "湖南省",
+        "target": "塞内加尔",
+        "value": 7671429.0
+      },
+      {
+        "source": "上海市",
+        "target": "越南",
+        "value": 7195016.0
+      },
+      {
+        "source": "安徽省",
+        "target": "日本",
+        "value": 7105180.0
+      },
+      {
+        "source": "浙江省",
+        "target": "中国香港",
+        "value": 7079034.0
+      },
+      {
+        "source": "湖北省",
+        "target": "毛里塔尼亚",
+        "value": 4499605.0
+      },
+      {
+        "source": "湖南省",
+        "target": "日本",
+        "value": 3789862.0
+      },
+      {
+        "source": "广东省",
+        "target": "德国",
+        "value": 3298399.0
+      },
+      {
+        "source": "江西省",
+        "target": "阿尔及利亚",
+        "value": 3057028.0
+      },
+      {
+        "source": "湖南省",
+        "target": "越南",
+        "value": 2364227.0
+      },
+      {
+        "source": "浙江省",
+        "target": "泰国",
+        "value": 2124021.0
+      },
+      {
+        "source": "湖北省",
+        "target": "塞内加尔",
+        "value": 2044460.0
+      },
+      {
+        "source": "湖南省",
+        "target": "毛里塔尼亚",
+        "value": 1635948.0
+      },
+      {
+        "source": "福建省",
+        "target": "塞内加尔",
+        "value": 1484253.0
+      },
+      {
+        "source": "安徽省",
+        "target": "俄罗斯",
+        "value": 1190309.0
+      },
+      {
+        "source": "上海市",
+        "target": "阿尔及利亚",
+        "value": 810454.0
+      },
+      {
+        "source": "湖南省",
+        "target": "马来西亚",
+        "value": 693083.0
+      },
+      {
+        "source": "上海市",
+        "target": "塞内加尔",
+        "value": 682406.0
+      },
+      {
+        "source": "湖北省",
+        "target": "多哥",
+        "value": 654726.0
+      },
+      {
+        "source": "上海市",
+        "target": "俄罗斯",
+        "value": 550159.0
+      },
+      {
+        "source": "湖南省",
+        "target": "泰国",
+        "value": 301638.0
+      },
+      {
+        "source": "湖北省",
+        "target": "加纳",
+        "value": 288447.0
+      },
+      {
+        "source": "湖北省",
+        "target": "日本",
+        "value": 138507.0
+      },
+      {
+        "source": "上海市",
+        "target": "泰国",
+        "value": 26174.0
+      }
+    ],
+    "topProvinces": [
+      {
+        "name": "浙江省",
+        "value": 3041057423.0
+      },
+      {
+        "name": "安徽省",
+        "value": 1601665055.0
+      },
+      {
+        "name": "福建省",
+        "value": 1445964398.0
+      },
+      {
+        "name": "湖北省",
+        "value": 745356333.0
+      },
+      {
+        "name": "湖南省",
+        "value": 601875289.0
+      },
+      {
+        "name": "上海市",
+        "value": 512007048.0
+      },
+      {
+        "name": "广东省",
+        "value": 484904313.0
+      },
+      {
+        "name": "江西省",
+        "value": 316950435.0
+      }
+    ],
+    "topCountries": [
+      {
+        "name": "摩洛哥",
+        "value": 1493627642.0
+      },
+      {
+        "name": "中国香港",
+        "value": 1074032521.0
+      },
+      {
+        "name": "越南",
+        "value": 726783981.0
+      },
+      {
+        "name": "美国",
+        "value": 597546554.0
+      },
+      {
+        "name": "塞内加尔",
+        "value": 516298374.0
+      },
+      {
+        "name": "加纳",
+        "value": 494184793.0
+      },
+      {
+        "name": "毛里塔尼亚",
+        "value": 394467367.0
+      },
+      {
+        "name": "日本",
+        "value": 336320146.0
+      },
+      {
+        "name": "马来西亚",
+        "value": 309860316.0
+      },
+      {
+        "name": "阿尔及利亚",
+        "value": 308403751.0
+      },
+      {
+        "name": "德国",
+        "value": 288567291.0
+      },
+      {
+        "name": "俄罗斯",
+        "value": 271342117.0
+      },
+      {
+        "name": "多哥",
+        "value": 255841026.0
+      },
+      {
+        "name": "泰国",
+        "value": 255770076.0
+      }
+    ]
+  },
+  {
+    "year": 2017,
+    "nodes": [
+      {
+        "name": "浙江省",
+        "category": "province"
+      },
+      {
+        "name": "福建省",
+        "category": "province"
+      },
+      {
+        "name": "安徽省",
+        "category": "province"
+      },
+      {
+        "name": "湖北省",
+        "category": "province"
+      },
+      {
+        "name": "广东省",
+        "category": "province"
+      },
+      {
+        "name": "湖南省",
+        "category": "province"
+      },
+      {
+        "name": "上海市",
+        "category": "province"
+      },
+      {
+        "name": "江西省",
+        "category": "province"
+      },
+      {
+        "name": "中国香港",
+        "category": "country"
+      },
+      {
+        "name": "摩洛哥",
+        "category": "country"
+      },
+      {
+        "name": "越南",
+        "category": "country"
+      },
+      {
+        "name": "加纳",
+        "category": "country"
+      },
+      {
+        "name": "美国",
+        "category": "country"
+      },
+      {
+        "name": "毛里塔尼亚",
+        "category": "country"
+      },
+      {
+        "name": "马来西亚",
+        "category": "country"
+      },
+      {
+        "name": "塞内加尔",
+        "category": "country"
+      },
+      {
+        "name": "日本",
+        "category": "country"
+      },
+      {
+        "name": "阿尔及利亚",
+        "category": "country"
+      },
+      {
+        "name": "德国",
+        "category": "country"
+      },
+      {
+        "name": "乌兹别克斯坦",
+        "category": "country"
+      },
+      {
+        "name": "多哥",
+        "category": "country"
+      },
+      {
+        "name": "俄罗斯",
+        "category": "country"
+      }
+    ],
+    "links": [
+      {
+        "source": "浙江省",
+        "target": "摩洛哥",
+        "value": 1192277605.0
+      },
+      {
+        "source": "安徽省",
+        "target": "加纳",
+        "value": 483971885.0
+      },
+      {
+        "source": "福建省",
+        "target": "中国香港",
+        "value": 431664016.0
+      },
+      {
+        "source": "广东省",
+        "target": "中国香港",
+        "value": 373134165.0
+      },
+      {
+        "source": "浙江省",
+        "target": "毛里塔尼亚",
+        "value": 343561494.0
+      },
+      {
+        "source": "湖北省",
+        "target": "中国香港",
+        "value": 272584671.0
+      },
+      {
+        "source": "浙江省",
+        "target": "塞内加尔",
+        "value": 230532350.0
+      },
+      {
+        "source": "安徽省",
+        "target": "多哥",
+        "value": 212153888.0
+      },
+      {
+        "source": "福建省",
+        "target": "日本",
+        "value": 198727374.0
+      },
+      {
+        "source": "上海市",
+        "target": "美国",
+        "value": 189766435.0
+      },
+      {
+        "source": "福建省",
+        "target": "越南",
+        "value": 174387175.0
+      },
+      {
+        "source": "福建省",
+        "target": "马来西亚",
+        "value": 143504910.0
+      },
+      {
+        "source": "安徽省",
+        "target": "摩洛哥",
+        "value": 143433539.0
+      },
+      {
+        "source": "安徽省",
+        "target": "塞内加尔",
+        "value": 138473478.0
+      },
+      {
+        "source": "湖北省",
+        "target": "马来西亚",
+        "value": 131174128.0
+      },
+      {
+        "source": "湖南省",
+        "target": "俄罗斯",
+        "value": 131075270.0
+      },
+      {
+        "source": "江西省",
+        "target": "中国香港",
+        "value": 128308553.0
+      },
+      {
+        "source": "安徽省",
+        "target": "阿尔及利亚",
+        "value": 125079954.0
+      },
+      {
+        "source": "福建省",
+        "target": "美国",
+        "value": 115662008.0
+      },
+      {
+        "source": "浙江省",
+        "target": "乌兹别克斯坦",
+        "value": 95736292.0
+      },
+      {
+        "source": "浙江省",
+        "target": "日本",
+        "value": 94116705.0
+      },
+      {
+        "source": "湖南省",
+        "target": "德国",
+        "value": 92279964.0
+      },
+      {
+        "source": "浙江省",
+        "target": "阿尔及利亚",
+        "value": 89294744.0
+      },
+      {
+        "source": "浙江省",
+        "target": "美国",
+        "value": 88207364.0
+      },
+      {
+        "source": "浙江省",
+        "target": "加纳",
+        "value": 78106498.0
+      },
+      {
+        "source": "浙江省",
+        "target": "越南",
+        "value": 74881792.0
+      },
+      {
+        "source": "安徽省",
+        "target": "乌兹别克斯坦",
+        "value": 65058533.0
+      },
+      {
+        "source": "浙江省",
+        "target": "德国",
+        "value": 63882747.0
+      },
+      {
+        "source": "湖南省",
+        "target": "乌兹别克斯坦",
+        "value": 58445225.0
+      },
+      {
+        "source": "安徽省",
+        "target": "中国香港",
+        "value": 51924188.0
+      },
+      {
+        "source": "浙江省",
+        "target": "俄罗斯",
+        "value": 49973977.0
+      },
+      {
+        "source": "安徽省",
+        "target": "毛里塔尼亚",
+        "value": 49688054.0
+      },
+      {
+        "source": "浙江省",
+        "target": "多哥",
+        "value": 47518792.0
+      },
+      {
+        "source": "湖北省",
+        "target": "摩洛哥",
+        "value": 46583547.0
+      },
+      {
+        "source": "湖北省",
+        "target": "越南",
+        "value": 39512418.0
+      },
+      {
+        "source": "广东省",
+        "target": "马来西亚",
+        "value": 38579052.0
+      },
+      {
+        "source": "湖南省",
+        "target": "阿尔及利亚",
+        "value": 37157335.0
+      },
+      {
+        "source": "湖南省",
+        "target": "美国",
+        "value": 36309585.0
+      },
+      {
+        "source": "安徽省",
+        "target": "德国",
+        "value": 36119259.0
+      },
+      {
+        "source": "湖北省",
+        "target": "德国",
+        "value": 34690669.0
+      },
+      {
+        "source": "广东省",
+        "target": "越南",
+        "value": 33894686.0
+      },
+      {
+        "source": "安徽省",
+        "target": "马来西亚",
+        "value": 33032177.0
+      },
+      {
+        "source": "广东省",
+        "target": "日本",
+        "value": 32762635.0
+      },
+      {
+        "source": "湖北省",
+        "target": "毛里塔尼亚",
+        "value": 30237973.0
+      },
+      {
+        "source": "广东省",
+        "target": "美国",
+        "value": 27398988.0
+      },
+      {
+        "source": "湖北省",
+        "target": "阿尔及利亚",
+        "value": 26141984.0
+      },
+      {
+        "source": "湖南省",
+        "target": "摩洛哥",
+        "value": 25558471.0
+      },
+      {
+        "source": "安徽省",
+        "target": "美国",
+        "value": 24797595.0
+      },
+      {
+        "source": "浙江省",
+        "target": "马来西亚",
+        "value": 23694966.0
+      },
+      {
+        "source": "福建省",
+        "target": "德国",
+        "value": 23693166.0
+      },
+      {
+        "source": "江西省",
+        "target": "马来西亚",
+        "value": 22416476.0
+      },
+      {
+        "source": "福建省",
+        "target": "摩洛哥",
+        "value": 20459584.0
+      },
+      {
+        "source": "湖北省",
+        "target": "美国",
+        "value": 20269112.0
+      },
+      {
+        "source": "安徽省",
+        "target": "越南",
+        "value": 19710465.0
+      },
+      {
+        "source": "湖北省",
+        "target": "俄罗斯",
+        "value": 18331538.0
+      },
+      {
+        "source": "江西省",
+        "target": "德国",
+        "value": 16733771.0
+      },
+      {
+        "source": "江西省",
+        "target": "俄罗斯",
+        "value": 16711820.0
+      },
+      {
+        "source": "江西省",
+        "target": "美国",
+        "value": 16312236.0
+      },
+      {
+        "source": "江西省",
+        "target": "毛里塔尼亚",
+        "value": 14671104.0
+      },
+      {
+        "source": "上海市",
+        "target": "日本",
+        "value": 14579402.0
+      },
+      {
+        "source": "江西省",
+        "target": "多哥",
+        "value": 14471859.0
+      },
+      {
+        "source": "江西省",
+        "target": "越南",
+        "value": 13226807.0
+      },
+      {
+        "source": "江西省",
+        "target": "摩洛哥",
+        "value": 13082338.0
+      },
+      {
+        "source": "浙江省",
+        "target": "中国香港",
+        "value": 11587759.0
+      },
+      {
+        "source": "上海市",
+        "target": "德国",
+        "value": 10182348.0
+      },
+      {
+        "source": "江西省",
+        "target": "加纳",
+        "value": 10080505.0
+      },
+      {
+        "source": "上海市",
+        "target": "多哥",
+        "value": 9446725.0
+      },
+      {
+        "source": "福建省",
+        "target": "俄罗斯",
+        "value": 9314394.0
+      },
+      {
+        "source": "湖南省",
+        "target": "中国香港",
+        "value": 9140846.0
+      },
+      {
+        "source": "湖北省",
+        "target": "乌兹别克斯坦",
+        "value": 8474691.0
+      },
+      {
+        "source": "上海市",
+        "target": "中国香港",
+        "value": 8146129.0
+      },
+      {
+        "source": "湖南省",
+        "target": "越南",
+        "value": 7590499.0
+      },
+      {
+        "source": "湖南省",
+        "target": "塞内加尔",
+        "value": 5927848.0
+      },
+      {
+        "source": "安徽省",
+        "target": "日本",
+        "value": 5474150.0
+      },
+      {
+        "source": "湖南省",
+        "target": "日本",
+        "value": 4305532.0
+      },
+      {
+        "source": "江西省",
+        "target": "阿尔及利亚",
+        "value": 3590655.0
+      },
+      {
+        "source": "上海市",
+        "target": "塞内加尔",
+        "value": 2846804.0
+      },
+      {
+        "source": "福建省",
+        "target": "乌兹别克斯坦",
+        "value": 2833027.0
+      },
+      {
+        "source": "广东省",
+        "target": "德国",
+        "value": 2673432.0
+      },
+      {
+        "source": "广东省",
+        "target": "俄罗斯",
+        "value": 2345160.0
+      },
+      {
+        "source": "安徽省",
+        "target": "俄罗斯",
+        "value": 2316527.0
+      },
+      {
+        "source": "江西省",
+        "target": "乌兹别克斯坦",
+        "value": 1285949.0
+      },
+      {
+        "source": "湖南省",
+        "target": "马来西亚",
+        "value": 1227307.0
+      },
+      {
+        "source": "上海市",
+        "target": "俄罗斯",
+        "value": 1033699.0
+      },
+      {
+        "source": "江西省",
+        "target": "塞内加尔",
+        "value": 926456.0
+      },
+      {
+        "source": "上海市",
+        "target": "加纳",
+        "value": 659815.0
+      },
+      {
+        "source": "湖北省",
+        "target": "塞内加尔",
+        "value": 601171.0
+      },
+      {
+        "source": "上海市",
+        "target": "越南",
+        "value": 561241.0
+      },
+      {
+        "source": "湖南省",
+        "target": "多哥",
+        "value": 283450.0
+      },
+      {
+        "source": "广东省",
+        "target": "加纳",
+        "value": 214188.0
+      },
+      {
+        "source": "江西省",
+        "target": "日本",
+        "value": 119431.0
+      },
+      {
+        "source": "湖北省",
+        "target": "日本",
+        "value": 88816.0
+      },
+      {
+        "source": "上海市",
+        "target": "马来西亚",
+        "value": 15573.0
+      }
+    ],
+    "topProvinces": [
+      {
+        "name": "浙江省",
+        "value": 3349861613.0
+      },
+      {
+        "name": "福建省",
+        "value": 1617194392.0
+      },
+      {
+        "name": "安徽省",
+        "value": 1595224591.0
+      },
+      {
+        "name": "湖北省",
+        "value": 837137455.0
+      },
+      {
+        "name": "广东省",
+        "value": 713686131.0
+      },
+      {
+        "name": "湖南省",
+        "value": 632128773.0
+      },
+      {
+        "name": "上海市",
+        "value": 439049288.0
+      },
+      {
+        "name": "江西省",
+        "value": 348924832.0
+      }
+    ],
+    "topCountries": [
+      {
+        "name": "中国香港",
+        "value": 1653574266.0
+      },
+      {
+        "name": "摩洛哥",
+        "value": 1555409445.0
+      },
+      {
+        "name": "越南",
+        "value": 626328148.0
+      },
+      {
+        "name": "加纳",
+        "value": 580275572.0
+      },
+      {
+        "name": "美国",
+        "value": 559140828.0
+      },
+      {
+        "name": "毛里塔尼亚",
+        "value": 438158625.0
+      },
+      {
+        "name": "马来西亚",
+        "value": 420408141.0
+      },
+      {
+        "name": "塞内加尔",
+        "value": 379308107.0
+      },
+      {
+        "name": "日本",
+        "value": 355598810.0
+      },
+      {
+        "name": "阿尔及利亚",
+        "value": 305181135.0
+      },
+      {
+        "name": "德国",
+        "value": 299360755.0
+      },
+      {
+        "name": "乌兹别克斯坦",
+        "value": 288078397.0
+      },
+      {
+        "name": "多哥",
+        "value": 284671066.0
+      },
+      {
+        "name": "俄罗斯",
+        "value": 263155870.0
+      }
+    ]
+  },
+  {
+    "year": 2018,
+    "nodes": [
+      {
+        "name": "浙江省",
+        "category": "province"
+      },
+      {
+        "name": "福建省",
+        "category": "province"
+      },
+      {
+        "name": "安徽省",
+        "category": "province"
+      },
+      {
+        "name": "湖北省",
+        "category": "province"
+      },
+      {
+        "name": "湖南省",
+        "category": "province"
+      },
+      {
+        "name": "广东省",
+        "category": "province"
+      },
+      {
+        "name": "河南省",
+        "category": "province"
+      },
+      {
+        "name": "江西省",
+        "category": "province"
+      },
+      {
+        "name": "中国香港",
+        "category": "country"
+      },
+      {
+        "name": "摩洛哥",
+        "category": "country"
+      },
+      {
+        "name": "越南",
+        "category": "country"
+      },
+      {
+        "name": "美国",
+        "category": "country"
+      },
+      {
+        "name": "马来西亚",
+        "category": "country"
+      },
+      {
+        "name": "塞内加尔",
+        "category": "country"
+      },
+      {
+        "name": "加纳",
+        "category": "country"
+      },
+      {
+        "name": "多哥",
+        "category": "country"
+      },
+      {
+        "name": "毛里塔尼亚",
+        "category": "country"
+      },
+      {
+        "name": "日本",
+        "category": "country"
+      },
+      {
+        "name": "阿尔及利亚",
+        "category": "country"
+      },
+      {
+        "name": "乌兹别克斯坦",
+        "category": "country"
+      },
+      {
+        "name": "德国",
+        "category": "country"
+      },
+      {
+        "name": "俄罗斯",
+        "category": "country"
+      }
+    ],
+    "links": [
+      {
+        "source": "浙江省",
+        "target": "摩洛哥",
+        "value": 1219578003.0
+      },
+      {
+        "source": "福建省",
+        "target": "中国香港",
+        "value": 734959084.0
+      },
+      {
+        "source": "安徽省",
+        "target": "加纳",
+        "value": 361600875.0
+      },
+      {
+        "source": "浙江省",
+        "target": "塞内加尔",
+        "value": 341725498.0
+      },
+      {
+        "source": "安徽省",
+        "target": "多哥",
+        "value": 322783556.0
+      },
+      {
+        "source": "湖北省",
+        "target": "中国香港",
+        "value": 319960128.0
+      },
+      {
+        "source": "浙江省",
+        "target": "毛里塔尼亚",
+        "value": 310597037.0
+      },
+      {
+        "source": "广东省",
+        "target": "中国香港",
+        "value": 288158392.0
+      },
+      {
+        "source": "福建省",
+        "target": "越南",
+        "value": 282113173.0
+      },
+      {
+        "source": "河南省",
+        "target": "中国香港",
+        "value": 242328229.0
+      },
+      {
+        "source": "福建省",
+        "target": "日本",
+        "value": 219238329.0
+      },
+      {
+        "source": "福建省",
+        "target": "马来西亚",
+        "value": 191729257.0
+      },
+      {
+        "source": "湖北省",
+        "target": "越南",
+        "value": 157902599.0
+      },
+      {
+        "source": "福建省",
+        "target": "美国",
+        "value": 154597255.0
+      },
+      {
+        "source": "湖北省",
+        "target": "马来西亚",
+        "value": 147974083.0
+      },
+      {
+        "source": "安徽省",
+        "target": "阿尔及利亚",
+        "value": 147502222.0
+      },
+      {
+        "source": "安徽省",
+        "target": "摩洛哥",
+        "value": 141249572.0
+      },
+      {
+        "source": "湖南省",
+        "target": "俄罗斯",
+        "value": 139943877.0
+      },
+      {
+        "source": "安徽省",
+        "target": "塞内加尔",
+        "value": 137410751.0
+      },
+      {
+        "source": "江西省",
+        "target": "中国香港",
+        "value": 127879671.0
+      },
+      {
+        "source": "浙江省",
+        "target": "日本",
+        "value": 109740508.0
+      },
+      {
+        "source": "浙江省",
+        "target": "乌兹别克斯坦",
+        "value": 104786857.0
+      },
+      {
+        "source": "浙江省",
+        "target": "美国",
+        "value": 101717043.0
+      },
+      {
+        "source": "浙江省",
+        "target": "阿尔及利亚",
+        "value": 92105588.0
+      },
+      {
+        "source": "湖南省",
+        "target": "德国",
+        "value": 84030338.0
+      },
+      {
+        "source": "河南省",
+        "target": "乌兹别克斯坦",
+        "value": 71334935.0
+      },
+      {
+        "source": "安徽省",
+        "target": "毛里塔尼亚",
+        "value": 66649841.0
+      },
+      {
+        "source": "湖南省",
+        "target": "乌兹别克斯坦",
+        "value": 64466996.0
+      },
+      {
+        "source": "浙江省",
+        "target": "德国",
+        "value": 63561295.0
+      },
+      {
+        "source": "安徽省",
+        "target": "中国香港",
+        "value": 63190424.0
+      },
+      {
+        "source": "湖南省",
+        "target": "美国",
+        "value": 52711486.0
+      },
+      {
+        "source": "浙江省",
+        "target": "俄罗斯",
+        "value": 52572951.0
+      },
+      {
+        "source": "江西省",
+        "target": "摩洛哥",
+        "value": 48895219.0
+      },
+      {
+        "source": "浙江省",
+        "target": "马来西亚",
+        "value": 46965037.0
+      },
+      {
+        "source": "广东省",
+        "target": "马来西亚",
+        "value": 45892604.0
+      },
+      {
+        "source": "浙江省",
+        "target": "多哥",
+        "value": 42404938.0
+      },
+      {
+        "source": "江西省",
+        "target": "多哥",
+        "value": 40157913.0
+      },
+      {
+        "source": "浙江省",
+        "target": "越南",
+        "value": 38688611.0
+      },
+      {
+        "source": "安徽省",
+        "target": "乌兹别克斯坦",
+        "value": 37563151.0
+      },
+      {
+        "source": "湖北省",
+        "target": "德国",
+        "value": 35634619.0
+      },
+      {
+        "source": "浙江省",
+        "target": "加纳",
+        "value": 34584316.0
+      },
+      {
+        "source": "安徽省",
+        "target": "德国",
+        "value": 32630909.0
+      },
+      {
+        "source": "湖南省",
+        "target": "阿尔及利亚",
+        "value": 32246951.0
+      },
+      {
+        "source": "广东省",
+        "target": "日本",
+        "value": 30183497.0
+      },
+      {
+        "source": "福建省",
+        "target": "德国",
+        "value": 27489867.0
+      },
+      {
+        "source": "安徽省",
+        "target": "美国",
+        "value": 27034484.0
+      },
+      {
+        "source": "湖北省",
+        "target": "乌兹别克斯坦",
+        "value": 26756786.0
+      },
+      {
+        "source": "湖北省",
+        "target": "美国",
+        "value": 26258273.0
+      },
+      {
+        "source": "湖北省",
+        "target": "阿尔及利亚",
+        "value": 24863612.0
+      },
+      {
+        "source": "江西省",
+        "target": "美国",
+        "value": 23271465.0
+      },
+      {
+        "source": "河南省",
+        "target": "越南",
+        "value": 22176488.0
+      },
+      {
+        "source": "江西省",
+        "target": "马来西亚",
+        "value": 21719510.0
+      },
+      {
+        "source": "江西省",
+        "target": "俄罗斯",
+        "value": 21327816.0
+      },
+      {
+        "source": "广东省",
+        "target": "美国",
+        "value": 21300042.0
+      },
+      {
+        "source": "广东省",
+        "target": "越南",
+        "value": 19770418.0
+      },
+      {
+        "source": "湖北省",
+        "target": "摩洛哥",
+        "value": 18758903.0
+      },
+      {
+        "source": "湖南省",
+        "target": "摩洛哥",
+        "value": 18204163.0
+      },
+      {
+        "source": "河南省",
+        "target": "阿尔及利亚",
+        "value": 17471421.0
+      },
+      {
+        "source": "江西省",
+        "target": "加纳",
+        "value": 16232628.0
+      },
+      {
+        "source": "浙江省",
+        "target": "中国香港",
+        "value": 15285102.0
+      },
+      {
+        "source": "江西省",
+        "target": "德国",
+        "value": 15200936.0
+      },
+      {
+        "source": "江西省",
+        "target": "毛里塔尼亚",
+        "value": 15036610.0
+      },
+      {
+        "source": "福建省",
+        "target": "俄罗斯",
+        "value": 13558116.0
+      },
+      {
+        "source": "河南省",
+        "target": "摩洛哥",
+        "value": 12690975.0
+      },
+      {
+        "source": "河南省",
+        "target": "马来西亚",
+        "value": 9076669.0
+      },
+      {
+        "source": "安徽省",
+        "target": "越南",
+        "value": 8268615.0
+      },
+      {
+        "source": "湖北省",
+        "target": "俄罗斯",
+        "value": 7249430.0
+      },
+      {
+        "source": "湖北省",
+        "target": "多哥",
+        "value": 6481298.0
+      },
+      {
+        "source": "湖南省",
+        "target": "塞内加尔",
+        "value": 5184772.0
+      },
+      {
+        "source": "安徽省",
+        "target": "日本",
+        "value": 4887006.0
+      },
+      {
+        "source": "湖北省",
+        "target": "毛里塔尼亚",
+        "value": 4466297.0
+      },
+      {
+        "source": "江西省",
+        "target": "乌兹别克斯坦",
+        "value": 4403486.0
+      },
+      {
+        "source": "湖南省",
+        "target": "中国香港",
+        "value": 4337016.0
+      },
+      {
+        "source": "江西省",
+        "target": "阿尔及利亚",
+        "value": 4318131.0
+      },
+      {
+        "source": "安徽省",
+        "target": "马来西亚",
+        "value": 3657827.0
+      },
+      {
+        "source": "湖南省",
+        "target": "日本",
+        "value": 2833780.0
+      },
+      {
+        "source": "广东省",
+        "target": "德国",
+        "value": 2328629.0
+      },
+      {
+        "source": "湖北省",
+        "target": "塞内加尔",
+        "value": 2264250.0
+      },
+      {
+        "source": "安徽省",
+        "target": "俄罗斯",
+        "value": 2136420.0
+      },
+      {
+        "source": "江西省",
+        "target": "塞内加尔",
+        "value": 1627651.0
+      },
+      {
+        "source": "福建省",
+        "target": "阿尔及利亚",
+        "value": 1545976.0
+      },
+      {
+        "source": "湖南省",
+        "target": "马来西亚",
+        "value": 456729.0
+      },
+      {
+        "source": "广东省",
+        "target": "摩洛哥",
+        "value": 303433.0
+      },
+      {
+        "source": "江西省",
+        "target": "越南",
+        "value": 53209.0
+      },
+      {
+        "source": "河南省",
+        "target": "美国",
+        "value": 34431.0
+      },
+      {
+        "source": "湖北省",
+        "target": "日本",
+        "value": 7298.0
+      },
+      {
+        "source": "广东省",
+        "target": "乌兹别克斯坦",
+        "value": 38.0
+      }
+    ],
+    "topProvinces": [
+      {
+        "name": "浙江省",
+        "value": 3445908085.0
+      },
+      {
+        "name": "福建省",
+        "value": 2283766902.0
+      },
+      {
+        "name": "安徽省",
+        "value": 1626818508.0
+      },
+      {
+        "name": "湖北省",
+        "value": 964616249.0
+      },
+      {
+        "name": "湖南省",
+        "value": 627977477.0
+      },
+      {
+        "name": "广东省",
+        "value": 535400446.0
+      },
+      {
+        "name": "河南省",
+        "value": 483165438.0
+      },
+      {
+        "name": "江西省",
+        "value": 453316993.0
+      }
+    ],
+    "topCountries": [
+      {
+        "name": "中国香港",
+        "value": 2074626482.0
+      },
+      {
+        "name": "摩洛哥",
+        "value": 1562184166.0
+      },
+      {
+        "name": "越南",
+        "value": 672385121.0
+      },
+      {
+        "name": "美国",
+        "value": 589639851.0
+      },
+      {
+        "name": "马来西亚",
+        "value": 509075118.0
+      },
+      {
+        "name": "塞内加尔",
+        "value": 493042529.0
+      },
+      {
+        "name": "加纳",
+        "value": 423187007.0
+      },
+      {
+        "name": "多哥",
+        "value": 413072631.0
+      },
+      {
+        "name": "毛里塔尼亚",
+        "value": 396749785.0
+      },
+      {
+        "name": "日本",
+        "value": 388166608.0
+      },
+      {
+        "name": "阿尔及利亚",
+        "value": 332066242.0
+      },
+      {
+        "name": "乌兹别克斯坦",
+        "value": 309312249.0
+      },
+      {
+        "name": "德国",
+        "value": 293094830.0
+      },
+      {
+        "name": "俄罗斯",
+        "value": 270077579.0
+      }
+    ]
+  },
+  {
+    "year": 2019,
+    "nodes": [
+      {
+        "name": "浙江省",
+        "category": "province"
+      },
+      {
+        "name": "福建省",
+        "category": "province"
+      },
+      {
+        "name": "安徽省",
+        "category": "province"
+      },
+      {
+        "name": "湖北省",
+        "category": "province"
+      },
+      {
+        "name": "湖南省",
+        "category": "province"
+      },
+      {
+        "name": "广东省",
+        "category": "province"
+      },
+      {
+        "name": "江西省",
+        "category": "province"
+      },
+      {
+        "name": "河南省",
+        "category": "province"
+      },
+      {
+        "name": "中国香港",
+        "category": "country"
+      },
+      {
+        "name": "摩洛哥",
+        "category": "country"
+      },
+      {
+        "name": "越南",
+        "category": "country"
+      },
+      {
+        "name": "马来西亚",
+        "category": "country"
+      },
+      {
+        "name": "加纳",
+        "category": "country"
+      },
+      {
+        "name": "美国",
+        "category": "country"
+      },
+      {
+        "name": "多哥",
+        "category": "country"
+      },
+      {
+        "name": "毛里塔尼亚",
+        "category": "country"
+      },
+      {
+        "name": "塞内加尔",
+        "category": "country"
+      },
+      {
+        "name": "日本",
+        "category": "country"
+      },
+      {
+        "name": "阿尔及利亚",
+        "category": "country"
+      },
+      {
+        "name": "缅甸",
+        "category": "country"
+      },
+      {
+        "name": "泰国",
+        "category": "country"
+      },
+      {
+        "name": "俄罗斯",
+        "category": "country"
+      }
+    ],
+    "links": [
+      {
+        "source": "福建省",
+        "target": "中国香港",
+        "value": 1346296359.0
+      },
+      {
+        "source": "浙江省",
+        "target": "摩洛哥",
+        "value": 1110932304.0
+      },
+      {
+        "source": "湖北省",
+        "target": "中国香港",
+        "value": 499735098.0
+      },
+      {
+        "source": "福建省",
+        "target": "马来西亚",
+        "value": 395432079.0
+      },
+      {
+        "source": "安徽省",
+        "target": "加纳",
+        "value": 394086249.0
+      },
+      {
+        "source": "福建省",
+        "target": "越南",
+        "value": 393948709.0
+      },
+      {
+        "source": "广东省",
+        "target": "中国香港",
+        "value": 366400292.0
+      },
+      {
+        "source": "安徽省",
+        "target": "多哥",
+        "value": 349775483.0
+      },
+      {
+        "source": "湖北省",
+        "target": "越南",
+        "value": 290825740.0
+      },
+      {
+        "source": "浙江省",
+        "target": "毛里塔尼亚",
+        "value": 269902710.0
+      },
+      {
+        "source": "湖北省",
+        "target": "马来西亚",
+        "value": 261197843.0
+      },
+      {
+        "source": "河南省",
+        "target": "中国香港",
+        "value": 261062739.0
+      },
+      {
+        "source": "浙江省",
+        "target": "塞内加尔",
+        "value": 245308402.0
+      },
+      {
+        "source": "福建省",
+        "target": "日本",
+        "value": 227672597.0
+      },
+      {
+        "source": "江西省",
+        "target": "中国香港",
+        "value": 181111004.0
+      },
+      {
+        "source": "福建省",
+        "target": "泰国",
+        "value": 163690062.0
+      },
+      {
+        "source": "安徽省",
+        "target": "塞内加尔",
+        "value": 157569593.0
+      },
+      {
+        "source": "安徽省",
+        "target": "阿尔及利亚",
+        "value": 146564960.0
+      },
+      {
+        "source": "浙江省",
+        "target": "美国",
+        "value": 137501277.0
+      },
+      {
+        "source": "湖南省",
+        "target": "俄罗斯",
+        "value": 135539844.0
+      },
+      {
+        "source": "福建省",
+        "target": "缅甸",
+        "value": 130725545.0
+      },
+      {
+        "source": "福建省",
+        "target": "美国",
+        "value": 128582944.0
+      },
+      {
+        "source": "安徽省",
+        "target": "摩洛哥",
+        "value": 110602497.0
+      },
+      {
+        "source": "安徽省",
+        "target": "毛里塔尼亚",
+        "value": 107665874.0
+      },
+      {
+        "source": "浙江省",
+        "target": "日本",
+        "value": 106004181.0
+      },
+      {
+        "source": "浙江省",
+        "target": "阿尔及利亚",
+        "value": 95301793.0
+      },
+      {
+        "source": "河南省",
+        "target": "越南",
+        "value": 88598080.0
+      },
+      {
+        "source": "广东省",
+        "target": "马来西亚",
+        "value": 67340768.0
+      },
+      {
+        "source": "浙江省",
+        "target": "中国香港",
+        "value": 59889031.0
+      },
+      {
+        "source": "江西省",
+        "target": "毛里塔尼亚",
+        "value": 57904148.0
+      },
+      {
+        "source": "广东省",
+        "target": "泰国",
+        "value": 55996962.0
+      },
+      {
+        "source": "江西省",
+        "target": "多哥",
+        "value": 49329289.0
+      },
+      {
+        "source": "浙江省",
+        "target": "加纳",
+        "value": 49011735.0
+      },
+      {
+        "source": "湖南省",
+        "target": "中国香港",
+        "value": 47991053.0
+      },
+      {
+        "source": "湖北省",
+        "target": "摩洛哥",
+        "value": 47585892.0
+      },
+      {
+        "source": "湖南省",
+        "target": "摩洛哥",
+        "value": 46579348.0
+      },
+      {
+        "source": "浙江省",
+        "target": "多哥",
+        "value": 46473538.0
+      },
+      {
+        "source": "浙江省",
+        "target": "俄罗斯",
+        "value": 45058430.0
+      },
+      {
+        "source": "江西省",
+        "target": "摩洛哥",
+        "value": 41104242.0
+      },
+      {
+        "source": "湖南省",
+        "target": "阿尔及利亚",
+        "value": 40913445.0
+      },
+      {
+        "source": "湖南省",
+        "target": "美国",
+        "value": 40815849.0
+      },
+      {
+        "source": "浙江省",
+        "target": "马来西亚",
+        "value": 39033843.0
+      },
+      {
+        "source": "浙江省",
+        "target": "越南",
+        "value": 37481693.0
+      },
+      {
+        "source": "江西省",
+        "target": "马来西亚",
+        "value": 35965333.0
+      },
+      {
+        "source": "河南省",
+        "target": "摩洛哥",
+        "value": 35835950.0
+      },
+      {
+        "source": "安徽省",
+        "target": "中国香港",
+        "value": 35468594.0
+      },
+      {
+        "source": "湖北省",
+        "target": "美国",
+        "value": 34496825.0
+      },
+      {
+        "source": "安徽省",
+        "target": "缅甸",
+        "value": 31686503.0
+      },
+      {
+        "source": "江西省",
+        "target": "加纳",
+        "value": 30528101.0
+      },
+      {
+        "source": "河南省",
+        "target": "阿尔及利亚",
+        "value": 28493337.0
+      },
+      {
+        "source": "安徽省",
+        "target": "美国",
+        "value": 26767942.0
+      },
+      {
+        "source": "湖北省",
+        "target": "泰国",
+        "value": 24163240.0
+      },
+      {
+        "source": "广东省",
+        "target": "日本",
+        "value": 23975199.0
+      },
+      {
+        "source": "湖北省",
+        "target": "阿尔及利亚",
+        "value": 23771141.0
+      },
+      {
+        "source": "安徽省",
+        "target": "越南",
+        "value": 19463986.0
+      },
+      {
+        "source": "广东省",
+        "target": "美国",
+        "value": 18818346.0
+      },
+      {
+        "source": "江西省",
+        "target": "俄罗斯",
+        "value": 16109735.0
+      },
+      {
+        "source": "河南省",
+        "target": "马来西亚",
+        "value": 15560869.0
+      },
+      {
+        "source": "江西省",
+        "target": "美国",
+        "value": 14674862.0
+      },
+      {
+        "source": "广东省",
+        "target": "缅甸",
+        "value": 11812055.0
+      },
+      {
+        "source": "湖北省",
+        "target": "加纳",
+        "value": 9723990.0
+      },
+      {
+        "source": "湖北省",
+        "target": "俄罗斯",
+        "value": 9688101.0
+      },
+      {
+        "source": "江西省",
+        "target": "塞内加尔",
+        "value": 9649181.0
+      },
+      {
+        "source": "湖南省",
+        "target": "泰国",
+        "value": 9298176.0
+      },
+      {
+        "source": "湖南省",
+        "target": "塞内加尔",
+        "value": 8358930.0
+      },
+      {
+        "source": "安徽省",
+        "target": "日本",
+        "value": 6824219.0
+      },
+      {
+        "source": "福建省",
+        "target": "俄罗斯",
+        "value": 6518676.0
+      },
+      {
+        "source": "湖北省",
+        "target": "多哥",
+        "value": 6412748.0
+      },
+      {
+        "source": "广东省",
+        "target": "越南",
+        "value": 5231059.0
+      },
+      {
+        "source": "江西省",
+        "target": "阿尔及利亚",
+        "value": 3549529.0
+      },
+      {
+        "source": "湖北省",
+        "target": "塞内加尔",
+        "value": 2890020.0
+      },
+      {
+        "source": "浙江省",
+        "target": "泰国",
+        "value": 2359188.0
+      },
+      {
+        "source": "湖南省",
+        "target": "日本",
+        "value": 2353685.0
+      },
+      {
+        "source": "湖北省",
+        "target": "缅甸",
+        "value": 2192920.0
+      },
+      {
+        "source": "湖北省",
+        "target": "毛里塔尼亚",
+        "value": 1337167.0
+      },
+      {
+        "source": "河南省",
+        "target": "美国",
+        "value": 1124461.0
+      },
+      {
+        "source": "安徽省",
+        "target": "俄罗斯",
+        "value": 1028533.0
+      },
+      {
+        "source": "湖南省",
+        "target": "马来西亚",
+        "value": 861946.0
+      },
+      {
+        "source": "江西省",
+        "target": "越南",
+        "value": 497924.0
+      },
+      {
+        "source": "江西省",
+        "target": "泰国",
+        "value": 351312.0
+      },
+      {
+        "source": "福建省",
+        "target": "毛里塔尼亚",
+        "value": 349311.0
+      },
+      {
+        "source": "广东省",
+        "target": "加纳",
+        "value": 34218.0
+      },
+      {
+        "source": "广东省",
+        "target": "塞内加尔",
+        "value": 34218.0
+      },
+      {
+        "source": "安徽省",
+        "target": "马来西亚",
+        "value": 30995.0
+      },
+      {
+        "source": "湖北省",
+        "target": "日本",
+        "value": 9861.0
+      },
+      {
+        "source": "安徽省",
+        "target": "泰国",
+        "value": 9367.0
+      },
+      {
+        "source": "广东省",
+        "target": "俄罗斯",
+        "value": 8736.0
+      }
+    ],
+    "topProvinces": [
+      {
+        "name": "浙江省",
+        "value": 3329422748.0
+      },
+      {
+        "name": "福建省",
+        "value": 3136981077.0
+      },
+      {
+        "name": "安徽省",
+        "value": 1706492846.0
+      },
+      {
+        "name": "湖北省",
+        "value": 1481578059.0
+      },
+      {
+        "name": "湖南省",
+        "value": 712012381.0
+      },
+      {
+        "name": "广东省",
+        "value": 656106618.0
+      },
+      {
+        "name": "江西省",
+        "value": 602325770.0
+      },
+      {
+        "name": "河南省",
+        "value": 502706936.0
+      }
+    ],
+    "topCountries": [
+      {
+        "name": "中国香港",
+        "value": 3492047332.0
+      },
+      {
+        "name": "摩洛哥",
+        "value": 1547633996.0
+      },
+      {
+        "name": "越南",
+        "value": 1047093694.0
+      },
+      {
+        "name": "马来西亚",
+        "value": 907463709.0
+      },
+      {
+        "name": "加纳",
+        "value": 494402068.0
+      },
+      {
+        "name": "美国",
+        "value": 482776477.0
+      },
+      {
+        "name": "多哥",
+        "value": 451991058.0
+      },
+      {
+        "name": "毛里塔尼亚",
+        "value": 437159210.0
+      },
+      {
+        "name": "塞内加尔",
+        "value": 426584093.0
+      },
+      {
+        "name": "日本",
+        "value": 375168252.0
+      },
+      {
+        "name": "阿尔及利亚",
+        "value": 345961636.0
+      },
+      {
+        "name": "缅甸",
+        "value": 312656305.0
+      },
+      {
+        "name": "泰国",
+        "value": 311629069.0
+      },
+      {
+        "name": "俄罗斯",
+        "value": 308514539.0
+      }
+    ]
+  },
+  {
+    "year": 2020,
+    "nodes": [
+      {
+        "name": "浙江省",
+        "category": "province"
+      },
+      {
+        "name": "福建省",
+        "category": "province"
+      },
+      {
+        "name": "安徽省",
+        "category": "province"
+      },
+      {
+        "name": "湖北省",
+        "category": "province"
+      },
+      {
+        "name": "云南省",
+        "category": "province"
+      },
+      {
+        "name": "贵州省",
+        "category": "province"
+      },
+      {
+        "name": "湖南省",
+        "category": "province"
+      },
+      {
+        "name": "江西省",
+        "category": "province"
+      },
+      {
+        "name": "中国香港",
+        "category": "country"
+      },
+      {
+        "name": "摩洛哥",
+        "category": "country"
+      },
+      {
+        "name": "马来西亚",
+        "category": "country"
+      },
+      {
+        "name": "越南",
+        "category": "country"
+      },
+      {
+        "name": "缅甸",
+        "category": "country"
+      },
+      {
+        "name": "加纳",
+        "category": "country"
+      },
+      {
+        "name": "多哥",
+        "category": "country"
+      },
+      {
+        "name": "塞内加尔",
+        "category": "country"
+      },
+      {
+        "name": "毛里塔尼亚",
+        "category": "country"
+      },
+      {
+        "name": "日本",
+        "category": "country"
+      },
+      {
+        "name": "美国",
+        "category": "country"
+      },
+      {
+        "name": "阿尔及利亚",
+        "category": "country"
+      },
+      {
+        "name": "乌兹别克斯坦",
+        "category": "country"
+      },
+      {
+        "name": "俄罗斯",
+        "category": "country"
+      }
+    ],
+    "links": [
+      {
+        "source": "福建省",
+        "target": "中国香港",
+        "value": 1116450624.0
+      },
+      {
+        "source": "浙江省",
+        "target": "摩洛哥",
+        "value": 987904405.0
+      },
+      {
+        "source": "福建省",
+        "target": "马来西亚",
+        "value": 554827480.0
+      },
+      {
+        "source": "云南省",
+        "target": "中国香港",
+        "value": 554116895.0
+      },
+      {
+        "source": "安徽省",
+        "target": "多哥",
+        "value": 448083555.0
+      },
+      {
+        "source": "安徽省",
+        "target": "加纳",
+        "value": 420575327.0
+      },
+      {
+        "source": "湖北省",
+        "target": "中国香港",
+        "value": 379087152.0
+      },
+      {
+        "source": "贵州省",
+        "target": "缅甸",
+        "value": 337075743.0
+      },
+      {
+        "source": "湖北省",
+        "target": "越南",
+        "value": 284605112.0
+      },
+      {
+        "source": "福建省",
+        "target": "缅甸",
+        "value": 270080355.0
+      },
+      {
+        "source": "福建省",
+        "target": "日本",
+        "value": 248783410.0
+      },
+      {
+        "source": "浙江省",
+        "target": "塞内加尔",
+        "value": 247894251.0
+      },
+      {
+        "source": "浙江省",
+        "target": "毛里塔尼亚",
+        "value": 210963827.0
+      },
+      {
+        "source": "安徽省",
+        "target": "塞内加尔",
+        "value": 203566197.0
+      },
+      {
+        "source": "湖北省",
+        "target": "马来西亚",
+        "value": 190049124.0
+      },
+      {
+        "source": "安徽省",
+        "target": "毛里塔尼亚",
+        "value": 170026906.0
+      },
+      {
+        "source": "福建省",
+        "target": "越南",
+        "value": 169815025.0
+      },
+      {
+        "source": "湖南省",
+        "target": "俄罗斯",
+        "value": 142363121.0
+      },
+      {
+        "source": "安徽省",
+        "target": "阿尔及利亚",
+        "value": 137223653.0
+      },
+      {
+        "source": "湖北省",
+        "target": "摩洛哥",
+        "value": 121589644.0
+      },
+      {
+        "source": "浙江省",
+        "target": "美国",
+        "value": 118714060.0
+      },
+      {
+        "source": "浙江省",
+        "target": "日本",
+        "value": 109218553.0
+      },
+      {
+        "source": "云南省",
+        "target": "缅甸",
+        "value": 106309771.0
+      },
+      {
+        "source": "贵州省",
+        "target": "中国香港",
+        "value": 102299685.0
+      },
+      {
+        "source": "浙江省",
+        "target": "中国香港",
+        "value": 98057055.0
+      },
+      {
+        "source": "浙江省",
+        "target": "乌兹别克斯坦",
+        "value": 97229127.0
+      },
+      {
+        "source": "安徽省",
+        "target": "摩洛哥",
+        "value": 95448079.0
+      },
+      {
+        "source": "贵州省",
+        "target": "越南",
+        "value": 93651867.0
+      },
+      {
+        "source": "福建省",
+        "target": "美国",
+        "value": 92578624.0
+      },
+      {
+        "source": "浙江省",
+        "target": "阿尔及利亚",
+        "value": 91606079.0
+      },
+      {
+        "source": "江西省",
+        "target": "加纳",
+        "value": 82205573.0
+      },
+      {
+        "source": "江西省",
+        "target": "中国香港",
+        "value": 75743166.0
+      },
+      {
+        "source": "安徽省",
+        "target": "中国香港",
+        "value": 75086075.0
+      },
+      {
+        "source": "江西省",
+        "target": "多哥",
+        "value": 54764836.0
+      },
+      {
+        "source": "浙江省",
+        "target": "俄罗斯",
+        "value": 53590787.0
+      },
+      {
+        "source": "安徽省",
+        "target": "缅甸",
+        "value": 44916605.0
+      },
+      {
+        "source": "湖南省",
+        "target": "中国香港",
+        "value": 43205618.0
+      },
+      {
+        "source": "江西省",
+        "target": "马来西亚",
+        "value": 42683034.0
+      },
+      {
+        "source": "湖南省",
+        "target": "乌兹别克斯坦",
+        "value": 41050164.0
+      },
+      {
+        "source": "湖南省",
+        "target": "美国",
+        "value": 39581205.0
+      },
+      {
+        "source": "湖南省",
+        "target": "阿尔及利亚",
+        "value": 39407847.0
+      },
+      {
+        "source": "江西省",
+        "target": "摩洛哥",
+        "value": 38600787.0
+      },
+      {
+        "source": "浙江省",
+        "target": "加纳",
+        "value": 37176775.0
+      },
+      {
+        "source": "湖南省",
+        "target": "摩洛哥",
+        "value": 34421942.0
+      },
+      {
+        "source": "安徽省",
+        "target": "乌兹别克斯坦",
+        "value": 31297758.0
+      },
+      {
+        "source": "湖北省",
+        "target": "乌兹别克斯坦",
+        "value": 31126789.0
+      },
+      {
+        "source": "浙江省",
+        "target": "多哥",
+        "value": 30416220.0
+      },
+      {
+        "source": "安徽省",
+        "target": "美国",
+        "value": 30160766.0
+      },
+      {
+        "source": "江西省",
+        "target": "毛里塔尼亚",
+        "value": 29493167.0
+      },
+      {
+        "source": "江西省",
+        "target": "缅甸",
+        "value": 28890177.0
+      },
+      {
+        "source": "浙江省",
+        "target": "马来西亚",
+        "value": 24746956.0
+      },
+      {
+        "source": "江西省",
+        "target": "俄罗斯",
+        "value": 22604343.0
+      },
+      {
+        "source": "湖北省",
+        "target": "阿尔及利亚",
+        "value": 18240398.0
+      },
+      {
+        "source": "贵州省",
+        "target": "马来西亚",
+        "value": 16088888.0
+      },
+      {
+        "source": "湖北省",
+        "target": "美国",
+        "value": 15347826.0
+      },
+      {
+        "source": "江西省",
+        "target": "美国",
+        "value": 14630315.0
+      },
+      {
+        "source": "浙江省",
+        "target": "越南",
+        "value": 13674765.0
+      },
+      {
+        "source": "福建省",
+        "target": "俄罗斯",
+        "value": 12655408.0
+      },
+      {
+        "source": "贵州省",
+        "target": "美国",
+        "value": 11941741.0
+      },
+      {
+        "source": "福建省",
+        "target": "阿尔及利亚",
+        "value": 11830040.0
+      },
+      {
+        "source": "江西省",
+        "target": "塞内加尔",
+        "value": 10377131.0
+      },
+      {
+        "source": "安徽省",
+        "target": "越南",
+        "value": 10330677.0
+      },
+      {
+        "source": "云南省",
+        "target": "俄罗斯",
+        "value": 9809169.0
+      },
+      {
+        "source": "安徽省",
+        "target": "马来西亚",
+        "value": 9599552.0
+      },
+      {
+        "source": "福建省",
+        "target": "乌兹别克斯坦",
+        "value": 8986265.0
+      },
+      {
+        "source": "云南省",
+        "target": "马来西亚",
+        "value": 7628223.0
+      },
+      {
+        "source": "贵州省",
+        "target": "俄罗斯",
+        "value": 6996397.0
+      },
+      {
+        "source": "安徽省",
+        "target": "日本",
+        "value": 5621503.0
+      },
+      {
+        "source": "贵州省",
+        "target": "摩洛哥",
+        "value": 5032651.0
+      },
+      {
+        "source": "云南省",
+        "target": "越南",
+        "value": 4889466.0
+      },
+      {
+        "source": "湖南省",
+        "target": "塞内加尔",
+        "value": 4675421.0
+      },
+      {
+        "source": "江西省",
+        "target": "阿尔及利亚",
+        "value": 4425736.0
+      },
+      {
+        "source": "云南省",
+        "target": "日本",
+        "value": 2808130.0
+      },
+      {
+        "source": "福建省",
+        "target": "毛里塔尼亚",
+        "value": 2794118.0
+      },
+      {
+        "source": "江西省",
+        "target": "乌兹别克斯坦",
+        "value": 2731241.0
+      },
+      {
+        "source": "湖南省",
+        "target": "毛里塔尼亚",
+        "value": 2360481.0
+      },
+      {
+        "source": "湖北省",
+        "target": "俄罗斯",
+        "value": 1724051.0
+      },
+      {
+        "source": "贵州省",
+        "target": "加纳",
+        "value": 1418677.0
+      },
+      {
+        "source": "湖南省",
+        "target": "日本",
+        "value": 951590.0
+      },
+      {
+        "source": "云南省",
+        "target": "美国",
+        "value": 903180.0
+      },
+      {
+        "source": "湖北省",
+        "target": "塞内加尔",
+        "value": 843616.0
+      },
+      {
+        "source": "安徽省",
+        "target": "俄罗斯",
+        "value": 612767.0
+      },
+      {
+        "source": "湖北省",
+        "target": "加纳",
+        "value": 222921.0
+      },
+      {
+        "source": "贵州省",
+        "target": "日本",
+        "value": 75302.0
+      },
+      {
+        "source": "江西省",
+        "target": "越南",
+        "value": 53290.0
+      },
+      {
+        "source": "湖南省",
+        "target": "马来西亚",
+        "value": 45791.0
+      }
+    ],
+    "topProvinces": [
+      {
+        "name": "浙江省",
+        "value": 3106476720.0
+      },
+      {
+        "name": "福建省",
+        "value": 2904265785.0
+      },
+      {
+        "name": "安徽省",
+        "value": 1941456190.0
+      },
+      {
+        "name": "湖北省",
+        "value": 1404808480.0
+      },
+      {
+        "name": "云南省",
+        "value": 766524492.0
+      },
+      {
+        "name": "贵州省",
+        "value": 717520228.0
+      },
+      {
+        "name": "湖南省",
+        "value": 684686457.0
+      },
+      {
+        "name": "江西省",
+        "value": 588095409.0
+      }
+    ],
+    "topCountries": [
+      {
+        "name": "中国香港",
+        "value": 3237663118.0
+      },
+      {
+        "name": "摩洛哥",
+        "value": 1378694922.0
+      },
+      {
+        "name": "马来西亚",
+        "value": 1191166125.0
+      },
+      {
+        "name": "越南",
+        "value": 931307541.0
+      },
+      {
+        "name": "缅甸",
+        "value": 791654919.0
+      },
+      {
+        "name": "加纳",
+        "value": 553436105.0
+      },
+      {
+        "name": "多哥",
+        "value": 533264611.0
+      },
+      {
+        "name": "塞内加尔",
+        "value": 467829295.0
+      },
+      {
+        "name": "毛里塔尼亚",
+        "value": 417100070.0
+      },
+      {
+        "name": "日本",
+        "value": 396532491.0
+      },
+      {
+        "name": "美国",
+        "value": 367895810.0
+      },
+      {
+        "name": "阿尔及利亚",
+        "value": 326799833.0
+      },
+      {
+        "name": "乌兹别克斯坦",
+        "value": 281519268.0
+      },
+      {
+        "name": "俄罗斯",
+        "value": 268751605.0
+      }
+    ]
+  },
+  {
+    "year": 2021,
+    "nodes": [
+      {
+        "name": "福建省",
+        "category": "province"
+      },
+      {
+        "name": "浙江省",
+        "category": "province"
+      },
+      {
+        "name": "安徽省",
+        "category": "province"
+      },
+      {
+        "name": "贵州省",
+        "category": "province"
+      },
+      {
+        "name": "湖北省",
+        "category": "province"
+      },
+      {
+        "name": "湖南省",
+        "category": "province"
+      },
+      {
+        "name": "江西省",
+        "category": "province"
+      },
+      {
+        "name": "云南省",
+        "category": "province"
+      },
+      {
+        "name": "中国香港",
+        "category": "country"
+      },
+      {
+        "name": "马来西亚",
+        "category": "country"
+      },
+      {
+        "name": "摩洛哥",
+        "category": "country"
+      },
+      {
+        "name": "越南",
+        "category": "country"
+      },
+      {
+        "name": "加纳",
+        "category": "country"
+      },
+      {
+        "name": "毛里塔尼亚",
+        "category": "country"
+      },
+      {
+        "name": "塞内加尔",
+        "category": "country"
+      },
+      {
+        "name": "美国",
+        "category": "country"
+      },
+      {
+        "name": "乌兹别克斯坦",
+        "category": "country"
+      },
+      {
+        "name": "多哥",
+        "category": "country"
+      },
+      {
+        "name": "日本",
+        "category": "country"
+      },
+      {
+        "name": "俄罗斯",
+        "category": "country"
+      },
+      {
+        "name": "阿尔及利亚",
+        "category": "country"
+      },
+      {
+        "name": "德国",
+        "category": "country"
+      }
+    ],
+    "links": [
+      {
+        "source": "贵州省",
+        "target": "中国香港",
+        "value": 1255537311.0
+      },
+      {
+        "source": "福建省",
+        "target": "中国香港",
+        "value": 1127967907.0
+      },
+      {
+        "source": "福建省",
+        "target": "马来西亚",
+        "value": 1125313567.0
+      },
+      {
+        "source": "浙江省",
+        "target": "摩洛哥",
+        "value": 1033891467.0
+      },
+      {
+        "source": "云南省",
+        "target": "中国香港",
+        "value": 533433589.0
+      },
+      {
+        "source": "安徽省",
+        "target": "加纳",
+        "value": 505787002.0
+      },
+      {
+        "source": "安徽省",
+        "target": "多哥",
+        "value": 306527287.0
+      },
+      {
+        "source": "湖北省",
+        "target": "中国香港",
+        "value": 266288972.0
+      },
+      {
+        "source": "浙江省",
+        "target": "塞内加尔",
+        "value": 251203767.0
+      },
+      {
+        "source": "湖北省",
+        "target": "越南",
+        "value": 245775083.0
+      },
+      {
+        "source": "安徽省",
+        "target": "毛里塔尼亚",
+        "value": 236124886.0
+      },
+      {
+        "source": "福建省",
+        "target": "日本",
+        "value": 233483987.0
+      },
+      {
+        "source": "江西省",
+        "target": "马来西亚",
+        "value": 208243652.0
+      },
+      {
+        "source": "江西省",
+        "target": "中国香港",
+        "value": 205961732.0
+      },
+      {
+        "source": "湖北省",
+        "target": "摩洛哥",
+        "value": 196762232.0
+      },
+      {
+        "source": "浙江省",
+        "target": "毛里塔尼亚",
+        "value": 193475172.0
+      },
+      {
+        "source": "湖南省",
+        "target": "俄罗斯",
+        "value": 171588780.0
+      },
+      {
+        "source": "安徽省",
+        "target": "塞内加尔",
+        "value": 169753466.0
+      },
+      {
+        "source": "福建省",
+        "target": "越南",
+        "value": 139262262.0
+      },
+      {
+        "source": "福建省",
+        "target": "美国",
+        "value": 136193761.0
+      },
+      {
+        "source": "湖北省",
+        "target": "马来西亚",
+        "value": 130750299.0
+      },
+      {
+        "source": "浙江省",
+        "target": "乌兹别克斯坦",
+        "value": 122119819.0
+      },
+      {
+        "source": "安徽省",
+        "target": "阿尔及利亚",
+        "value": 116438149.0
+      },
+      {
+        "source": "浙江省",
+        "target": "中国香港",
+        "value": 105726336.0
+      },
+      {
+        "source": "浙江省",
+        "target": "美国",
+        "value": 93596746.0
+      },
+      {
+        "source": "安徽省",
+        "target": "摩洛哥",
+        "value": 85828657.0
+      },
+      {
+        "source": "浙江省",
+        "target": "阿尔及利亚",
+        "value": 83546717.0
+      },
+      {
+        "source": "浙江省",
+        "target": "日本",
+        "value": 82323646.0
+      },
+      {
+        "source": "湖南省",
+        "target": "德国",
+        "value": 81189024.0
+      },
+      {
+        "source": "湖南省",
+        "target": "摩洛哥",
+        "value": 77548469.0
+      },
+      {
+        "source": "浙江省",
+        "target": "加纳",
+        "value": 71336934.0
+      },
+      {
+        "source": "安徽省",
+        "target": "中国香港",
+        "value": 70751519.0
+      },
+      {
+        "source": "江西省",
+        "target": "加纳",
+        "value": 70740420.0
+      },
+      {
+        "source": "江西省",
+        "target": "毛里塔尼亚",
+        "value": 59548493.0
+      },
+      {
+        "source": "浙江省",
+        "target": "德国",
+        "value": 58764434.0
+      },
+      {
+        "source": "浙江省",
+        "target": "俄罗斯",
+        "value": 54255274.0
+      },
+      {
+        "source": "湖南省",
+        "target": "中国香港",
+        "value": 54065009.0
+      },
+      {
+        "source": "安徽省",
+        "target": "乌兹别克斯坦",
+        "value": 52149166.0
+      },
+      {
+        "source": "浙江省",
+        "target": "马来西亚",
+        "value": 45042516.0
+      },
+      {
+        "source": "福建省",
+        "target": "阿尔及利亚",
+        "value": 43643422.0
+      },
+      {
+        "source": "湖南省",
+        "target": "美国",
+        "value": 43009397.0
+      },
+      {
+        "source": "湖北省",
+        "target": "德国",
+        "value": 41539361.0
+      },
+      {
+        "source": "安徽省",
+        "target": "美国",
+        "value": 39085821.0
+      },
+      {
+        "source": "湖南省",
+        "target": "阿尔及利亚",
+        "value": 38068868.0
+      },
+      {
+        "source": "贵州省",
+        "target": "越南",
+        "value": 32324435.0
+      },
+      {
+        "source": "江西省",
+        "target": "摩洛哥",
+        "value": 31445529.0
+      },
+      {
+        "source": "湖南省",
+        "target": "乌兹别克斯坦",
+        "value": 30843560.0
+      },
+      {
+        "source": "江西省",
+        "target": "俄罗斯",
+        "value": 29461596.0
+      },
+      {
+        "source": "浙江省",
+        "target": "多哥",
+        "value": 27124369.0
+      },
+      {
+        "source": "安徽省",
+        "target": "德国",
+        "value": 26454083.0
+      },
+      {
+        "source": "湖北省",
+        "target": "美国",
+        "value": 25974981.0
+      },
+      {
+        "source": "福建省",
+        "target": "德国",
+        "value": 25577872.0
+      },
+      {
+        "source": "云南省",
+        "target": "越南",
+        "value": 24056216.0
+      },
+      {
+        "source": "贵州省",
+        "target": "俄罗斯",
+        "value": 22741941.0
+      },
+      {
+        "source": "福建省",
+        "target": "乌兹别克斯坦",
+        "value": 22305823.0
+      },
+      {
+        "source": "江西省",
+        "target": "美国",
+        "value": 22150530.0
+      },
+      {
+        "source": "湖北省",
+        "target": "乌兹别克斯坦",
+        "value": 21498376.0
+      },
+      {
+        "source": "湖北省",
+        "target": "阿尔及利亚",
+        "value": 21482746.0
+      },
+      {
+        "source": "贵州省",
+        "target": "美国",
+        "value": 21393152.0
+      },
+      {
+        "source": "江西省",
+        "target": "多哥",
+        "value": 19802453.0
+      },
+      {
+        "source": "江西省",
+        "target": "德国",
+        "value": 18316901.0
+      },
+      {
+        "source": "云南省",
+        "target": "马来西亚",
+        "value": 17884750.0
+      },
+      {
+        "source": "福建省",
+        "target": "俄罗斯",
+        "value": 12612381.0
+      },
+      {
+        "source": "云南省",
+        "target": "德国",
+        "value": 12559025.0
+      },
+      {
+        "source": "江西省",
+        "target": "越南",
+        "value": 12195339.0
+      },
+      {
+        "source": "贵州省",
+        "target": "马来西亚",
+        "value": 12150551.0
+      },
+      {
+        "source": "贵州省",
+        "target": "摩洛哥",
+        "value": 11775306.0
+      },
+      {
+        "source": "湖南省",
+        "target": "塞内加尔",
+        "value": 10606735.0
+      },
+      {
+        "source": "湖北省",
+        "target": "多哥",
+        "value": 8913195.0
+      },
+      {
+        "source": "安徽省",
+        "target": "马来西亚",
+        "value": 6833359.0
+      },
+      {
+        "source": "安徽省",
+        "target": "越南",
+        "value": 6544832.0
+      },
+      {
+        "source": "安徽省",
+        "target": "日本",
+        "value": 6418944.0
+      },
+      {
+        "source": "福建省",
+        "target": "塞内加尔",
+        "value": 5966730.0
+      },
+      {
+        "source": "江西省",
+        "target": "塞内加尔",
+        "value": 5752722.0
+      },
+      {
+        "source": "江西省",
+        "target": "阿尔及利亚",
+        "value": 5450402.0
+      },
+      {
+        "source": "云南省",
+        "target": "俄罗斯",
+        "value": 5070398.0
+      },
+      {
+        "source": "湖北省",
+        "target": "加纳",
+        "value": 4977587.0
+      },
+      {
+        "source": "湖南省",
+        "target": "马来西亚",
+        "value": 4424660.0
+      },
+      {
+        "source": "江西省",
+        "target": "乌兹别克斯坦",
+        "value": 4159093.0
+      },
+      {
+        "source": "贵州省",
+        "target": "德国",
+        "value": 4032277.0
+      },
+      {
+        "source": "湖北省",
+        "target": "俄罗斯",
+        "value": 3883843.0
+      },
+      {
+        "source": "福建省",
+        "target": "摩洛哥",
+        "value": 1950750.0
+      },
+      {
+        "source": "云南省",
+        "target": "美国",
+        "value": 1888022.0
+      },
+      {
+        "source": "湖北省",
+        "target": "毛里塔尼亚",
+        "value": 1510252.0
+      },
+      {
+        "source": "贵州省",
+        "target": "塞内加尔",
+        "value": 1269276.0
+      },
+      {
+        "source": "云南省",
+        "target": "日本",
+        "value": 1132203.0
+      },
+      {
+        "source": "安徽省",
+        "target": "俄罗斯",
+        "value": 919687.0
+      },
+      {
+        "source": "贵州省",
+        "target": "阿尔及利亚",
+        "value": 754442.0
+      },
+      {
+        "source": "湖南省",
+        "target": "毛里塔尼亚",
+        "value": 702967.0
+      },
+      {
+        "source": "湖南省",
+        "target": "日本",
+        "value": 606468.0
+      },
+      {
+        "source": "湖北省",
+        "target": "塞内加尔",
+        "value": 374003.0
+      },
+      {
+        "source": "浙江省",
+        "target": "越南",
+        "value": 108723.0
+      },
+      {
+        "source": "贵州省",
+        "target": "乌兹别克斯坦",
+        "value": 54960.0
+      },
+      {
+        "source": "贵州省",
+        "target": "日本",
+        "value": 28874.0
+      },
+      {
+        "source": "福建省",
+        "target": "毛里塔尼亚",
+        "value": 14598.0
+      },
+      {
+        "source": "江西省",
+        "target": "日本",
+        "value": 4218.0
+      }
+    ],
+    "topProvinces": [
+      {
+        "name": "福建省",
+        "value": 3313639166.0
+      },
+      {
+        "name": "浙江省",
+        "value": 3139503722.0
+      },
+      {
+        "name": "安徽省",
+        "value": 1857357626.0
+      },
+      {
+        "name": "贵州省",
+        "value": 1432819412.0
+      },
+      {
+        "name": "湖北省",
+        "value": 1226473445.0
+      },
+      {
+        "name": "湖南省",
+        "value": 802925598.0
+      },
+      {
+        "name": "江西省",
+        "value": 783745764.0
+      },
+      {
+        "name": "云南省",
+        "value": 700000813.0
+      }
+    ],
+    "topCountries": [
+      {
+        "name": "中国香港",
+        "value": 4182755028.0
+      },
+      {
+        "name": "马来西亚",
+        "value": 1658753712.0
+      },
+      {
+        "name": "摩洛哥",
+        "value": 1473558693.0
+      },
+      {
+        "name": "越南",
+        "value": 829628610.0
+      },
+      {
+        "name": "加纳",
+        "value": 667287329.0
+      },
+      {
+        "name": "毛里塔尼亚",
+        "value": 491376368.0
+      },
+      {
+        "name": "塞内加尔",
+        "value": 452277610.0
+      },
+      {
+        "name": "美国",
+        "value": 432389382.0
+      },
+      {
+        "name": "乌兹别克斯坦",
+        "value": 362620569.0
+      },
+      {
+        "name": "多哥",
+        "value": 362367304.0
+      },
+      {
+        "name": "日本",
+        "value": 351332476.0
+      },
+      {
+        "name": "俄罗斯",
+        "value": 333617648.0
+      },
+      {
+        "name": "阿尔及利亚",
+        "value": 324929883.0
+      },
+      {
+        "name": "德国",
+        "value": 281778274.0
+      }
+    ]
+  },
+  {
+    "year": 2022,
+    "nodes": [
+      {
+        "name": "福建省",
+        "category": "province"
+      },
+      {
+        "name": "浙江省",
+        "category": "province"
+      },
+      {
+        "name": "安徽省",
+        "category": "province"
+      },
+      {
+        "name": "湖北省",
+        "category": "province"
+      },
+      {
+        "name": "湖南省",
+        "category": "province"
+      },
+      {
+        "name": "江西省",
+        "category": "province"
+      },
+      {
+        "name": "贵州省",
+        "category": "province"
+      },
+      {
+        "name": "广东省",
+        "category": "province"
+      },
+      {
+        "name": "中国香港",
+        "category": "country"
+      },
+      {
+        "name": "马来西亚",
+        "category": "country"
+      },
+      {
+        "name": "摩洛哥",
+        "category": "country"
+      },
+      {
+        "name": "越南",
+        "category": "country"
+      },
+      {
+        "name": "加纳",
+        "category": "country"
+      },
+      {
+        "name": "美国",
+        "category": "country"
+      },
+      {
+        "name": "塞内加尔",
+        "category": "country"
+      },
+      {
+        "name": "毛里塔尼亚",
+        "category": "country"
+      },
+      {
+        "name": "乌兹别克斯坦",
+        "category": "country"
+      },
+      {
+        "name": "俄罗斯",
+        "category": "country"
+      },
+      {
+        "name": "德国",
+        "category": "country"
+      },
+      {
+        "name": "阿尔及利亚",
+        "category": "country"
+      },
+      {
+        "name": "日本",
+        "category": "country"
+      },
+      {
+        "name": "泰国",
+        "category": "country"
+      }
+    ],
+    "links": [
+      {
+        "source": "福建省",
+        "target": "马来西亚",
+        "value": 1157028896.0
+      },
+      {
+        "source": "浙江省",
+        "target": "摩洛哥",
+        "value": 1111107875.0
+      },
+      {
+        "source": "福建省",
+        "target": "中国香港",
+        "value": 1078543395.0
+      },
+      {
+        "source": "安徽省",
+        "target": "加纳",
+        "value": 525903845.0
+      },
+      {
+        "source": "湖北省",
+        "target": "中国香港",
+        "value": 370929851.0
+      },
+      {
+        "source": "广东省",
+        "target": "中国香港",
+        "value": 341048058.0
+      },
+      {
+        "source": "浙江省",
+        "target": "塞内加尔",
+        "value": 225818826.0
+      },
+      {
+        "source": "江西省",
+        "target": "马来西亚",
+        "value": 223668770.0
+      },
+      {
+        "source": "江西省",
+        "target": "中国香港",
+        "value": 223347670.0
+      },
+      {
+        "source": "福建省",
+        "target": "泰国",
+        "value": 207493017.0
+      },
+      {
+        "source": "福建省",
+        "target": "日本",
+        "value": 197360665.0
+      },
+      {
+        "source": "福建省",
+        "target": "越南",
+        "value": 190977929.0
+      },
+      {
+        "source": "安徽省",
+        "target": "塞内加尔",
+        "value": 190503713.0
+      },
+      {
+        "source": "湖南省",
+        "target": "俄罗斯",
+        "value": 180637166.0
+      },
+      {
+        "source": "湖北省",
+        "target": "摩洛哥",
+        "value": 176983801.0
+      },
+      {
+        "source": "湖北省",
+        "target": "越南",
+        "value": 171220587.0
+      },
+      {
+        "source": "安徽省",
+        "target": "毛里塔尼亚",
+        "value": 166442456.0
+      },
+      {
+        "source": "湖南省",
+        "target": "摩洛哥",
+        "value": 159429255.0
+      },
+      {
+        "source": "贵州省",
+        "target": "中国香港",
+        "value": 157682479.0
+      },
+      {
+        "source": "浙江省",
+        "target": "毛里塔尼亚",
+        "value": 143501215.0
+      },
+      {
+        "source": "湖北省",
+        "target": "马来西亚",
+        "value": 140790419.0
+      },
+      {
+        "source": "福建省",
+        "target": "美国",
+        "value": 122845613.0
+      },
+      {
+        "source": "浙江省",
+        "target": "美国",
+        "value": 119474893.0
+      },
+      {
+        "source": "浙江省",
+        "target": "乌兹别克斯坦",
+        "value": 110941717.0
+      },
+      {
+        "source": "贵州省",
+        "target": "马来西亚",
+        "value": 104790402.0
+      },
+      {
+        "source": "湖南省",
+        "target": "德国",
+        "value": 95178527.0
+      },
+      {
+        "source": "浙江省",
+        "target": "阿尔及利亚",
+        "value": 93995169.0
+      },
+      {
+        "source": "安徽省",
+        "target": "阿尔及利亚",
+        "value": 91818019.0
+      },
+      {
+        "source": "江西省",
+        "target": "加纳",
+        "value": 83277738.0
+      },
+      {
+        "source": "江西省",
+        "target": "越南",
+        "value": 82677779.0
+      },
+      {
+        "source": "浙江省",
+        "target": "加纳",
+        "value": 70053563.0
+      },
+      {
+        "source": "浙江省",
+        "target": "日本",
+        "value": 70018564.0
+      },
+      {
+        "source": "福建省",
+        "target": "阿尔及利亚",
+        "value": 65765659.0
+      },
+      {
+        "source": "湖北省",
+        "target": "德国",
+        "value": 59271687.0
+      },
+      {
+        "source": "浙江省",
+        "target": "马来西亚",
+        "value": 58241124.0
+      },
+      {
+        "source": "浙江省",
+        "target": "德国",
+        "value": 58034867.0
+      },
+      {
+        "source": "湖南省",
+        "target": "中国香港",
+        "value": 57728110.0
+      },
+      {
+        "source": "安徽省",
+        "target": "摩洛哥",
+        "value": 56224336.0
+      },
+      {
+        "source": "安徽省",
+        "target": "美国",
+        "value": 51695707.0
+      },
+      {
+        "source": "江西省",
+        "target": "毛里塔尼亚",
+        "value": 44830184.0
+      },
+      {
+        "source": "安徽省",
+        "target": "乌兹别克斯坦",
+        "value": 44588154.0
+      },
+      {
+        "source": "浙江省",
+        "target": "俄罗斯",
+        "value": 44080509.0
+      },
+      {
+        "source": "福建省",
+        "target": "乌兹别克斯坦",
+        "value": 43295510.0
+      },
+      {
+        "source": "湖南省",
+        "target": "乌兹别克斯坦",
+        "value": 39103788.0
+      },
+      {
+        "source": "湖南省",
+        "target": "美国",
+        "value": 38772161.0
+      },
+      {
+        "source": "浙江省",
+        "target": "中国香港",
+        "value": 38438782.0
+      },
+      {
+        "source": "安徽省",
+        "target": "德国",
+        "value": 35510226.0
+      },
+      {
+        "source": "湖北省",
+        "target": "乌兹别克斯坦",
+        "value": 32749579.0
+      },
+      {
+        "source": "贵州省",
+        "target": "摩洛哥",
+        "value": 30875339.0
+      },
+      {
+        "source": "贵州省",
+        "target": "俄罗斯",
+        "value": 28821745.0
+      },
+      {
+        "source": "江西省",
+        "target": "摩洛哥",
+        "value": 28160833.0
+      },
+      {
+        "source": "湖南省",
+        "target": "阿尔及利亚",
+        "value": 27678788.0
+      },
+      {
+        "source": "贵州省",
+        "target": "美国",
+        "value": 27503866.0
+      },
+      {
+        "source": "湖北省",
+        "target": "俄罗斯",
+        "value": 25269616.0
+      },
+      {
+        "source": "江西省",
+        "target": "俄罗斯",
+        "value": 24780643.0
+      },
+      {
+        "source": "湖北省",
+        "target": "美国",
+        "value": 24688164.0
+      },
+      {
+        "source": "贵州省",
+        "target": "越南",
+        "value": 24605027.0
+      },
+      {
+        "source": "湖北省",
+        "target": "泰国",
+        "value": 24580976.0
+      },
+      {
+        "source": "贵州省",
+        "target": "乌兹别克斯坦",
+        "value": 22117027.0
+      },
+      {
+        "source": "广东省",
+        "target": "日本",
+        "value": 21693614.0
+      },
+      {
+        "source": "福建省",
+        "target": "德国",
+        "value": 20806702.0
+      },
+      {
+        "source": "广东省",
+        "target": "马来西亚",
+        "value": 20405297.0
+      },
+      {
+        "source": "安徽省",
+        "target": "中国香港",
+        "value": 20044030.0
+      },
+      {
+        "source": "广东省",
+        "target": "美国",
+        "value": 16357512.0
+      },
+      {
+        "source": "湖北省",
+        "target": "毛里塔尼亚",
+        "value": 15155684.0
+      },
+      {
+        "source": "湖北省",
+        "target": "塞内加尔",
+        "value": 14749308.0
+      },
+      {
+        "source": "江西省",
+        "target": "美国",
+        "value": 14716691.0
+      },
+      {
+        "source": "湖南省",
+        "target": "塞内加尔",
+        "value": 14220862.0
+      },
+      {
+        "source": "湖南省",
+        "target": "泰国",
+        "value": 13626424.0
+      },
+      {
+        "source": "湖北省",
+        "target": "阿尔及利亚",
+        "value": 12680003.0
+      },
+      {
+        "source": "江西省",
+        "target": "德国",
+        "value": 11543534.0
+      },
+      {
+        "source": "广东省",
+        "target": "德国",
+        "value": 10680020.0
+      },
+      {
+        "source": "安徽省",
+        "target": "越南",
+        "value": 9599459.0
+      },
+      {
+        "source": "贵州省",
+        "target": "塞内加尔",
+        "value": 7292293.0
+      },
+      {
+        "source": "福建省",
+        "target": "俄罗斯",
+        "value": 7247003.0
+      },
+      {
+        "source": "安徽省",
+        "target": "日本",
+        "value": 5943988.0
+      },
+      {
+        "source": "江西省",
+        "target": "乌兹别克斯坦",
+        "value": 4684546.0
+      },
+      {
+        "source": "贵州省",
+        "target": "德国",
+        "value": 3912087.0
+      },
+      {
+        "source": "广东省",
+        "target": "越南",
+        "value": 3225124.0
+      },
+      {
+        "source": "浙江省",
+        "target": "泰国",
+        "value": 3072040.0
+      },
+      {
+        "source": "江西省",
+        "target": "塞内加尔",
+        "value": 2901596.0
+      },
+      {
+        "source": "广东省",
+        "target": "塞内加尔",
+        "value": 2348131.0
+      },
+      {
+        "source": "安徽省",
+        "target": "马来西亚",
+        "value": 2186470.0
+      },
+      {
+        "source": "江西省",
+        "target": "阿尔及利亚",
+        "value": 1901469.0
+      },
+      {
+        "source": "广东省",
+        "target": "俄罗斯",
+        "value": 1497950.0
+      },
+      {
+        "source": "福建省",
+        "target": "塞内加尔",
+        "value": 834711.0
+      },
+      {
+        "source": "安徽省",
+        "target": "俄罗斯",
+        "value": 833523.0
+      },
+      {
+        "source": "湖南省",
+        "target": "毛里塔尼亚",
+        "value": 746275.0
+      },
+      {
+        "source": "贵州省",
+        "target": "加纳",
+        "value": 701593.0
+      },
+      {
+        "source": "广东省",
+        "target": "泰国",
+        "value": 517807.0
+      },
+      {
+        "source": "湖南省",
+        "target": "日本",
+        "value": 464598.0
+      },
+      {
+        "source": "浙江省",
+        "target": "越南",
+        "value": 246527.0
+      },
+      {
+        "source": "贵州省",
+        "target": "日本",
+        "value": 85368.0
+      },
+      {
+        "source": "湖南省",
+        "target": "马来西亚",
+        "value": 56427.0
+      },
+      {
+        "source": "福建省",
+        "target": "毛里塔尼亚",
+        "value": 29959.0
+      },
+      {
+        "source": "江西省",
+        "target": "泰国",
+        "value": 27857.0
+      },
+      {
+        "source": "安徽省",
+        "target": "泰国",
+        "value": 10776.0
+      },
+      {
+        "source": "江西省",
+        "target": "日本",
+        "value": 433.0
+      }
+    ],
+    "topProvinces": [
+      {
+        "name": "福建省",
+        "value": 3541806501.0
+      },
+      {
+        "name": "浙江省",
+        "value": 3211279987.0
+      },
+      {
+        "name": "安徽省",
+        "value": 1632262711.0
+      },
+      {
+        "name": "湖北省",
+        "value": 1341551435.0
+      },
+      {
+        "name": "湖南省",
+        "value": 933895214.0
+      },
+      {
+        "name": "江西省",
+        "value": 867595819.0
+      },
+      {
+        "name": "贵州省",
+        "value": 574317544.0
+      },
+      {
+        "name": "广东省",
+        "value": 460932671.0
+      }
+    ],
+    "topCountries": [
+      {
+        "name": "中国香港",
+        "value": 2629923019.0
+      },
+      {
+        "name": "马来西亚",
+        "value": 1908942388.0
+      },
+      {
+        "name": "摩洛哥",
+        "value": 1589076397.0
+      },
+      {
+        "name": "越南",
+        "value": 727573414.0
+      },
+      {
+        "name": "加纳",
+        "value": 700339005.0
+      },
+      {
+        "name": "美国",
+        "value": 459004579.0
+      },
+      {
+        "name": "塞内加尔",
+        "value": 458669440.0
+      },
+      {
+        "name": "毛里塔尼亚",
+        "value": 370705773.0
+      },
+      {
+        "name": "乌兹别克斯坦",
+        "value": 369039751.0
+      },
+      {
+        "name": "俄罗斯",
+        "value": 347599992.0
+      },
+      {
+        "name": "德国",
+        "value": 317671522.0
+      },
+      {
+        "name": "阿尔及利亚",
+        "value": 313516751.0
+      },
+      {
+        "name": "日本",
+        "value": 299585535.0
+      },
+      {
+        "name": "泰国",
+        "value": 287764670.0
+      }
+    ]
+  },
+  {
+    "year": 2023,
+    "nodes": [
+      {
+        "name": "浙江省",
+        "category": "province"
+      },
+      {
+        "name": "福建省",
+        "category": "province"
+      },
+      {
+        "name": "安徽省",
+        "category": "province"
+      },
+      {
+        "name": "湖北省",
+        "category": "province"
+      },
+      {
+        "name": "湖南省",
+        "category": "province"
+      },
+      {
+        "name": "江西省",
+        "category": "province"
+      },
+      {
+        "name": "贵州省",
+        "category": "province"
+      },
+      {
+        "name": "广东省",
+        "category": "province"
+      },
+      {
+        "name": "中国香港",
+        "category": "country"
+      },
+      {
+        "name": "马来西亚",
+        "category": "country"
+      },
+      {
+        "name": "摩洛哥",
+        "category": "country"
+      },
+      {
+        "name": "加纳",
+        "category": "country"
+      },
+      {
+        "name": "阿尔及利亚",
+        "category": "country"
+      },
+      {
+        "name": "塞内加尔",
+        "category": "country"
+      },
+      {
+        "name": "毛里塔尼亚",
+        "category": "country"
+      },
+      {
+        "name": "越南",
+        "category": "country"
+      },
+      {
+        "name": "美国",
+        "category": "country"
+      },
+      {
+        "name": "俄罗斯",
+        "category": "country"
+      },
+      {
+        "name": "日本",
+        "category": "country"
+      },
+      {
+        "name": "乌兹别克斯坦",
+        "category": "country"
+      },
+      {
+        "name": "马里",
+        "category": "country"
+      },
+      {
+        "name": "德国",
+        "category": "country"
+      }
+    ],
+    "links": [
+      {
+        "source": "浙江省",
+        "target": "摩洛哥",
+        "value": 899523005.0
+      },
+      {
+        "source": "安徽省",
+        "target": "加纳",
+        "value": 731438599.0
+      },
+      {
+        "source": "福建省",
+        "target": "马来西亚",
+        "value": 530844952.0
+      },
+      {
+        "source": "福建省",
+        "target": "中国香港",
+        "value": 455953674.0
+      },
+      {
+        "source": "湖北省",
+        "target": "中国香港",
+        "value": 350647540.0
+      },
+      {
+        "source": "广东省",
+        "target": "中国香港",
+        "value": 317781512.0
+      },
+      {
+        "source": "江西省",
+        "target": "马来西亚",
+        "value": 261373498.0
+      },
+      {
+        "source": "贵州省",
+        "target": "马来西亚",
+        "value": 259988195.0
+      },
+      {
+        "source": "安徽省",
+        "target": "毛里塔尼亚",
+        "value": 244090348.0
+      },
+      {
+        "source": "福建省",
+        "target": "日本",
+        "value": 239228142.0
+      },
+      {
+        "source": "湖北省",
+        "target": "摩洛哥",
+        "value": 233093312.0
+      },
+      {
+        "source": "浙江省",
+        "target": "塞内加尔",
+        "value": 219578097.0
+      },
+      {
+        "source": "浙江省",
+        "target": "马里",
+        "value": 179394889.0
+      },
+      {
+        "source": "浙江省",
+        "target": "加纳",
+        "value": 178981021.0
+      },
+      {
+        "source": "福建省",
+        "target": "马里",
+        "value": 170623577.0
+      },
+      {
+        "source": "安徽省",
+        "target": "塞内加尔",
+        "value": 168746615.0
+      },
+      {
+        "source": "湖北省",
+        "target": "马来西亚",
+        "value": 155333666.0
+      },
+      {
+        "source": "浙江省",
+        "target": "毛里塔尼亚",
+        "value": 150514316.0
+      },
+      {
+        "source": "浙江省",
+        "target": "阿尔及利亚",
+        "value": 145974403.0
+      },
+      {
+        "source": "湖南省",
+        "target": "俄罗斯",
+        "value": 142533273.0
+      },
+      {
+        "source": "福建省",
+        "target": "越南",
+        "value": 140585245.0
+      },
+      {
+        "source": "浙江省",
+        "target": "乌兹别克斯坦",
+        "value": 138665700.0
+      },
+      {
+        "source": "安徽省",
+        "target": "阿尔及利亚",
+        "value": 131422077.0
+      },
+      {
+        "source": "贵州省",
+        "target": "中国香港",
+        "value": 117627987.0
+      },
+      {
+        "source": "福建省",
+        "target": "美国",
+        "value": 110262997.0
+      },
+      {
+        "source": "湖北省",
+        "target": "越南",
+        "value": 106484864.0
+      },
+      {
+        "source": "贵州省",
+        "target": "越南",
+        "value": 105775384.0
+      },
+      {
+        "source": "湖南省",
+        "target": "摩洛哥",
+        "value": 105317625.0
+      },
+      {
+        "source": "江西省",
+        "target": "中国香港",
+        "value": 101370433.0
+      },
+      {
+        "source": "福建省",
+        "target": "阿尔及利亚",
+        "value": 100421210.0
+      },
+      {
+        "source": "浙江省",
+        "target": "马来西亚",
+        "value": 95578328.0
+      },
+      {
+        "source": "湖北省",
+        "target": "俄罗斯",
+        "value": 89087070.0
+      },
+      {
+        "source": "浙江省",
+        "target": "日本",
+        "value": 88244061.0
+      },
+      {
+        "source": "浙江省",
+        "target": "美国",
+        "value": 80052360.0
+      },
+      {
+        "source": "湖南省",
+        "target": "德国",
+        "value": 75857033.0
+      },
+      {
+        "source": "江西省",
+        "target": "加纳",
+        "value": 67516854.0
+      },
+      {
+        "source": "浙江省",
+        "target": "德国",
+        "value": 60491083.0
+      },
+      {
+        "source": "江西省",
+        "target": "毛里塔尼亚",
+        "value": 59021382.0
+      },
+      {
+        "source": "安徽省",
+        "target": "摩洛哥",
+        "value": 57169721.0
+      },
+      {
+        "source": "湖南省",
+        "target": "阿尔及利亚",
+        "value": 56012309.0
+      },
+      {
+        "source": "贵州省",
+        "target": "美国",
+        "value": 52146228.0
+      },
+      {
+        "source": "湖南省",
+        "target": "乌兹别克斯坦",
+        "value": 47874280.0
+      },
+      {
+        "source": "安徽省",
+        "target": "乌兹别克斯坦",
+        "value": 43951433.0
+      },
+      {
+        "source": "湖北省",
+        "target": "塞内加尔",
+        "value": 43419712.0
+      },
+      {
+        "source": "贵州省",
+        "target": "俄罗斯",
+        "value": 42807444.0
+      },
+      {
+        "source": "湖南省",
+        "target": "美国",
+        "value": 42517837.0
+      },
+      {
+        "source": "湖北省",
+        "target": "德国",
+        "value": 38080763.0
+      },
+      {
+        "source": "安徽省",
+        "target": "美国",
+        "value": 35750893.0
+      },
+      {
+        "source": "浙江省",
+        "target": "俄罗斯",
+        "value": 35629523.0
+      },
+      {
+        "source": "湖北省",
+        "target": "阿尔及利亚",
+        "value": 34172185.0
+      },
+      {
+        "source": "湖北省",
+        "target": "乌兹别克斯坦",
+        "value": 31500171.0
+      },
+      {
+        "source": "广东省",
+        "target": "日本",
+        "value": 27049973.0
+      },
+      {
+        "source": "湖南省",
+        "target": "塞内加尔",
+        "value": 23579377.0
+      },
+      {
+        "source": "安徽省",
+        "target": "德国",
+        "value": 21876901.0
+      },
+      {
+        "source": "湖北省",
+        "target": "美国",
+        "value": 21169142.0
+      },
+      {
+        "source": "贵州省",
+        "target": "摩洛哥",
+        "value": 20149489.0
+      },
+      {
+        "source": "江西省",
+        "target": "越南",
+        "value": 18588287.0
+      },
+      {
+        "source": "福建省",
+        "target": "德国",
+        "value": 17111429.0
+      },
+      {
+        "source": "江西省",
+        "target": "俄罗斯",
+        "value": 16664002.0
+      },
+      {
+        "source": "江西省",
+        "target": "美国",
+        "value": 15656803.0
+      },
+      {
+        "source": "湖北省",
+        "target": "毛里塔尼亚",
+        "value": 15202635.0
+      },
+      {
+        "source": "广东省",
+        "target": "马来西亚",
+        "value": 14266671.0
+      },
+      {
+        "source": "浙江省",
+        "target": "中国香港",
+        "value": 13097952.0
+      },
+      {
+        "source": "安徽省",
+        "target": "中国香港",
+        "value": 12089679.0
+      },
+      {
+        "source": "贵州省",
+        "target": "塞内加尔",
+        "value": 11129603.0
+      },
+      {
+        "source": "贵州省",
+        "target": "乌兹别克斯坦",
+        "value": 10937459.0
+      },
+      {
+        "source": "广东省",
+        "target": "美国",
+        "value": 10396620.0
+      },
+      {
+        "source": "江西省",
+        "target": "德国",
+        "value": 10392320.0
+      },
+      {
+        "source": "江西省",
+        "target": "塞内加尔",
+        "value": 9355770.0
+      },
+      {
+        "source": "福建省",
+        "target": "俄罗斯",
+        "value": 9329192.0
+      },
+      {
+        "source": "江西省",
+        "target": "乌兹别克斯坦",
+        "value": 9100561.0
+      },
+      {
+        "source": "安徽省",
+        "target": "日本",
+        "value": 8639134.0
+      },
+      {
+        "source": "江西省",
+        "target": "阿尔及利亚",
+        "value": 8558984.0
+      },
+      {
+        "source": "江西省",
+        "target": "摩洛哥",
+        "value": 7733013.0
+      },
+      {
+        "source": "湖南省",
+        "target": "中国香港",
+        "value": 7637504.0
+      },
+      {
+        "source": "广东省",
+        "target": "塞内加尔",
+        "value": 7469028.0
+      },
+      {
+        "source": "广东省",
+        "target": "德国",
+        "value": 7107067.0
+      },
+      {
+        "source": "福建省",
+        "target": "乌兹别克斯坦",
+        "value": 6373744.0
+      },
+      {
+        "source": "贵州省",
+        "target": "德国",
+        "value": 3271748.0
+      },
+      {
+        "source": "福建省",
+        "target": "塞内加尔",
+        "value": 3130332.0
+      },
+      {
+        "source": "湖北省",
+        "target": "加纳",
+        "value": 3068824.0
+      },
+      {
+        "source": "安徽省",
+        "target": "越南",
+        "value": 2671558.0
+      },
+      {
+        "source": "湖南省",
+        "target": "毛里塔尼亚",
+        "value": 2460478.0
+      },
+      {
+        "source": "广东省",
+        "target": "俄罗斯",
+        "value": 2090685.0
+      },
+      {
+        "source": "湖北省",
+        "target": "马里",
+        "value": 1473098.0
+      },
+      {
+        "source": "安徽省",
+        "target": "马里",
+        "value": 1388036.0
+      },
+      {
+        "source": "湖南省",
+        "target": "日本",
+        "value": 1337184.0
+      },
+      {
+        "source": "湖南省",
+        "target": "马来西亚",
+        "value": 1108213.0
+      },
+      {
+        "source": "浙江省",
+        "target": "越南",
+        "value": 949300.0
+      },
+      {
+        "source": "湖南省",
+        "target": "马里",
+        "value": 848924.0
+      },
+      {
+        "source": "安徽省",
+        "target": "俄罗斯",
+        "value": 787754.0
+      },
+      {
+        "source": "湖南省",
+        "target": "越南",
+        "value": 640479.0
+      },
+      {
+        "source": "安徽省",
+        "target": "马来西亚",
+        "value": 483028.0
+      },
+      {
+        "source": "广东省",
+        "target": "越南",
+        "value": 171683.0
+      },
+      {
+        "source": "福建省",
+        "target": "摩洛哥",
+        "value": 156016.0
+      },
+      {
+        "source": "江西省",
+        "target": "日本",
+        "value": 504.0
+      },
+      {
+        "source": "江西省",
+        "target": "马里",
+        "value": 41.0
+      }
+    ],
+    "topProvinces": [
+      {
+        "name": "浙江省",
+        "value": 3269408148.0
+      },
+      {
+        "name": "福建省",
+        "value": 2144519394.0
+      },
+      {
+        "name": "安徽省",
+        "value": 1759521964.0
+      },
+      {
+        "name": "湖北省",
+        "value": 1372048145.0
+      },
+      {
+        "name": "湖南省",
+        "value": 819254707.0
+      },
+      {
+        "name": "江西省",
+        "value": 696808942.0
+      },
+      {
+        "name": "贵州省",
+        "value": 683685588.0
+      },
+      {
+        "name": "广东省",
+        "value": 433902271.0
+      }
+    ],
+    "topCountries": [
+      {
+        "name": "中国香港",
+        "value": 1551111715.0
+      },
+      {
+        "name": "马来西亚",
+        "value": 1461310370.0
+      },
+      {
+        "name": "摩洛哥",
+        "value": 1343079297.0
+      },
+      {
+        "name": "加纳",
+        "value": 998462205.0
+      },
+      {
+        "name": "阿尔及利亚",
+        "value": 497781665.0
+      },
+      {
+        "name": "塞内加尔",
+        "value": 486409294.0
+      },
+      {
+        "name": "毛里塔尼亚",
+        "value": 471289159.0
+      },
+      {
+        "name": "越南",
+        "value": 451634429.0
+      },
+      {
+        "name": "美国",
+        "value": 395627263.0
+      },
+      {
+        "name": "俄罗斯",
+        "value": 382630214.0
+      },
+      {
+        "name": "日本",
+        "value": 369723877.0
+      },
+      {
+        "name": "乌兹别克斯坦",
+        "value": 366411649.0
+      },
+      {
+        "name": "马里",
+        "value": 353728565.0
+      },
+      {
+        "name": "德国",
+        "value": 252157149.0
+      }
+    ]
+  },
+  {
+    "year": 2024,
+    "nodes": [
+      {
+        "name": "浙江省",
+        "category": "province"
+      },
+      {
+        "name": "安徽省",
+        "category": "province"
+      },
+      {
+        "name": "福建省",
+        "category": "province"
+      },
+      {
+        "name": "湖南省",
+        "category": "province"
+      },
+      {
+        "name": "湖北省",
+        "category": "province"
+      },
+      {
+        "name": "江西省",
+        "category": "province"
+      },
+      {
+        "name": "河南省",
+        "category": "province"
+      },
+      {
+        "name": "贵州省",
+        "category": "province"
+      },
+      {
+        "name": "摩洛哥",
+        "category": "country"
+      },
+      {
+        "name": "加纳",
+        "category": "country"
+      },
+      {
+        "name": "马来西亚",
+        "category": "country"
+      },
+      {
+        "name": "毛里塔尼亚",
+        "category": "country"
+      },
+      {
+        "name": "美国",
+        "category": "country"
+      },
+      {
+        "name": "塞内加尔",
+        "category": "country"
+      },
+      {
+        "name": "俄罗斯",
+        "category": "country"
+      },
+      {
+        "name": "乌兹别克斯坦",
+        "category": "country"
+      },
+      {
+        "name": "阿尔及利亚",
+        "category": "country"
+      },
+      {
+        "name": "日本",
+        "category": "country"
+      },
+      {
+        "name": "中国香港",
+        "category": "country"
+      },
+      {
+        "name": "德国",
+        "category": "country"
+      },
+      {
+        "name": "泰国",
+        "category": "country"
+      },
+      {
+        "name": "冈比亚",
+        "category": "country"
+      }
+    ],
+    "links": [
+      {
+        "source": "浙江省",
+        "target": "摩洛哥",
+        "value": 1068306257.0
+      },
+      {
+        "source": "安徽省",
+        "target": "加纳",
+        "value": 692952606.0
+      },
+      {
+        "source": "安徽省",
+        "target": "毛里塔尼亚",
+        "value": 342351051.0
+      },
+      {
+        "source": "福建省",
+        "target": "马来西亚",
+        "value": 303707762.0
+      },
+      {
+        "source": "浙江省",
+        "target": "加纳",
+        "value": 302392331.0
+      },
+      {
+        "source": "湖北省",
+        "target": "摩洛哥",
+        "value": 282223983.0
+      },
+      {
+        "source": "浙江省",
+        "target": "塞内加尔",
+        "value": 272330580.0
+      },
+      {
+        "source": "福建省",
+        "target": "日本",
+        "value": 222530142.0
+      },
+      {
+        "source": "湖南省",
+        "target": "俄罗斯",
+        "value": 188897417.0
+      },
+      {
+        "source": "浙江省",
+        "target": "冈比亚",
+        "value": 179400023.0
+      },
+      {
+        "source": "湖南省",
+        "target": "摩洛哥",
+        "value": 154286120.0
+      },
+      {
+        "source": "浙江省",
+        "target": "美国",
+        "value": 148216451.0
+      },
+      {
+        "source": "安徽省",
+        "target": "阿尔及利亚",
+        "value": 141916665.0
+      },
+      {
+        "source": "江西省",
+        "target": "马来西亚",
+        "value": 140087270.0
+      },
+      {
+        "source": "福建省",
+        "target": "泰国",
+        "value": 125099879.0
+      },
+      {
+        "source": "福建省",
+        "target": "中国香港",
+        "value": 108364396.0
+      },
+      {
+        "source": "浙江省",
+        "target": "日本",
+        "value": 92112694.0
+      },
+      {
+        "source": "安徽省",
+        "target": "摩洛哥",
+        "value": 88844962.0
+      },
+      {
+        "source": "浙江省",
+        "target": "阿尔及利亚",
+        "value": 88803310.0
+      },
+      {
+        "source": "浙江省",
+        "target": "乌兹别克斯坦",
+        "value": 84596876.0
+      },
+      {
+        "source": "河南省",
+        "target": "马来西亚",
+        "value": 82982013.0
+      },
+      {
+        "source": "湖南省",
+        "target": "德国",
+        "value": 82563927.0
+      },
+      {
+        "source": "安徽省",
+        "target": "塞内加尔",
+        "value": 77697697.0
+      },
+      {
+        "source": "江西省",
+        "target": "加纳",
+        "value": 74698539.0
+      },
+      {
+        "source": "湖南省",
+        "target": "美国",
+        "value": 72154634.0
+      },
+      {
+        "source": "浙江省",
+        "target": "毛里塔尼亚",
+        "value": 71947801.0
+      },
+      {
+        "source": "福建省",
+        "target": "美国",
+        "value": 68419978.0
+      },
+      {
+        "source": "浙江省",
+        "target": "德国",
+        "value": 68340040.0
+      },
+      {
+        "source": "河南省",
+        "target": "乌兹别克斯坦",
+        "value": 53371988.0
+      },
+      {
+        "source": "贵州省",
+        "target": "中国香港",
+        "value": 49836611.0
+      },
+      {
+        "source": "湖北省",
+        "target": "俄罗斯",
+        "value": 48144624.0
+      },
+      {
+        "source": "福建省",
+        "target": "阿尔及利亚",
+        "value": 47062976.0
+      },
+      {
+        "source": "湖北省",
+        "target": "马来西亚",
+        "value": 44286335.0
+      },
+      {
+        "source": "河南省",
+        "target": "摩洛哥",
+        "value": 43492183.0
+      },
+      {
+        "source": "湖北省",
+        "target": "塞内加尔",
+        "value": 40245400.0
+      },
+      {
+        "source": "浙江省",
+        "target": "俄罗斯",
+        "value": 39781026.0
+      },
+      {
+        "source": "湖南省",
+        "target": "阿尔及利亚",
+        "value": 39521031.0
+      },
+      {
+        "source": "湖南省",
+        "target": "乌兹别克斯坦",
+        "value": 39154945.0
+      },
+      {
+        "source": "湖北省",
+        "target": "阿尔及利亚",
+        "value": 39009735.0
+      },
+      {
+        "source": "湖北省",
+        "target": "德国",
+        "value": 38443769.0
+      },
+      {
+        "source": "贵州省",
+        "target": "俄罗斯",
+        "value": 36934436.0
+      },
+      {
+        "source": "江西省",
+        "target": "毛里塔尼亚",
+        "value": 35422401.0
+      },
+      {
+        "source": "湖北省",
+        "target": "乌兹别克斯坦",
+        "value": 33376887.0
+      },
+      {
+        "source": "安徽省",
+        "target": "冈比亚",
+        "value": 32584138.0
+      },
+      {
+        "source": "福建省",
+        "target": "摩洛哥",
+        "value": 32474482.0
+      },
+      {
+        "source": "安徽省",
+        "target": "乌兹别克斯坦",
+        "value": 31994931.0
+      },
+      {
+        "source": "安徽省",
+        "target": "美国",
+        "value": 31691671.0
+      },
+      {
+        "source": "贵州省",
+        "target": "摩洛哥",
+        "value": 31475659.0
+      },
+      {
+        "source": "贵州省",
+        "target": "马来西亚",
+        "value": 31267520.0
+      },
+      {
+        "source": "湖北省",
+        "target": "中国香港",
+        "value": 28547041.0
+      },
+      {
+        "source": "贵州省",
+        "target": "美国",
+        "value": 27519240.0
+      },
+      {
+        "source": "湖北省",
+        "target": "美国",
+        "value": 25983086.0
+      },
+      {
+        "source": "安徽省",
+        "target": "德国",
+        "value": 24181258.0
+      },
+      {
+        "source": "湖北省",
+        "target": "泰国",
+        "value": 23341187.0
+      },
+      {
+        "source": "湖南省",
+        "target": "塞内加尔",
+        "value": 21238733.0
+      },
+      {
+        "source": "湖南省",
+        "target": "泰国",
+        "value": 17923735.0
+      },
+      {
+        "source": "贵州省",
+        "target": "乌兹别克斯坦",
+        "value": 17165277.0
+      },
+      {
+        "source": "湖北省",
+        "target": "毛里塔尼亚",
+        "value": 16346753.0
+      },
+      {
+        "source": "湖北省",
+        "target": "加纳",
+        "value": 16344562.0
+      },
+      {
+        "source": "安徽省",
+        "target": "中国香港",
+        "value": 14640586.0
+      },
+      {
+        "source": "江西省",
+        "target": "德国",
+        "value": 14024935.0
+      },
+      {
+        "source": "江西省",
+        "target": "美国",
+        "value": 13692214.0
+      },
+      {
+        "source": "福建省",
+        "target": "德国",
+        "value": 12899828.0
+      },
+      {
+        "source": "江西省",
+        "target": "泰国",
+        "value": 11532138.0
+      },
+      {
+        "source": "福建省",
+        "target": "俄罗斯",
+        "value": 11158607.0
+      },
+      {
+        "source": "江西省",
+        "target": "俄罗斯",
+        "value": 10532156.0
+      },
+      {
+        "source": "河南省",
+        "target": "阿尔及利亚",
+        "value": 9918503.0
+      },
+      {
+        "source": "浙江省",
+        "target": "马来西亚",
+        "value": 9694783.0
+      },
+      {
+        "source": "江西省",
+        "target": "塞内加尔",
+        "value": 9643939.0
+      },
+      {
+        "source": "浙江省",
+        "target": "中国香港",
+        "value": 9518984.0
+      },
+      {
+        "source": "江西省",
+        "target": "中国香港",
+        "value": 9115264.0
+      },
+      {
+        "source": "贵州省",
+        "target": "塞内加尔",
+        "value": 9083443.0
+      },
+      {
+        "source": "河南省",
+        "target": "中国香港",
+        "value": 7184234.0
+      },
+      {
+        "source": "安徽省",
+        "target": "日本",
+        "value": 5661933.0
+      },
+      {
+        "source": "江西省",
+        "target": "阿尔及利亚",
+        "value": 5160916.0
+      },
+      {
+        "source": "贵州省",
+        "target": "德国",
+        "value": 4976503.0
+      },
+      {
+        "source": "福建省",
+        "target": "冈比亚",
+        "value": 4242906.0
+      },
+      {
+        "source": "江西省",
+        "target": "乌兹别克斯坦",
+        "value": 4220048.0
+      },
+      {
+        "source": "湖南省",
+        "target": "马来西亚",
+        "value": 3880860.0
+      },
+      {
+        "source": "浙江省",
+        "target": "泰国",
+        "value": 3362479.0
+      },
+      {
+        "source": "福建省",
+        "target": "加纳",
+        "value": 2777843.0
+      },
+      {
+        "source": "江西省",
+        "target": "摩洛哥",
+        "value": 2572545.0
+      },
+      {
+        "source": "湖南省",
+        "target": "毛里塔尼亚",
+        "value": 2427097.0
+      },
+      {
+        "source": "湖南省",
+        "target": "中国香港",
+        "value": 1747145.0
+      },
+      {
+        "source": "湖南省",
+        "target": "日本",
+        "value": 1146655.0
+      },
+      {
+        "source": "安徽省",
+        "target": "马来西亚",
+        "value": 799182.0
+      },
+      {
+        "source": "福建省",
+        "target": "毛里塔尼亚",
+        "value": 775601.0
+      },
+      {
+        "source": "福建省",
+        "target": "塞内加尔",
+        "value": 746748.0
+      },
+      {
+        "source": "安徽省",
+        "target": "俄罗斯",
+        "value": 505028.0
+      },
+      {
+        "source": "河南省",
+        "target": "美国",
+        "value": 124234.0
+      },
+      {
+        "source": "河南省",
+        "target": "俄罗斯",
+        "value": 70000.0
+      },
+      {
+        "source": "湖北省",
+        "target": "冈比亚",
+        "value": 17086.0
+      },
+      {
+        "source": "安徽省",
+        "target": "泰国",
+        "value": 15651.0
+      },
+      {
+        "source": "贵州省",
+        "target": "泰国",
+        "value": 13509.0
+      }
+    ],
+    "topProvinces": [
+      {
+        "name": "浙江省",
+        "value": 3356420653.0
+      },
+      {
+        "name": "安徽省",
+        "value": 1769469370.0
+      },
+      {
+        "name": "福建省",
+        "value": 1291051667.0
+      },
+      {
+        "name": "湖南省",
+        "value": 982898378.0
+      },
+      {
+        "name": "湖北省",
+        "value": 852054290.0
+      },
+      {
+        "name": "江西省",
+        "value": 457642993.0
+      },
+      {
+        "name": "河南省",
+        "value": 257756973.0
+      },
+      {
+        "name": "贵州省",
+        "value": 249117143.0
+      }
+    ],
+    "topCountries": [
+      {
+        "name": "摩洛哥",
+        "value": 1725656896.0
+      },
+      {
+        "name": "加纳",
+        "value": 1093577986.0
+      },
+      {
+        "name": "马来西亚",
+        "value": 744019726.0
+      },
+      {
+        "name": "毛里塔尼亚",
+        "value": 469270704.0
+      },
+      {
+        "name": "美国",
+        "value": 436888925.0
+      },
+      {
+        "name": "塞内加尔",
+        "value": 430986540.0
+      },
+      {
+        "name": "俄罗斯",
+        "value": 417434133.0
+      },
+      {
+        "name": "乌兹别克斯坦",
+        "value": 379607395.0
+      },
+      {
+        "name": "阿尔及利亚",
+        "value": 372616477.0
+      },
+      {
+        "name": "日本",
+        "value": 356383318.0
+      },
+      {
+        "name": "中国香港",
+        "value": 331697223.0
+      },
+      {
+        "name": "德国",
+        "value": 275826404.0
+      },
+      {
+        "name": "泰国",
+        "value": 232667575.0
+      },
+      {
+        "name": "冈比亚",
+        "value": 216481300.0
+      }
+    ]
+  },
+  {
+    "year": 2025,
+    "nodes": [
+      {
+        "name": "浙江省",
+        "category": "province"
+      },
+      {
+        "name": "安徽省",
+        "category": "province"
+      },
+      {
+        "name": "福建省",
+        "category": "province"
+      },
+      {
+        "name": "湖南省",
+        "category": "province"
+      },
+      {
+        "name": "湖北省",
+        "category": "province"
+      },
+      {
+        "name": "江西省",
+        "category": "province"
+      },
+      {
+        "name": "广东省",
+        "category": "province"
+      },
+      {
+        "name": "贵州省",
+        "category": "province"
+      },
+      {
+        "name": "摩洛哥",
+        "category": "country"
+      },
+      {
+        "name": "塞内加尔",
+        "category": "country"
+      },
+      {
+        "name": "马来西亚",
+        "category": "country"
+      },
+      {
+        "name": "毛里塔尼亚",
+        "category": "country"
+      },
+      {
+        "name": "加纳",
+        "category": "country"
+      },
+      {
+        "name": "科特迪瓦",
+        "category": "country"
+      },
+      {
+        "name": "美国",
+        "category": "country"
+      },
+      {
+        "name": "日本",
+        "category": "country"
+      },
+      {
+        "name": "乌兹别克斯坦",
+        "category": "country"
+      },
+      {
+        "name": "阿尔及利亚",
+        "category": "country"
+      },
+      {
+        "name": "俄罗斯",
+        "category": "country"
+      },
+      {
+        "name": "德国",
+        "category": "country"
+      },
+      {
+        "name": "马里",
+        "category": "country"
+      },
+      {
+        "name": "中国香港",
+        "category": "country"
+      }
+    ],
+    "links": [
+      {
+        "source": "浙江省",
+        "target": "摩洛哥",
+        "value": 1396432773.0
+      },
+      {
+        "source": "安徽省",
+        "target": "毛里塔尼亚",
+        "value": 434371985.0
+      },
+      {
+        "source": "安徽省",
+        "target": "科特迪瓦",
+        "value": 374000146.0
+      },
+      {
+        "source": "安徽省",
+        "target": "加纳",
+        "value": 330531250.0
+      },
+      {
+        "source": "浙江省",
+        "target": "塞内加尔",
+        "value": 327670703.0
+      },
+      {
+        "source": "福建省",
+        "target": "马来西亚",
+        "value": 283823276.0
+      },
+      {
+        "source": "福建省",
+        "target": "日本",
+        "value": 268223122.0
+      },
+      {
+        "source": "安徽省",
+        "target": "塞内加尔",
+        "value": 246786154.0
+      },
+      {
+        "source": "浙江省",
+        "target": "马里",
+        "value": 201708884.0
+      },
+      {
+        "source": "湖北省",
+        "target": "摩洛哥",
+        "value": 197475222.0
+      },
+      {
+        "source": "湖南省",
+        "target": "摩洛哥",
+        "value": 194548971.0
+      },
+      {
+        "source": "湖南省",
+        "target": "俄罗斯",
+        "value": 157424875.0
+      },
+      {
+        "source": "浙江省",
+        "target": "日本",
+        "value": 133194887.0
+      },
+      {
+        "source": "浙江省",
+        "target": "美国",
+        "value": 131030228.0
+      },
+      {
+        "source": "浙江省",
+        "target": "阿尔及利亚",
+        "value": 122861383.0
+      },
+      {
+        "source": "浙江省",
+        "target": "乌兹别克斯坦",
+        "value": 115992158.0
+      },
+      {
+        "source": "安徽省",
+        "target": "阿尔及利亚",
+        "value": 111834530.0
+      },
+      {
+        "source": "江西省",
+        "target": "马来西亚",
+        "value": 106055297.0
+      },
+      {
+        "source": "浙江省",
+        "target": "加纳",
+        "value": 104117322.0
+      },
+      {
+        "source": "浙江省",
+        "target": "科特迪瓦",
+        "value": 99685619.0
+      },
+      {
+        "source": "浙江省",
+        "target": "毛里塔尼亚",
+        "value": 92663878.0
+      },
+      {
+        "source": "福建省",
+        "target": "中国香港",
+        "value": 83692816.0
+      },
+      {
+        "source": "湖南省",
+        "target": "美国",
+        "value": 78845230.0
+      },
+      {
+        "source": "湖北省",
+        "target": "塞内加尔",
+        "value": 78393363.0
+      },
+      {
+        "source": "安徽省",
+        "target": "摩洛哥",
+        "value": 76648837.0
+      },
+      {
+        "source": "湖南省",
+        "target": "德国",
+        "value": 76449052.0
+      },
+      {
+        "source": "浙江省",
+        "target": "德国",
+        "value": 71325666.0
+      },
+      {
+        "source": "湖北省",
+        "target": "乌兹别克斯坦",
+        "value": 68586576.0
+      },
+      {
+        "source": "福建省",
+        "target": "马里",
+        "value": 67236140.0
+      },
+      {
+        "source": "广东省",
+        "target": "中国香港",
+        "value": 65502091.0
+      },
+      {
+        "source": "湖南省",
+        "target": "乌兹别克斯坦",
+        "value": 59412169.0
+      },
+      {
+        "source": "福建省",
+        "target": "美国",
+        "value": 57316159.0
+      },
+      {
+        "source": "贵州省",
+        "target": "美国",
+        "value": 54849672.0
+      },
+      {
+        "source": "江西省",
+        "target": "加纳",
+        "value": 52450903.0
+      },
+      {
+        "source": "湖北省",
+        "target": "德国",
+        "value": 47828965.0
+      },
+      {
+        "source": "安徽省",
+        "target": "乌兹别克斯坦",
+        "value": 43011387.0
+      },
+      {
+        "source": "湖南省",
+        "target": "阿尔及利亚",
+        "value": 41853053.0
+      },
+      {
+        "source": "湖北省",
+        "target": "阿尔及利亚",
+        "value": 41749709.0
+      },
+      {
+        "source": "湖北省",
+        "target": "马来西亚",
+        "value": 40400505.0
+      },
+      {
+        "source": "安徽省",
+        "target": "德国",
+        "value": 39455225.0
+      },
+      {
+        "source": "浙江省",
+        "target": "俄罗斯",
+        "value": 39060818.0
+      },
+      {
+        "source": "福建省",
+        "target": "摩洛哥",
+        "value": 38732199.0
+      },
+      {
+        "source": "江西省",
+        "target": "毛里塔尼亚",
+        "value": 38284356.0
+      },
+      {
+        "source": "广东省",
+        "target": "美国",
+        "value": 36337440.0
+      },
+      {
+        "source": "安徽省",
+        "target": "美国",
+        "value": 30263617.0
+      },
+      {
+        "source": "广东省",
+        "target": "日本",
+        "value": 29822074.0
+      },
+      {
+        "source": "贵州省",
+        "target": "摩洛哥",
+        "value": 29797126.0
+      },
+      {
+        "source": "湖北省",
+        "target": "毛里塔尼亚",
+        "value": 29191291.0
+      },
+      {
+        "source": "福建省",
+        "target": "阿尔及利亚",
+        "value": 29011526.0
+      },
+      {
+        "source": "福建省",
+        "target": "德国",
+        "value": 26902182.0
+      },
+      {
+        "source": "湖北省",
+        "target": "美国",
+        "value": 25688018.0
+      },
+      {
+        "source": "湖北省",
+        "target": "加纳",
+        "value": 24502056.0
+      },
+      {
+        "source": "湖南省",
+        "target": "塞内加尔",
+        "value": 22085086.0
+      },
+      {
+        "source": "江西省",
+        "target": "科特迪瓦",
+        "value": 21724679.0
+      },
+      {
+        "source": "湖北省",
+        "target": "中国香港",
+        "value": 21485317.0
+      },
+      {
+        "source": "浙江省",
+        "target": "马来西亚",
+        "value": 20487008.0
+      },
+      {
+        "source": "湖北省",
+        "target": "马里",
+        "value": 19475961.0
+      },
+      {
+        "source": "江西省",
+        "target": "美国",
+        "value": 17809606.0
+      },
+      {
+        "source": "江西省",
+        "target": "塞内加尔",
+        "value": 17348276.0
+      },
+      {
+        "source": "福建省",
+        "target": "俄罗斯",
+        "value": 17146265.0
+      },
+      {
+        "source": "广东省",
+        "target": "马来西亚",
+        "value": 16750186.0
+      },
+      {
+        "source": "江西省",
+        "target": "德国",
+        "value": 14666517.0
+      },
+      {
+        "source": "浙江省",
+        "target": "中国香港",
+        "value": 13005788.0
+      },
+      {
+        "source": "江西省",
+        "target": "俄罗斯",
+        "value": 12877081.0
+      },
+      {
+        "source": "贵州省",
+        "target": "乌兹别克斯坦",
+        "value": 10604843.0
+      },
+      {
+        "source": "湖南省",
+        "target": "马来西亚",
+        "value": 10455213.0
+      },
+      {
+        "source": "广东省",
+        "target": "塞内加尔",
+        "value": 9731366.0
+      },
+      {
+        "source": "广东省",
+        "target": "德国",
+        "value": 9573750.0
+      },
+      {
+        "source": "江西省",
+        "target": "中国香港",
+        "value": 9536101.0
+      },
+      {
+        "source": "湖北省",
+        "target": "俄罗斯",
+        "value": 8442169.0
+      },
+      {
+        "source": "安徽省",
+        "target": "日本",
+        "value": 8280054.0
+      },
+      {
+        "source": "贵州省",
+        "target": "俄罗斯",
+        "value": 8020830.0
+      },
+      {
+        "source": "湖南省",
+        "target": "加纳",
+        "value": 7327692.0
+      },
+      {
+        "source": "湖北省",
+        "target": "科特迪瓦",
+        "value": 7251006.0
+      },
+      {
+        "source": "江西省",
+        "target": "阿尔及利亚",
+        "value": 5321360.0
+      },
+      {
+        "source": "湖南省",
+        "target": "科特迪瓦",
+        "value": 5299629.0
+      },
+      {
+        "source": "江西省",
+        "target": "摩洛哥",
+        "value": 4882645.0
+      },
+      {
+        "source": "贵州省",
+        "target": "马来西亚",
+        "value": 4562555.0
+      },
+      {
+        "source": "湖北省",
+        "target": "日本",
+        "value": 4298110.0
+      },
+      {
+        "source": "安徽省",
+        "target": "马里",
+        "value": 3884867.0
+      },
+      {
+        "source": "贵州省",
+        "target": "中国香港",
+        "value": 3451390.0
+      },
+      {
+        "source": "湖南省",
+        "target": "中国香港",
+        "value": 3127868.0
+      },
+      {
+        "source": "安徽省",
+        "target": "马来西亚",
+        "value": 3072884.0
+      },
+      {
+        "source": "江西省",
+        "target": "乌兹别克斯坦",
+        "value": 2527157.0
+      },
+      {
+        "source": "广东省",
+        "target": "阿尔及利亚",
+        "value": 1998590.0
+      },
+      {
+        "source": "贵州省",
+        "target": "德国",
+        "value": 1963019.0
+      },
+      {
+        "source": "安徽省",
+        "target": "中国香港",
+        "value": 1806660.0
+      },
+      {
+        "source": "贵州省",
+        "target": "日本",
+        "value": 1468107.0
+      },
+      {
+        "source": "贵州省",
+        "target": "塞内加尔",
+        "value": 1415555.0
+      },
+      {
+        "source": "福建省",
+        "target": "塞内加尔",
+        "value": 1415352.0
+      },
+      {
+        "source": "湖南省",
+        "target": "马里",
+        "value": 856719.0
+      },
+      {
+        "source": "福建省",
+        "target": "科特迪瓦",
+        "value": 720875.0
+      },
+      {
+        "source": "湖南省",
+        "target": "毛里塔尼亚",
+        "value": 649051.0
+      },
+      {
+        "source": "湖南省",
+        "target": "日本",
+        "value": 612691.0
+      },
+      {
+        "source": "福建省",
+        "target": "乌兹别克斯坦",
+        "value": 368912.0
+      },
+      {
+        "source": "广东省",
+        "target": "俄罗斯",
+        "value": 229229.0
+      },
+      {
+        "source": "贵州省",
+        "target": "阿尔及利亚",
+        "value": 211717.0
+      },
+      {
+        "source": "广东省",
+        "target": "摩洛哥",
+        "value": 108423.0
+      },
+      {
+        "source": "安徽省",
+        "target": "俄罗斯",
+        "value": 99630.0
+      },
+      {
+        "source": "广东省",
+        "target": "乌兹别克斯坦",
+        "value": 93639.0
+      },
+      {
+        "source": "广东省",
+        "target": "科特迪瓦",
+        "value": 502.0
+      }
+    ],
+    "topProvinces": [
+      {
+        "name": "浙江省",
+        "value": 4007354178.0
+      },
+      {
+        "name": "安徽省",
+        "value": 2008806992.0
+      },
+      {
+        "name": "福建省",
+        "value": 1214876542.0
+      },
+      {
+        "name": "湖南省",
+        "value": 1115147054.0
+      },
+      {
+        "name": "湖北省",
+        "value": 826085177.0
+      },
+      {
+        "name": "江西省",
+        "value": 432990521.0
+      },
+      {
+        "name": "广东省",
+        "value": 241354667.0
+      },
+      {
+        "name": "贵州省",
+        "value": 225838741.0
+      }
+    ],
+    "topCountries": [
+      {
+        "name": "摩洛哥",
+        "value": 1990931604.0
+      },
+      {
+        "name": "塞内加尔",
+        "value": 704845855.0
+      },
+      {
+        "name": "马来西亚",
+        "value": 607797440.0
+      },
+      {
+        "name": "毛里塔尼亚",
+        "value": 595160561.0
+      },
+      {
+        "name": "加纳",
+        "value": 518929223.0
+      },
+      {
+        "name": "科特迪瓦",
+        "value": 508682456.0
+      },
+      {
+        "name": "美国",
+        "value": 474814913.0
+      },
+      {
+        "name": "日本",
+        "value": 458202356.0
+      },
+      {
+        "name": "乌兹别克斯坦",
+        "value": 440038073.0
+      },
+      {
+        "name": "阿尔及利亚",
+        "value": 385610236.0
+      },
+      {
+        "name": "俄罗斯",
+        "value": 347292424.0
+      },
+      {
+        "name": "德国",
+        "value": 317052857.0
+      },
+      {
+        "name": "马里",
+        "value": 295372679.0
+      },
+      {
+        "name": "中国香港",
+        "value": 240789412.0
+      }
+    ]
+  },
+  {
+    "year": 2026,
+    "nodes": [
+      {
+        "name": "浙江省",
+        "category": "province"
+      },
+      {
+        "name": "安徽省",
+        "category": "province"
+      },
+      {
+        "name": "湖南省",
+        "category": "province"
+      },
+      {
+        "name": "福建省",
+        "category": "province"
+      },
+      {
+        "name": "湖北省",
+        "category": "province"
+      },
+      {
+        "name": "江西省",
+        "category": "province"
+      },
+      {
+        "name": "广东省",
+        "category": "province"
+      },
+      {
+        "name": "四川省",
+        "category": "province"
+      },
+      {
+        "name": "摩洛哥",
+        "category": "country"
+      },
+      {
+        "name": "毛里塔尼亚",
+        "category": "country"
+      },
+      {
+        "name": "日本",
+        "category": "country"
+      },
+      {
+        "name": "科特迪瓦",
+        "category": "country"
+      },
+      {
+        "name": "美国",
+        "category": "country"
+      },
+      {
+        "name": "塞内加尔",
+        "category": "country"
+      },
+      {
+        "name": "德国",
+        "category": "country"
+      },
+      {
+        "name": "乌兹别克斯坦",
+        "category": "country"
+      },
+      {
+        "name": "马里",
+        "category": "country"
+      },
+      {
+        "name": "加纳",
+        "category": "country"
+      },
+      {
+        "name": "阿尔及利亚",
+        "category": "country"
+      },
+      {
+        "name": "马来西亚",
+        "category": "country"
+      },
+      {
+        "name": "俄罗斯",
+        "category": "country"
+      },
+      {
+        "name": "中国香港",
+        "category": "country"
+      }
+    ],
+    "links": [
+      {
+        "source": "浙江省",
+        "target": "摩洛哥",
+        "value": 354491364.0
+      },
+      {
+        "source": "安徽省",
+        "target": "毛里塔尼亚",
+        "value": 122672544.0
+      },
+      {
+        "source": "安徽省",
+        "target": "科特迪瓦",
+        "value": 110986369.0
+      },
+      {
+        "source": "福建省",
+        "target": "日本",
+        "value": 79828630.0
+      },
+      {
+        "source": "浙江省",
+        "target": "马里",
+        "value": 75388052.0
+      },
+      {
+        "source": "安徽省",
+        "target": "加纳",
+        "value": 73022292.0
+      },
+      {
+        "source": "安徽省",
+        "target": "塞内加尔",
+        "value": 64724833.0
+      },
+      {
+        "source": "浙江省",
+        "target": "日本",
+        "value": 55935351.0
+      },
+      {
+        "source": "湖北省",
+        "target": "摩洛哥",
+        "value": 51088344.0
+      },
+      {
+        "source": "浙江省",
+        "target": "美国",
+        "value": 44607920.0
+      },
+      {
+        "source": "湖南省",
+        "target": "摩洛哥",
+        "value": 43630787.0
+      },
+      {
+        "source": "浙江省",
+        "target": "塞内加尔",
+        "value": 40538098.0
+      },
+      {
+        "source": "湖南省",
+        "target": "俄罗斯",
+        "value": 37912664.0
+      },
+      {
+        "source": "浙江省",
+        "target": "科特迪瓦",
+        "value": 36333238.0
+      },
+      {
+        "source": "浙江省",
+        "target": "乌兹别克斯坦",
+        "value": 33733710.0
+      },
+      {
+        "source": "湖南省",
+        "target": "德国",
+        "value": 32783586.0
+      },
+      {
+        "source": "湖南省",
+        "target": "美国",
+        "value": 30365053.0
+      },
+      {
+        "source": "安徽省",
+        "target": "阿尔及利亚",
+        "value": 30149567.0
+      },
+      {
+        "source": "浙江省",
+        "target": "德国",
+        "value": 29766720.0
+      },
+      {
+        "source": "浙江省",
+        "target": "阿尔及利亚",
+        "value": 29051075.0
+      },
+      {
+        "source": "浙江省",
+        "target": "毛里塔尼亚",
+        "value": 23570851.0
+      },
+      {
+        "source": "四川省",
+        "target": "乌兹别克斯坦",
+        "value": 18672976.0
+      },
+      {
+        "source": "湖北省",
+        "target": "德国",
+        "value": 17724794.0
+      },
+      {
+        "source": "四川省",
+        "target": "马来西亚",
+        "value": 17433895.0
+      },
+      {
+        "source": "安徽省",
+        "target": "摩洛哥",
+        "value": 17035391.0
+      },
+      {
+        "source": "广东省",
+        "target": "中国香港",
+        "value": 16579854.0
+      },
+      {
+        "source": "福建省",
+        "target": "中国香港",
+        "value": 15492859.0
+      },
+      {
+        "source": "安徽省",
+        "target": "乌兹别克斯坦",
+        "value": 14756894.0
+      },
+      {
+        "source": "湖南省",
+        "target": "乌兹别克斯坦",
+        "value": 13670975.0
+      },
+      {
+        "source": "福建省",
+        "target": "美国",
+        "value": 13456818.0
+      },
+      {
+        "source": "广东省",
+        "target": "美国",
+        "value": 13202279.0
+      },
+      {
+        "source": "福建省",
+        "target": "阿尔及利亚",
+        "value": 12178635.0
+      },
+      {
+        "source": "湖北省",
+        "target": "乌兹别克斯坦",
+        "value": 11329605.0
+      },
+      {
+        "source": "江西省",
+        "target": "马来西亚",
+        "value": 11232299.0
+      },
+      {
+        "source": "江西省",
+        "target": "加纳",
+        "value": 10728846.0
+      },
+      {
+        "source": "福建省",
+        "target": "马来西亚",
+        "value": 10516351.0
+      },
+      {
+        "source": "湖北省",
+        "target": "毛里塔尼亚",
+        "value": 10479168.0
+      },
+      {
+        "source": "浙江省",
+        "target": "俄罗斯",
+        "value": 9996372.0
+      },
+      {
+        "source": "安徽省",
+        "target": "德国",
+        "value": 9658733.0
+      },
+      {
+        "source": "广东省",
+        "target": "马来西亚",
+        "value": 9411400.0
+      },
+      {
+        "source": "福建省",
+        "target": "马里",
+        "value": 9098911.0
+      },
+      {
+        "source": "江西省",
+        "target": "塞内加尔",
+        "value": 9097053.0
+      },
+      {
+        "source": "福建省",
+        "target": "摩洛哥",
+        "value": 8862383.0
+      },
+      {
+        "source": "湖北省",
+        "target": "马来西亚",
+        "value": 8674125.0
+      },
+      {
+        "source": "湖南省",
+        "target": "阿尔及利亚",
+        "value": 8067775.0
+      },
+      {
+        "source": "福建省",
+        "target": "德国",
+        "value": 7598665.0
+      },
+      {
+        "source": "湖北省",
+        "target": "美国",
+        "value": 7358355.0
+      },
+      {
+        "source": "安徽省",
+        "target": "美国",
+        "value": 7141396.0
+      },
+      {
+        "source": "浙江省",
+        "target": "中国香港",
+        "value": 7072211.0
+      },
+      {
+        "source": "浙江省",
+        "target": "马来西亚",
+        "value": 6900171.0
+      },
+      {
+        "source": "广东省",
+        "target": "日本",
+        "value": 6573379.0
+      },
+      {
+        "source": "浙江省",
+        "target": "加纳",
+        "value": 5961512.0
+      },
+      {
+        "source": "四川省",
+        "target": "日本",
+        "value": 5877924.0
+      },
+      {
+        "source": "江西省",
+        "target": "毛里塔尼亚",
+        "value": 5768699.0
+      },
+      {
+        "source": "湖北省",
+        "target": "马里",
+        "value": 5627220.0
+      },
+      {
+        "source": "江西省",
+        "target": "德国",
+        "value": 5537452.0
+      },
+      {
+        "source": "湖南省",
+        "target": "塞内加尔",
+        "value": 5356338.0
+      },
+      {
+        "source": "湖南省",
+        "target": "科特迪瓦",
+        "value": 4702120.0
+      },
+      {
+        "source": "福建省",
+        "target": "俄罗斯",
+        "value": 4591093.0
+      },
+      {
+        "source": "湖北省",
+        "target": "阿尔及利亚",
+        "value": 4233046.0
+      },
+      {
+        "source": "江西省",
+        "target": "科特迪瓦",
+        "value": 3884909.0
+      },
+      {
+        "source": "安徽省",
+        "target": "中国香港",
+        "value": 2849060.0
+      },
+      {
+        "source": "四川省",
+        "target": "俄罗斯",
+        "value": 2686307.0
+      },
+      {
+        "source": "湖北省",
+        "target": "日本",
+        "value": 2647786.0
+      },
+      {
+        "source": "江西省",
+        "target": "中国香港",
+        "value": 2644674.0
+      },
+      {
+        "source": "四川省",
+        "target": "德国",
+        "value": 2516140.0
+      },
+      {
+        "source": "江西省",
+        "target": "美国",
+        "value": 2415124.0
+      },
+      {
+        "source": "四川省",
+        "target": "中国香港",
+        "value": 2278247.0
+      },
+      {
+        "source": "安徽省",
+        "target": "日本",
+        "value": 2204593.0
+      },
+      {
+        "source": "四川省",
+        "target": "美国",
+        "value": 2142432.0
+      },
+      {
+        "source": "江西省",
+        "target": "摩洛哥",
+        "value": 1643082.0
+      },
+      {
+        "source": "湖南省",
+        "target": "日本",
+        "value": 1324902.0
+      },
+      {
+        "source": "湖北省",
+        "target": "科特迪瓦",
+        "value": 1166064.0
+      },
+      {
+        "source": "广东省",
+        "target": "德国",
+        "value": 971108.0
+      },
+      {
+        "source": "湖北省",
+        "target": "塞内加尔",
+        "value": 696780.0
+      },
+      {
+        "source": "福建省",
+        "target": "塞内加尔",
+        "value": 690385.0
+      },
+      {
+        "source": "湖南省",
+        "target": "马里",
+        "value": 608001.0
+      },
+      {
+        "source": "江西省",
+        "target": "阿尔及利亚",
+        "value": 522304.0
+      },
+      {
+        "source": "安徽省",
+        "target": "马来西亚",
+        "value": 465714.0
+      },
+      {
+        "source": "湖北省",
+        "target": "俄罗斯",
+        "value": 460011.0
+      },
+      {
+        "source": "江西省",
+        "target": "俄罗斯",
+        "value": 340895.0
+      },
+      {
+        "source": "江西省",
+        "target": "乌兹别克斯坦",
+        "value": 260696.0
+      },
+      {
+        "source": "广东省",
+        "target": "俄罗斯",
+        "value": 251748.0
+      },
+      {
+        "source": "湖南省",
+        "target": "马来西亚",
+        "value": 247764.0
+      },
+      {
+        "source": "湖南省",
+        "target": "中国香港",
+        "value": 123696.0
+      },
+      {
+        "source": "江西省",
+        "target": "日本",
+        "value": 17250.0
+      },
+      {
+        "source": "广东省",
+        "target": "乌兹别克斯坦",
+        "value": 13041.0
+      },
+      {
+        "source": "安徽省",
+        "target": "马里",
+        "value": 14.0
+      }
+    ],
+    "topProvinces": [
+      {
+        "name": "浙江省",
+        "value": 1052385565.0
+      },
+      {
+        "name": "安徽省",
+        "value": 507976769.0
+      },
+      {
+        "name": "湖南省",
+        "value": 287795038.0
+      },
+      {
+        "name": "福建省",
+        "value": 228724644.0
+      },
+      {
+        "name": "湖北省",
+        "value": 166078285.0
+      },
+      {
+        "name": "江西省",
+        "value": 86513917.0
+      },
+      {
+        "name": "广东省",
+        "value": 70335322.0
+      },
+      {
+        "name": "四川省",
+        "value": 68460989.0
+      }
+    ],
+    "topCountries": [
+      {
+        "name": "摩洛哥",
+        "value": 491056348.0
+      },
+      {
+        "name": "毛里塔尼亚",
+        "value": 162491262.0
+      },
+      {
+        "name": "日本",
+        "value": 162399114.0
+      },
+      {
+        "name": "科特迪瓦",
+        "value": 157072700.0
+      },
+      {
+        "name": "美国",
+        "value": 146577774.0
+      },
+      {
+        "name": "塞内加尔",
+        "value": 121103487.0
+      },
+      {
+        "name": "德国",
+        "value": 115407410.0
+      },
+      {
+        "name": "乌兹别克斯坦",
+        "value": 101714791.0
+      },
+      {
+        "name": "马里",
+        "value": 90722198.0
+      },
+      {
+        "name": "加纳",
+        "value": 90379719.0
+      },
+      {
+        "name": "阿尔及利亚",
+        "value": 86866533.0
+      },
+      {
+        "name": "马来西亚",
+        "value": 78740610.0
+      },
+      {
+        "name": "俄罗斯",
+        "value": 64625641.0
+      },
+      {
+        "name": "中国香港",
+        "value": 59015259.0
+      }
+    ]
+  }
+]
