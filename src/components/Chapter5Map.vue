@@ -56,107 +56,17 @@
 
           <!-- ===== Tree 1 (left, smaller) ===== -->
           <g class="tea-tree tree-1" style="transform-origin: 250px 490px;">
-            <!-- Roots -->
-            <g class="tree-roots" stroke="#6B4423" stroke-width="3" fill="none" opacity="0.7">
-              <path d="M250,490 C230,520 200,545 165,560" />
-              <path d="M250,490 C270,520 300,545 335,560" />
-              <path d="M250,490 C245,525 235,555 220,580" />
-              <path d="M250,490 C255,525 265,555 280,580" />
-              <path d="M250,490 C240,515 215,535 185,545" stroke-width="2" />
-              <path d="M250,490 C260,515 285,535 315,545" stroke-width="2" />
-            </g>
-            <!-- Trunk -->
-            <path d="M245,490 L255,490 L253,310 L247,310 Z" fill="#6B4423" />
-            <!-- Branches -->
-            <g stroke="#5C3D1E" stroke-width="3" fill="none">
-              <path d="M250,340 C220,320 190,300 165,280" />
-              <path d="M250,320 C280,300 310,280 335,260" />
-              <path d="M250,300 C250,270 250,240 250,210" />
-            </g>
-            <!-- Leaves -->
-            <g class="tree-leaves">
-              <ellipse cx="160" cy="275" rx="28" ry="20" fill="#5C7C3A" opacity="0.85" />
-              <ellipse cx="180" cy="255" rx="24" ry="18" fill="#6F9150" opacity="0.8" />
-              <ellipse cx="340" cy="255" rx="28" ry="20" fill="#5C7C3A" opacity="0.85" />
-              <ellipse cx="320" cy="235" rx="24" ry="18" fill="#6F9150" opacity="0.8" />
-              <ellipse cx="250" cy="195" rx="30" ry="22" fill="#5C7C3A" opacity="0.9" />
-              <ellipse cx="230" cy="175" rx="24" ry="18" fill="#7A9A55" opacity="0.75" />
-              <ellipse cx="275" cy="175" rx="24" ry="18" fill="#7A9A55" opacity="0.75" />
-              <ellipse cx="250" cy="145" rx="22" ry="16" fill="#6F9150" opacity="0.8" />
-            </g>
+            <image :href="TREE_IMG_URL" x="150" y="220" width="220" height="280" preserveAspectRatio="xMidYEnd meet" />
           </g>
 
           <!-- ===== Tree 2 (center, largest) ===== -->
           <g class="tea-tree tree-2" style="transform-origin: 600px 490px;">
-            <!-- Roots -->
-            <g class="tree-roots" stroke="#6B4423" stroke-width="4" fill="none" opacity="0.7">
-              <path d="M600,490 C560,525 510,550 460,570" />
-              <path d="M600,490 C640,525 690,550 740,570" />
-              <path d="M600,490 C590,530 570,565 540,595" />
-              <path d="M600,490 C610,530 630,565 660,595" />
-              <path d="M600,490 C575,520 535,540 495,550" stroke-width="3" />
-              <path d="M600,490 C625,520 665,540 705,550" stroke-width="3" />
-              <path d="M600,490 C595,535 585,575 570,610" stroke-width="2.5" />
-              <path d="M600,490 C605,535 615,575 630,610" stroke-width="2.5" />
-            </g>
-            <!-- Trunk -->
-            <path d="M592,490 L608,490 L606,260 L594,260 Z" fill="#6B4423" />
-            <path d="M596,400 L604,400 L603,260 L597,260 Z" fill="#5C3D1E" />
-            <!-- Branches -->
-            <g stroke="#5C3D1E" stroke-width="4" fill="none">
-              <path d="M600,360 C560,330 510,310 470,290" />
-              <path d="M600,340 C640,310 690,290 730,270" />
-              <path d="M600,310 C600,270 600,230 600,190" />
-              <path d="M600,380 C570,360 540,345 510,335" stroke-width="3" />
-              <path d="M600,380 C630,360 660,345 690,335" stroke-width="3" />
-            </g>
-            <!-- Leaves -->
-            <g class="tree-leaves">
-              <ellipse cx="465" cy="285" rx="35" ry="25" fill="#5C7C3A" opacity="0.85" />
-              <ellipse cx="490" cy="260" rx="28" ry="20" fill="#6F9150" opacity="0.8" />
-              <ellipse cx="445" cy="265" rx="26" ry="19" fill="#7A9A55" opacity="0.75" />
-              <ellipse cx="735" cy="265" rx="35" ry="25" fill="#5C7C3A" opacity="0.85" />
-              <ellipse cx="710" cy="240" rx="28" ry="20" fill="#6F9150" opacity="0.8" />
-              <ellipse cx="755" cy="245" rx="26" ry="19" fill="#7A9A55" opacity="0.75" />
-              <ellipse cx="600" cy="175" rx="38" ry="28" fill="#5C7C3A" opacity="0.9" />
-              <ellipse cx="570" cy="150" rx="28" ry="20" fill="#7A9A55" opacity="0.75" />
-              <ellipse cx="630" cy="150" rx="28" ry="20" fill="#7A9A55" opacity="0.75" />
-              <ellipse cx="600" cy="125" rx="26" ry="19" fill="#6F9150" opacity="0.8" />
-              <ellipse cx="510" cy="330" rx="24" ry="17" fill="#6F9150" opacity="0.75" />
-              <ellipse cx="690" cy="330" rx="24" ry="17" fill="#6F9150" opacity="0.75" />
-            </g>
+            <image :href="TREE_IMG_URL" x="430" y="150" width="340" height="360" preserveAspectRatio="xMidYEnd meet" />
           </g>
 
           <!-- ===== Tree 3 (right, medium) ===== -->
           <g class="tea-tree tree-3" style="transform-origin: 950px 490px;">
-            <!-- Roots -->
-            <g class="tree-roots" stroke="#6B4423" stroke-width="3.5" fill="none" opacity="0.7">
-              <path d="M950,490 C915,520 875,545 840,560" />
-              <path d="M950,490 C985,520 1025,545 1060,560" />
-              <path d="M950,490 C940,525 925,555 905,580" />
-              <path d="M950,490 C960,525 975,555 995,580" />
-              <path d="M950,490 C930,515 900,530 870,540" stroke-width="2.5" />
-              <path d="M950,490 C970,515 1000,530 1030,540" stroke-width="2.5" />
-            </g>
-            <!-- Trunk -->
-            <path d="M944,490 L956,490 L954,280 L946,280 Z" fill="#6B4423" />
-            <!-- Branches -->
-            <g stroke="#5C3D1E" stroke-width="3" fill="none">
-              <path d="M950,330 C915,310 880,290 850,275" />
-              <path d="M950,310 C985,290 1020,275 1050,260" />
-              <path d="M950,290 C950,255 950,220 950,185" />
-            </g>
-            <!-- Leaves -->
-            <g class="tree-leaves">
-              <ellipse cx="845" cy="270" rx="30" ry="22" fill="#5C7C3A" opacity="0.85" />
-              <ellipse cx="870" cy="248" rx="25" ry="18" fill="#6F9150" opacity="0.8" />
-              <ellipse cx="1055" cy="255" rx="30" ry="22" fill="#5C7C3A" opacity="0.85" />
-              <ellipse cx="1030" cy="233" rx="25" ry="18" fill="#6F9150" opacity="0.8" />
-              <ellipse cx="950" cy="170" rx="32" ry="24" fill="#5C7C3A" opacity="0.9" />
-              <ellipse cx="925" cy="148" rx="25" ry="18" fill="#7A9A55" opacity="0.75" />
-              <ellipse cx="975" cy="148" rx="25" ry="18" fill="#7A9A55" opacity="0.75" />
-              <ellipse cx="950" cy="120" rx="23" ry="17" fill="#6F9150" opacity="0.8" />
-            </g>
+            <image :href="TREE_IMG_URL" x="830" y="180" width="260" height="330" preserveAspectRatio="xMidYEnd meet" />
           </g>
 
           <!-- Floating leaves decoration -->
@@ -477,6 +387,7 @@ import { ref, computed, onMounted } from 'vue'
 import EChart from './EChart.vue'
 import ChapterIntro from './ChapterIntro.vue'
 import * as echarts from 'echarts'
+import { assetUrl } from '../utils/base.js'
 import {
   nationalData,
   provinceData,
@@ -496,6 +407,9 @@ import {
 } from '../config/ch5.js'
 
 const props = defineProps({ id: { type: String, required: true } })
+
+// 茶树图资源路径
+const TREE_IMG_URL = assetUrl('data/5/茶树.png')
 
 // ---- Tab system ----
 const tabs = [
