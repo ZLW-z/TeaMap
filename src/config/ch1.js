@@ -1,11 +1,13 @@
+import { assetUrl } from '../utils/base.js'
+
 // 第一章 · 图层路径与地理范围
-export const DEM_IMG = '/data/1/dem_relief.png'
-export const DEM_BOUNDS_URL = '/data/1/dem_bounds.json'
+export const DEM_IMG = assetUrl('data/1/dem_relief.png')
+export const DEM_BOUNDS_URL = assetUrl('data/1/dem_bounds.json')
 
 // 省份底图 + 市级茶区 + 古茶树
-export const PROV_BG_URL = '/data/1/china_provinces_background.geojson'
-export const TANG_AREAS_URL = '/data/1/tang_areas.geojson'
-export const TEA_TREES_URL = '/data/1/tea_trees.geojson'
+export const PROV_BG_URL = assetUrl('data/1/china_provinces_background.geojson')
+export const TANG_AREAS_URL = assetUrl('data/1/tang_areas.geojson')
+export const TEA_TREES_URL = assetUrl('data/1/tea_trees.geojson')
 
 // 默认 DEM bounds（若 dem_bounds.json 加载失败则回退到此）
 export const DEM_BOUNDS_FALLBACK = [

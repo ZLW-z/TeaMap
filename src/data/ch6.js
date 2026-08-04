@@ -1,9 +1,11 @@
+import { assetUrl } from '../utils/base.js'
+
 // ============================================================
 // 世界共饮 · 全球茶文化数据
 // ============================================================
 
 // 8个茶文化地标点
-export const TEA_CULTURE_POINTS = [
+const RAW_POINTS = [
   {
     id: 'china',
     country: '中国',
@@ -109,6 +111,11 @@ export const TEA_CULTURE_POINTS = [
     isOrigin: false,
   },
 ]
+
+export const TEA_CULTURE_POINTS = RAW_POINTS.map(p => ({
+  ...p,
+  image: assetUrl(p.image),
+}))
 
 // TOP5茶叶进口国数据
 export const TOP_IMPORTERS = [

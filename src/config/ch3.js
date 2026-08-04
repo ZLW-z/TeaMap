@@ -1,7 +1,11 @@
 // 第三章 · 十大名茶配置
+import { assetUrl } from '../utils/base.js'
 import teasData from '../../data/3/teas.json'
 
-export const TEAS = teasData
+export const TEAS = teasData.map(t => ({
+  ...t,
+  image: assetUrl(t.image),
+}))
 
 // 茶类颜色映射
 export const TEA_TYPE_COLORS = {
@@ -34,7 +38,7 @@ export const OTHER_STYLE = {
 }
 
 // 省份底图样式
-export const PROV_BG_URL = '/data/2/china-provinces.geojson'
+export const PROV_BG_URL = assetUrl('data/2/china-provinces.geojson')
 
 export const PROV_STYLE = {
   color: '#A8A28D',

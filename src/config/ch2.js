@@ -1,3 +1,5 @@
+import { assetUrl } from '../utils/base.js'
+
 // 第二章 · 五因子适宜性配置
 const FACTORS = {
   precip: {
@@ -5,8 +7,8 @@ const FACTORS = {
     name: '降水',
     short: '降水',
     icon: '💧',
-    png: '/data/2/precip_suitability.png',
-    boundsUrl: '/data/2/precip_bounds.json',
+    png: assetUrl('data/2/precip_suitability.png'),
+    boundsUrl: assetUrl('data/2/precip_bounds.json'),
     desc: '茶树喜湿润，年降水量 1200–1800 mm 为最适宜区',
     levels: [
       { value: 0, label: '不适宜', color: '#E8E2D0' },
@@ -20,8 +22,8 @@ const FACTORS = {
     name: '气温',
     short: '气温',
     icon: '🌡',
-    png: '/data/2/temp_suitability.png',
-    boundsUrl: '/data/2/temp_bounds.json',
+    png: assetUrl('data/2/temp_suitability.png'),
+    boundsUrl: assetUrl('data/2/temp_bounds.json'),
     desc: '茶树喜温暖，中温区最宜生长，低温与高温区为次适宜',
     levels: [
       { value: 0, label: '不适宜', color: '#E8E2D0' },
@@ -35,8 +37,8 @@ const FACTORS = {
     name: '积温',
     short: '积温',
     icon: '🔥',
-    png: '/data/2/accum_suitability.png',
-    boundsUrl: '/data/2/accum_bounds.json',
+    png: assetUrl('data/2/accum_suitability.png'),
+    boundsUrl: assetUrl('data/2/accum_bounds.json'),
     desc: '≥10℃ 年活动积温 4000℃·d 以上方可满足茶树生长需求',
     levels: [
       { value: 0, label: '不适宜', color: '#E8E2D0' },
@@ -50,8 +52,8 @@ const FACTORS = {
     name: '光照',
     short: '光照',
     icon: '☀️',
-    png: '/data/2/rad_suitability.png',
-    boundsUrl: '/data/2/rad_bounds.json',
+    png: assetUrl('data/2/rad_suitability.png'),
+    boundsUrl: assetUrl('data/2/rad_bounds.json'),
     desc: '茶树喜光耐阴，年太阳辐射总量适中为最适宜',
     levels: [
       { value: 0, label: '不适宜', color: '#E8E2D0' },
@@ -65,8 +67,8 @@ const FACTORS = {
     name: '酸碱度',
     short: 'pH',
     icon: '🧪',
-    png: '/data/2/ph_suitability.png',
-    boundsUrl: '/data/2/ph_bounds.json',
+    png: assetUrl('data/2/ph_suitability.png'),
+    boundsUrl: assetUrl('data/2/ph_bounds.json'),
     desc: '茶树喜酸性土壤，pH 4.5–5.5 为最适宜区',
     levels: [
       { value: 0, label: '不适宜', color: '#E8E2D0' },
@@ -82,8 +84,8 @@ const COMPOSITE = {
   name: '综合',
   short: '综合',
   icon: '🍃',
-  png: '/data/2/composite_suitability.png',
-  boundsUrl: '/data/2/composite_bounds.json',
+  png: assetUrl('data/2/composite_suitability.png'),
+  boundsUrl: assetUrl('data/2/composite_bounds.json'),
   desc: '五因子等权重叠加，综合评分 ≥2.5 为茶树生长最适宜区',
   levels: [
     { value: 0, label: '不适宜', color: '#E8E2D0' },
@@ -100,7 +102,7 @@ const MAP_BOUNDS = [
   [53.57, 135.10],
 ]
 
-const PROV_BG_URL = '/data/2/china-provinces.geojson'
+const PROV_BG_URL = assetUrl('data/2/china-provinces.geojson')
 
 const PROV_STYLE = {
   color: '#A8A28D',
