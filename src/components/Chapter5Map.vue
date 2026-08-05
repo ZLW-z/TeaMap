@@ -56,17 +56,17 @@
 
           <!-- ===== Tree 1 (left, smaller) ===== -->
           <g class="tea-tree tree-1" style="transform-origin: 250px 490px;">
-            <image :href="TREE_IMG_URL" x="130" y="180" width="270" height="380" preserveAspectRatio="xMidYEnd meet" />
+            <image :href="TREE_IMG_URL" x="130" y="180" width="500" height="700" preserveAspectRatio="xMidYEnd meet" />
           </g>
 
           <!-- ===== Tree 2 (center, largest) ===== -->
           <g class="tea-tree tree-2" style="transform-origin: 600px 490px;">
-            <image :href="TREE_IMG_URL" x="400" y="100" width="400" height="460" preserveAspectRatio="xMidYEnd meet" />
+            <image :href="TREE_IMG_URL" x="400" y="100" width="600" height="780" preserveAspectRatio="xMidYEnd meet" />
           </g>
 
           <!-- ===== Tree 3 (right, medium) ===== -->
           <g class="tea-tree tree-3" style="transform-origin: 950px 490px;">
-            <image :href="TREE_IMG_URL" x="810" y="140" width="310" height="420" preserveAspectRatio="xMidYEnd meet" />
+            <image :href="TREE_IMG_URL" x="810" y="140" width="500" height="700" preserveAspectRatio="xMidYEnd meet" />
           </g>
 
           <!-- Floating leaves decoration -->
