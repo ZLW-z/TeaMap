@@ -187,7 +187,7 @@
                 <div class="card-title-sm">{{ metricLabel }}分布</div>
                 <div class="chart-container chart-map">
                   <div v-if="!mapReady" class="ch5-map-loading">加载中…</div>
-                  <EChart v-else :option="rootsMapOption" @click="onMapClick" style="height:280px" />
+                  <EChart v-else :option="rootsMapOption" @ready="onRootsMapReady" @click="onMapClick" style="height:280px" />
                 </div>
               </div>
 
@@ -406,6 +406,28 @@ const hoveredZone = ref(null)
 const mapReady = ref(false)
 const introDone = ref(false)
 
+// ---- 地图缩放联动：geo zoom 与 bubble symbolSize 同步 ----
+const DEFAULT_GEO_ZOOM = 1.15
+const currentGeoZoom = ref(DEFAULT_GEO_ZOOM)
+let _rootsChartInstance = null
+
+function onRootsMapReady(chart) {
+  _rootsChartInstance = chart
+  // 监听缩放/平移事件，同步 zoom
+  chart.on('georoam', () => {
+    try {
+      const opt = chart.getOption()
+      // 茶园面积 tab: opt.geo[0].zoom；产量 tab: opt.series[0].zoom
+      const bubbleZoom = opt.geo?.[0]?.zoom
+      const mapZoom = opt.series?.[0]?.zoom
+      const z = bubbleZoom ?? mapZoom ?? DEFAULT_GEO_ZOOM
+      if (typeof z === 'number' && z > 0) {
+        currentGeoZoom.value = z
+      }
+    } catch (_) { /* ignore */ }
+  })
+}
+
 // ---- Metric config ----
 const metricOptions = [
   { key: 'gardenArea', label: '茶园面积', unit: '千公顷', color: '#B28F4C' },
@@ -452,6 +474,89 @@ const homeExportYearData = countryData.find(y => y.year === LATEST_EXPORT_YEAR)
 const exportTotal = homeExportYearData
   ? homeExportYearData.countries.reduce((s, c) => s + c.value, 0)
   : 0
+
+// ============================================================
+//  中国各省面积常量表（单位：km²）
+//  数据来源：中华人民共和国国家统计局《中国统计年鉴》公开行政区划面积数据
+//  参考链接：https://www.stats.gov.cn/sj/tjnj/ （各省份土地面积/行政区划面积）
+// ============================================================
+const PROVINCE_AREAS = {
+  '北京市': 16410,
+  '天津市': 11966,
+  '河北省': 188800,
+  '山西省': 156700,
+  '内蒙古自治区': 1183000,
+  '辽宁省': 148000,
+  '吉林省': 187400,
+  '黑龙江省': 473000,
+  '上海市': 6340,
+  '江苏省': 107200,
+  '浙江省': 105500,
+  '安徽省': 140100,
+  '福建省': 124000,
+  '江西省': 166900,
+  '山东省': 157900,
+  '河南省': 167000,
+  '湖北省': 185900,
+  '湖南省': 211800,
+  '广东省': 179800,
+  '广西壮族自治区': 237600,
+  '海南省': 35400,
+  '重庆市': 82400,
+  '四川省': 486000,
+  '贵州省': 176200,
+  '云南省': 394100,
+  '西藏自治区': 1228400,
+  '陕西省': 205600,
+  '甘肃省': 425900,
+  '青海省': 722300,
+  '宁夏回族自治区': 66400,
+  '新疆维吾尔自治区': 1664900,
+  '台湾省': 36013,
+  '香港特别行政区': 1114,
+  '澳门特别行政区': 33,
+}
+
+// ============================================================
+//  中国各省会/首府中心经纬度（用于气泡散点定位）
+//  数据来源：公开地理坐标数据（WGS84 近似值，ECharts 坐标系适用）
+// ============================================================
+const PROVINCE_COORDS = {
+  '北京市': [116.405285, 39.904989],
+  '天津市': [117.200983, 39.084158],
+  '河北省': [114.502461, 38.045474],
+  '山西省': [112.549248, 37.857014],
+  '内蒙古自治区': [111.75199, 40.841439],
+  '辽宁省': [123.429096, 41.796767],
+  '吉林省': [125.3245, 43.886841],
+  '黑龙江省': [126.642464, 45.756967],
+  '上海市': [121.472644, 31.231706],
+  '江苏省': [118.767413, 32.041544],
+  '浙江省': [120.153576, 30.287459],
+  '安徽省': [117.283042, 31.86119],
+  '福建省': [119.306239, 26.075302],
+  '江西省': [115.892151, 28.676493],
+  '山东省': [117.000923, 36.675807],
+  '河南省': [113.665412, 34.757975],
+  '湖北省': [114.298572, 30.584355],
+  '湖南省': [112.982279, 28.19409],
+  '广东省': [113.280637, 23.125178],
+  '广西壮族自治区': [108.320004, 22.82402],
+  '海南省': [110.330802, 20.031971],
+  '重庆市': [106.504962, 29.533155],
+  '四川省': [104.065735, 30.659462],
+  '贵州省': [106.713478, 26.578343],
+  '云南省': [102.712251, 25.040609],
+  '西藏自治区': [91.132212, 29.660361],
+  '陕西省': [108.948024, 34.263161],
+  '甘肃省': [103.823557, 36.058039],
+  '青海省': [101.778916, 36.623178],
+  '宁夏回族自治区': [106.230909, 38.487222],
+  '新疆维吾尔自治区': [87.617733, 43.792818],
+  '台湾省': [121.509062, 25.044332],
+  '香港特别行政区': [114.173355, 22.320048],
+  '澳门特别行政区': [113.549132, 22.198951],
+}
 
 // ============================================================
 //  Shared ECharts style fragments
@@ -501,6 +606,114 @@ const rootsMapData = computed(() => {
 
 const rootsMapOption = computed(() => {
   const data = rootsMapData.value
+
+  // =================== 茶园面积 Tab：气泡图方案（geo 米色底图 + 散点） ===================
+  if (metric.value === 'gardenArea') {
+    // 计算覆盖率 & 组装散点数据（1千公顷 = 10 km²）
+    const scatterList = []
+    const coverageList = []
+    let areaMax = 0
+    data.forEach(d => {
+      const areaKm2 = PROVINCE_AREAS[d.name]
+      if (!areaKm2 || areaKm2 <= 0) return
+      const coord = PROVINCE_COORDS[d.name]
+      if (!coord) return
+      const gardenKm2 = d.value * 10 // 千公顷 → km²
+      const coverage = (gardenKm2 / areaKm2) * 100 // 覆盖率 %
+      scatterList.push({
+        name: d.name,
+        // value 标准 3 元素：[lng, lat, coverage]；第2索引即 dimension=2 供 visualMap 染色
+        value: [coord[0], coord[1], coverage],
+        // 保留自定义属性供 tooltip / symbolSize 使用
+        coverage,
+        gardenArea: d.value,
+      })
+      coverageList.push(coverage)
+      if (d.value > areaMax) areaMax = d.value
+    })
+
+    // 覆盖率最大值向上取整
+    const coverageMaxRaw = coverageList.length ? Math.max(...coverageList) : 1
+    const coverageMax = Math.max(1, Math.ceil(coverageMaxRaw))
+
+    // 气泡大小映射（基于茶园面积绝对值，开方缩放使视觉更合理）
+    const areaMaxRef = Math.max(areaMax, 1)
+    const sizeMax = 24 // 最大气泡像素（整体调小，原 36）
+    const sizeMin = 4  // 最小气泡像素（整体调小，原 6）
+
+    return {
+      tooltip: {
+        ...tooltipBase,
+        trigger: 'item',
+        formatter: p => {
+          if (p.componentType === 'geo') return `${p.name}<br/>（点击气泡查看省份详情）`
+          const d = p.data
+          if (!d || !d.gardenArea) return `${p.name}<br/>暂无数据`
+          return `<b>${d.name}</b><br/>茶园面积：${fmt(d.gardenArea, 2)} 千公顷<br/>覆盖率：${fmt(d.coverage, 3)} %`
+        },
+      },
+      geo: {
+        map: 'china',
+        roam: true,
+        zoom: currentGeoZoom.value,
+        label: { show: false },
+        itemStyle: {
+          areaColor: '#F7F4EB', // 统一米色底图
+          borderColor: 'rgba(178,143,76,0.45)',
+          borderWidth: 0.8,
+        },
+        emphasis: {
+          label: { show: true, color: '#3A4D38', fontWeight: 700 },
+          itemStyle: { areaColor: '#EFE9DA', borderColor: '#B28F4C', borderWidth: 1.2 },
+        },
+      },
+      visualMap: {
+        min: 0,
+        max: coverageMax,
+        left: 16,
+        bottom: 24,
+        text: [`${coverageMax}%`, '0%'],
+        textStyle: { color: '#5A6655', fontSize: 10 },
+        inRange: { color: ['#F0F4E6', '#C5D6AC', '#8BA667', '#5C7C3A', '#3A4D38'] },
+        calculable: true,
+        formatter: v => `${v.toFixed(1)}%`,
+        show: true,
+        dimension: 2, // ★ 核心修复：绑定 value[2]=coverage，避免误取经度导致全白
+        seriesIndex: 0, // 只作用于散点系列，不影响 geo
+      },
+      series: [{
+        type: 'scatter',
+        coordinateSystem: 'geo',
+        geoIndex: 0,
+        symbol: 'circle',
+        // symbolSize 随地图缩放联动：zoom 越大气泡越大；除以 DEFAULT_GEO_ZOOM 保证初始视觉与以前一致
+        symbolSize: (value, params) => {
+          const area = params.data?.gardenArea || 0
+          const ratio = Math.sqrt(area / areaMaxRef)
+          const base = Math.max(sizeMin, sizeMin + (sizeMax - sizeMin) * ratio)
+          const zoomFactor = currentGeoZoom.value / DEFAULT_GEO_ZOOM
+          return base * zoomFactor
+        },
+        itemStyle: {
+          borderColor: 'rgba(255,255,255,0.92)',
+          borderWidth: 1,
+          opacity: 0.9,
+        },
+        emphasis: {
+          itemStyle: {
+            borderColor: '#B28F4C',
+            borderWidth: 2,
+            opacity: 1,
+            shadowBlur: 10,
+            shadowColor: 'rgba(92,124,58,0.35)',
+          },
+        },
+        data: scatterList,
+      }],
+    }
+  }
+
+  // =================== 茶叶产量 Tab：保持原分级设色 choropleth ===================
   const values = data.map(d => d.value)
   const maxVal = values.length ? Math.max(...values) : 0
   return {
@@ -526,7 +739,7 @@ const rootsMapOption = computed(() => {
       type: 'map',
       map: 'china',
       roam: true,
-      zoom: 1.15,
+      zoom: currentGeoZoom.value,
       label: { show: false },
       emphasis: {
         label: { show: true, color: '#3A4D38', fontWeight: 700 },
@@ -1055,9 +1268,9 @@ onMounted(async () => {
   overflow: hidden;
   padding: 0;
   display: grid;
-  grid-template-columns: 1fr minmax(380px, 480px);
-  gap: 24px;
-  padding: 1.6rem 2rem 1.6rem 2rem;
+  grid-template-columns: minmax(580px, 1.1fr) minmax(360px, 440px);
+  gap: 16px;
+  padding: 1.6rem 3rem 1.6rem 1rem;
 }
 .map-fullscreen.ch5-redesign.show {
   opacity: 1;
