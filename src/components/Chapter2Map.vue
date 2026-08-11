@@ -1,7 +1,7 @@
 <template>
   <section class="chapter chapter-2">
     <ChapterIntro
-      ch-no="第 二 章"
+      ch-no="贰"
       title="何以生茶"
       desc="得天独厚的光照、气候与土壤条件，编织出适配茶树生长的天然温床，一方水土的禀赋，悄悄决定了茶叶的诞生与品质。"
       :duration="2.5"

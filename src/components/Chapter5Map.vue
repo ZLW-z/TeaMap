@@ -1,7 +1,7 @@
 <template>
   <section class="chapter chapter-5" :id="id" ref="sectionEl">
     <ChapterIntro
-      ch-no="第 五 章"
+      ch-no="伍"
       title="今日茶境"
       desc="千年茶脉绵延至今，国内茶园规模稳步扩张，茶叶外销步履不停，现代产业续写着茶业蓬勃发展的新篇章。"
       :duration="2.5"
@@ -64,7 +64,7 @@
                       style="font-size:13px;font-weight:700;letter-spacing:0.05em">叶片 · 茶种</text>
                 <text x="14" y="52"
                       :fill="activePhonePanel === 'leaves' ? '#EFE9DA' : '#4A4A40'"
-                      style="font-size:22px;font-weight:900;font-family:serif">{{ fmt(output, 2) }}万吨</text>
+                      style="font-size:22px;font-weight:900;font-family:var(--font-huiwen)">{{ fmt(output, 2) }}万吨</text>
               </g>
               <!-- 引线：标签右下 → 热区中心左下 -->
               <line x1="176" y1="106" x2="320" y2="232" stroke="#5C7C3A" stroke-width="2" stroke-dasharray="4 4" fill="none" opacity="0.75" />
@@ -89,7 +89,7 @@
                       style="font-size:13px;font-weight:700;letter-spacing:0.05em">枝条 · 出口</text>
                 <text x="14" y="52"
                       :fill="activePhonePanel === 'branches' ? '#EFE9DA' : '#4A4A40'"
-                      style="font-size:22px;font-weight:900;font-family:serif">{{ fmt(exportTotal / 1e8, 2) }}亿元</text>
+                      style="font-size:22px;font-weight:900;font-family:var(--font-huiwen)">{{ fmt(exportTotal / 1e8, 2) }}亿元</text>
               </g>
               <line x1="188" y1="516" x2="218" y2="520" stroke="#6B4423" stroke-width="2" stroke-dasharray="4 4" fill="none" opacity="0.75" />
             </g>
@@ -113,7 +113,7 @@
                       style="font-size:13px;font-weight:700;letter-spacing:0.05em">根系 · 生产</text>
                 <text x="14" y="52"
                       :fill="activePhonePanel === 'roots' ? '#EFE9DA' : '#4A4A40'"
-                      style="font-size:22px;font-weight:900;font-family:serif">{{ fmt(gardenArea, 2) }}千公顷</text>
+                      style="font-size:22px;font-weight:900;font-family:var(--font-huiwen)">{{ fmt(gardenArea, 2) }}千公顷</text>
               </g>
               <line x1="204" y1="770" x2="240" y2="752" stroke="#B28F4C" stroke-width="2" stroke-dasharray="4 4" fill="none" opacity="0.75" />
             </g>
@@ -1145,7 +1145,7 @@ onMounted(async () => {
 .click-zone.active .ripple-3 { animation-duration: 1.6s; }
 
 .zone-tag text {
-  font-family: var(--serif);
+  font-family: var(--font-huiwen);
   pointer-events: none;
 }
 
@@ -1226,7 +1226,7 @@ onMounted(async () => {
 }
 .sb-time { min-width: 40px; }
 .sb-title {
-  font: 600 14px/1 var(--serif);
+  font: 600 14px/1 var(--font-huiwen);
   letter-spacing: 0.08em;
   color: rgba(255,255,255,0.92);
   text-shadow: 0 0 6px rgba(0,0,0,0.4);
@@ -1244,6 +1244,8 @@ onMounted(async () => {
   position: relative;
   scrollbar-width: thin;
   scrollbar-color: #B8B484 transparent;
+  --serif: var(--font-huiwen);
+  --sans: var(--font-huiwen);
 }
 
 .phone-screen::-webkit-scrollbar { width: 4px; }
@@ -1366,7 +1368,7 @@ onMounted(async () => {
 }
 
 .card-title-sm {
-  font: 600 13px/1 var(--serif);
+  font: 600 13px/1 var(--font-huiwen);
   color: var(--c-olive);
   letter-spacing: 0.04em;
   margin-bottom: 8px;

@@ -1,7 +1,7 @@
 <template>
   <section class="chapter chapter-3" :id="id" ref="sectionEl">
     <ChapterIntro
-      ch-no="第 三 章"
+      ch-no="叁"
       title="云雾深处"
       desc="云雾藏佳茗，寻访散落山河的传统名茶，看名山滋养珍味、岁月沉淀风味，深谷氤氲茶香藏着一代代茗茶佳话。"
       :duration="2.5"
@@ -889,6 +889,7 @@ onBeforeUnmount(() => {
   background: rgba(250, 247, 239, 0.92);
   backdrop-filter: blur(4px);
   color: #3A4D38;
+  font-family: var(--font-dzji, var(--serif));
   font-size: 0.78rem;
   font-weight: 500;
   padding: 3px 10px;
@@ -912,6 +913,7 @@ onBeforeUnmount(() => {
 }
 
 :deep(.tea-label--top10 .tea-label-text) {
+  font-family: var(--font-dzji, var(--serif));
   font-weight: 700;
   font-size: 0.82rem;
   background: rgba(250, 247, 239, 0.95);

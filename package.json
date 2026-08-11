@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "茶之中国 · 茶叶生产贸易与发展地理图志（Vue3 + Vite + Leaflet）",
+  "description": "山海一叶 · 茶叶生产贸易与发展地理图志（Vue3 + Vite + Leaflet）",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

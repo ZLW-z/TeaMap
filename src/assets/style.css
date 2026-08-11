@@ -1,5 +1,12 @@
+/* 香萃刻宋体 + 令东齐伋体 + 寒蝉活楷体 + 朝华打字机 + 汇文明朝体 */
+@import url("https://fontsapi.zeoseven.com/21/main/result.css");
+@import url("https://fontsapi.zeoseven.com/81/main/result.css");
+@import url("https://fontsapi.zeoseven.com/874/main/result.css");
+@import url("https://fontsapi.zeoseven.com/2103/main/result.css");
+@import url("https://fontsapi.zeoseven.com/256/main/result.css");
+
 /* ============================================================
-   茶之中国 · 全局样式（Vue 项目）
+   山海一叶 · 全局样式（Vue 项目）
    固定六色主调 + 色带相近辅助色
    #EFE9DA #F7F4EB #516D33 #B28F4C #C3C19A #5C7C3A
    ============================================================ */
@@ -42,14 +49,20 @@
   --t2: #B28F4C;        /* 古茶树 过渡/其他 → 褐金 */
   --t3: #2F5D3A;         /* 古茶树 栽培型 → 深森林绿 */
   --serif:'Noto Serif SC',Georgia,'Times New Roman',serif;
-  --sans:'Noto Sans SC','Helvetica Neue',Arial,sans-serif;
+  --sans:"ChillHuoKai",'Noto Sans SC','Helvetica Neue',Arial,sans-serif;
+  --font-kesong:"Xiangcui Kesong Xiangcui Kesong",var(--serif);
+  --font-qiji:"QIJIC",var(--serif);
+  --font-huokai:"ChillHuoKai",var(--sans);
+  --font-body:"ChillHuoKai",var(--sans);
+  --font-dzji:"ZhaohuaTypeWriter Light",var(--serif);
+  --font-huiwen:"Huiwen-mincho",var(--serif);
 }
 
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;}
 html{scroll-behavior:smooth;}
 body{
-  font-family:var(--sans);
+  font-family:var(--font-body);
   color:var(--ink);
   background:var(--c-paper-2);
   line-height:1.75;
@@ -61,7 +74,7 @@ body{
   background:var(--c-paper)!important;
   color:var(--c-olive)!important;
   border-color:var(--line)!important;
-  font-family:var(--sans)!important;
+  font-family:var(--font-body)!important;
 }
 .leaflet-control-attribution{
   background:rgba(247,244,235,.85)!important;
@@ -69,12 +82,12 @@ body{
   font-size:10px!important;
 }
 .leaflet-container{
-  font-family:var(--sans)!important;
+  font-family:var(--font-body)!important;
   background:var(--c-paper-3)!important;
   outline:none;
 }
 .leaflet-tooltip{
-  font-family:var(--sans)!important;
+  font-family:var(--font-body)!important;
   background:rgba(247,244,235,.96)!important;
   border-color:var(--line)!important;
   color:var(--c-olive-deep2)!important;

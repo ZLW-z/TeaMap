@@ -47,7 +47,7 @@ onMounted(async () => {
 
   // 初始状态
   gsap.set(charRefs, { opacity: 0, y: 40, rotateX: -90 })
-  gsap.set(chNoRef.value, { opacity: 0, y: -20, letterSpacing: '0.8em' })
+  gsap.set(chNoRef.value, { opacity: 0, y: -20, scale: 0.6 })
   gsap.set(descRef.value, { opacity: 0, y: 30 })
 
   const holdTime = props.duration
@@ -64,7 +64,7 @@ onMounted(async () => {
   tl.to(chNoRef.value, {
     opacity: 1,
     y: 0,
-    letterSpacing: '0.4em',
+    scale: 1,
     duration: 0.6,
     ease: 'power3.out'
   })
@@ -137,12 +137,14 @@ onBeforeUnmount(() => {
 }
 
 .intro-ch-no {
-  font-family: var(--serif, 'Noto Serif SC', serif);
-  font-size: 1rem;
-  letter-spacing: 0.4em;
+  font-family: var(--font-qiji, 'Noto Serif SC', serif);
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 700;
+  letter-spacing: 0.15em;
   color: var(--c-gold, #B28F4C);
-  text-transform: uppercase;
-  margin-bottom: 1.2rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  justify-content: center;
 }
 
 .intro-title-row {
@@ -153,7 +155,7 @@ onBeforeUnmount(() => {
 }
 
 .intro-char {
-  font-family: var(--serif, 'Noto Serif SC', serif);
+  font-family: var(--font-kesong, 'Noto Serif SC', serif);
   font-size: clamp(2.5rem, 6vw, 4.5rem);
   font-weight: 700;
   color: var(--c-olive, #516D33);
@@ -163,7 +165,7 @@ onBeforeUnmount(() => {
 }
 
 .intro-desc {
-  font-family: var(--sans, 'Noto Sans SC', sans-serif);
+  font-family: var(--font-huokai, 'Noto Sans SC', sans-serif);
   font-size: 1rem;
   line-height: 1.9;
   color: #6B5F45;
@@ -180,6 +182,9 @@ onBeforeUnmount(() => {
 }
 
 @media (max-width: 600px) {
+  .intro-ch-no {
+    font-size: 2.2rem;
+  }
   .intro-char {
     font-size: 2.2rem;
   }

@@ -1,7 +1,7 @@
 <template>
   <section class="chapter chapter-4" :id="id" ref="sectionEl">
     <ChapterIntro
-      ch-no="第 四 章"
+      ch-no="肆"
       title="一叶行远"
       desc="小小一叶茶叶踏出深山，顺着古道、江河辗转流通，从地方风物变成流通四方的货品，开启漫长的远行之路。"
       :duration="2.5"
@@ -2325,7 +2325,7 @@ onBeforeUnmount(function() {
   border-radius: 30px;
   background: rgba(247,244,235,0.7);
   color: var(--c-olive-mid);
-  font: 500 13px/1 var(--serif);
+  font: 500 13px/1 var(--font-dzji, var(--serif));
   cursor: pointer;
   transition: all 0.25s ease;
   letter-spacing: 0.05em;
@@ -2348,6 +2348,10 @@ onBeforeUnmount(function() {
   display: flex;
   flex-direction: column;
   min-height: 0;
+}
+.ch4-view-ancient,
+.ch4-view-modern {
+  --serif: var(--font-body);
 }
 
 .ch4-view-ancient .timeline-panel {

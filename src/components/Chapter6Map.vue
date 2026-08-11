@@ -1,7 +1,7 @@
 <template>
   <section class="chapter chapter-6" :id="id">
     <ChapterIntro
-      ch-no="拓 展"
+      ch-no="陆"
       title="世界共饮"
       desc="茶香跨越山海国界，从中国走向全球各地，融入不同地域生活日常，多元饮茶习俗共生交融，编织出异彩纷呈的世界茶文化图景。"
       :duration="2.5"
@@ -641,7 +641,7 @@ onBeforeUnmount(() => {
   border-bottom: 1px solid rgba(178, 143, 76, 0.2);
 }
 .card-country {
-  font: 700 1.2rem/1 var(--serif);
+  font: 700 1.2rem/1 var(--font-dzji, var(--serif));
   color: var(--c-olive);
 }
 .card-import {
@@ -654,7 +654,7 @@ onBeforeUnmount(() => {
   margin-left: 10px;
 }
 .card-title {
-  font: 700 1.05rem/1.3 var(--serif);
+  font: 700 1.05rem/1.3 var(--font-dzji, var(--serif));
   color: var(--c-olive);
   margin-bottom: 8px;
   margin-top: 4px;

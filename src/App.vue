@@ -4,7 +4,7 @@
     <nav class="top-nav">
       <div class="nav-brand">
         <span class="brand-icon">茶</span>
-        <span class="brand-text">茶之中国</span>
+        <span class="brand-text">山海一叶</span>
       </div>
       <div class="nav-track">
         <!-- 章节导航按钮容器：flex 均匀分布
@@ -30,6 +30,7 @@
               'is-active': currentRoute === r.path,
               'is-hover': hoverIdx === i && currentRoute !== r.path,
               'has-deco': i < navItems.length - 1,
+              'is-bookend': r.isBookend,
             }"
             @mouseenter="hoverIdx = i"
             @mouseleave="hoverIdx = -1"
@@ -82,7 +83,7 @@
         ← {{ prevLabel }}
       </button>
       <div v-else class="switch-btn hidden"></div>
-      <div class="page-indicator">{{ currentIdx }} / 6</div>
+      <div class="page-indicator">{{ currentIndicator }} / {{ totalIndicator }}</div>
       <button
         v-if="nextRoute"
         class="switch-btn next"
@@ -103,19 +104,27 @@ const route = useRoute()
 const router = useRouter()
 
 const navItems = [
-  { path: '/ch1', idx: '一', label: '茶生山水间' },
-  { path: '/ch2', idx: '二', label: '何以生茶' },
-  { path: '/ch3', idx: '三', label: '云雾深处' },
-  { path: '/ch4', idx: '四', label: '一叶行远' },
-  { path: '/ch5', idx: '五', label: '今日茶境' },
-  { path: '/ch6', idx: '六', label: '世界共饮' },
+  { path: '/prologue', idx: '序', label: '序言',  isBookend: true },
+  { path: '/ch1',      idx: '壹', label: '茶生山水间' },
+  { path: '/ch2',      idx: '贰', label: '何以生茶' },
+  { path: '/ch3',      idx: '叁', label: '云雾深处' },
+  { path: '/ch4',      idx: '肆', label: '一叶行远' },
+  { path: '/ch5',      idx: '伍', label: '今日茶境' },
+  { path: '/ch6',      idx: '陆', label: '世界共饮' },
+  { path: '/epilogue', idx: '终', label: '结语',  isBookend: true },
 ]
 
 const currentRoute = computed(() => route.path)
+
+// 底部显示的章节序号/计数：仅6个正文章节算入章节编号，序言结语作为首尾不计入
 const currentIdx = computed(() => {
-  const item = navItems.find(n => n.path === route.path)
-  return item ? navItems.indexOf(item) + 1 : 1
+  const i = navItems.findIndex(n => n.path === route.path)
+  if (i === -1) return 0
+  if (navItems[i].isBookend) return i === 0 ? 0 : 7
+  return i
 })
+const currentIndicator = computed(() => currentIdx.value === 0 ? '序' : currentIdx.value > 6 ? '终' : currentIdx.value)
+const totalIndicator = computed(() => 6) // 始终 6 章主内容，序言与结语是首尾
 
 const prevRoute = computed(() => {
   const i = navItems.findIndex(n => n.path === route.path)
@@ -127,11 +136,15 @@ const nextRoute = computed(() => {
 })
 const prevLabel = computed(() => {
   const i = navItems.findIndex(n => n.path === route.path)
-  return i > 0 ? navItems[i - 1].label : ''
+  if (i <= 0) return ''
+  const p = navItems[i - 1]
+  return p.isBookend ? p.label : p.label
 })
 const nextLabel = computed(() => {
   const i = navItems.findIndex(n => n.path === route.path)
-  return i < navItems.length - 1 ? navItems[i + 1].label : ''
+  if (i < 0 || i >= navItems.length - 1) return ''
+  const p = navItems[i + 1]
+  return p.isBookend ? p.label : p.label
 })
 
 const progressPct = ref(0)
@@ -217,10 +230,10 @@ onBeforeUnmount(() => {
   background: var(--c-olive, #516D33);
   color: var(--c-paper, #EFE9DA);
   border-radius: 50%;
-  font: 700 18px var(--serif);
+  font: 700 20px var(--serif);
 }
 .brand-text {
-  font: 700 18px var(--serif);
+  font: 700 20px var(--font-qiji, var(--serif));
   color: var(--c-olive, #516D33);
   letter-spacing: 0.05em;
 }
@@ -237,12 +250,12 @@ onBeforeUnmount(() => {
   box-sizing: border-box;
 }
 
-/* ===== 章节按钮容器：Grid 6 等分 =====
+/* ===== 章节按钮容器：Grid 8 等分 =====
    列宽相等 → 章中心距离永远相等，随容器宽度自适应变化 ✓ */
 .nav-chapters-wrap {
   position: relative;
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(8, minmax(0, 1fr));
   align-items: stretch;
   width: 100%;
   height: 100%;
@@ -295,11 +308,11 @@ onBeforeUnmount(() => {
   gap: 5px;
   padding: 5px 12px;
   border-radius: 14px;
-  font: 500 12px var(--sans);
+  font: 500 14px var(--sans);
   white-space: nowrap;
   pointer-events: none;
 }
-.nav-pill--spacer .nav-pill-num { font-weight: 600; font-size: 11px; }
+.nav-pill--spacer .nav-pill-num { font-weight: 600; font-size: 13px; }
 .nav-pill--spacer .nav-pill-label { letter-spacing: 0.03em; }
 
 /* 双描边圆点：绝对定位在列中心 */
@@ -341,7 +354,7 @@ onBeforeUnmount(() => {
   border-radius: 14px;
   background: var(--c-olive, #516D33);
   color: var(--c-paper, #EFE9DA);
-  font: 500 12px var(--sans);
+  font: 500 14px var(--sans);
   white-space: nowrap;
   opacity: 0;
   pointer-events: none;
@@ -350,11 +363,13 @@ onBeforeUnmount(() => {
   z-index: 3;
 }
 .nav-pill-num {
+  font-family: var(--font-qiji, var(--serif));
   font-weight: 600;
-  font-size: 11px;
+  font-size: 14px;
   opacity: 0.85;
 }
 .nav-pill-label {
+  font-family: var(--font-qiji, var(--serif));
   letter-spacing: 0.03em;
 }
 
@@ -408,6 +423,24 @@ onBeforeUnmount(() => {
   width: 2px;
   height: 2px;
   background: rgba(81, 109, 51, 0.28);
+}
+
+/* 序言 / 结语 节点：用金色区分，呼应首尾 */
+.nav-chapter.is-bookend .nav-dot {
+  border-color: var(--c-gold, #B28F4C);
+}
+.nav-chapter.is-bookend .nav-dot-inner {
+  background: var(--c-gold, #B28F4C);
+}
+.nav-chapter.is-bookend .nav-pill--visible,
+.nav-chapter.is-bookend .nav-pill--spacer {
+  border-color: var(--c-gold, #B28F4C);
+}
+.nav-chapter.is-bookend .nav-pill--visible {
+  background: var(--c-gold-deep, #8E6F38);
+}
+.nav-chapter.is-bookend .nav-pill-num {
+  opacity: 1;
 }
 
 .nav-progress {
@@ -493,7 +526,7 @@ onBeforeUnmount(() => {
   /* 小屏：胶囊只显示序号，占位符和可见版都要改 */
   .nav-pill--spacer,
   .nav-pill--visible {
-    font-size: 11px;
+    font-size: 13px;
     padding: 4px 10px;
   }
   .nav-pill--spacer .nav-pill-label,

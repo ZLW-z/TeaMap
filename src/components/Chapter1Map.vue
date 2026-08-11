@@ -1,7 +1,7 @@
 <template>
   <section class="page-wrap">
     <ChapterIntro
-      ch-no="第 一 章"
+      ch-no="壹"
       title="茶生山水间"
       desc="群山蕴灵气，活水育新芽。茶自山野萌芽扎根，循着山川脉络散落四方，这片广袤土地，便是茶叶最初的故乡。"
       :duration="2.5"
