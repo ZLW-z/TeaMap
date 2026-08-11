@@ -6,7 +6,7 @@ const FACTORS = {
     id: 'precip',
     name: '降水',
     short: '降水',
-    icon: '💧',
+    icon: '',
     png: assetUrl('data/2/precip_suitability.png'),
     boundsUrl: assetUrl('data/2/precip_bounds.json'),
     desc: '茶树喜湿润，年降水量 1200–1800 mm 为最适宜区',
@@ -21,7 +21,7 @@ const FACTORS = {
     id: 'temp',
     name: '气温',
     short: '气温',
-    icon: '🌡',
+    icon: '',
     png: assetUrl('data/2/temp_suitability.png'),
     boundsUrl: assetUrl('data/2/temp_bounds.json'),
     desc: '茶树喜温暖，中温区最宜生长，低温与高温区为次适宜',
@@ -36,7 +36,7 @@ const FACTORS = {
     id: 'accum',
     name: '积温',
     short: '积温',
-    icon: '🔥',
+    icon: '',
     png: assetUrl('data/2/accum_suitability.png'),
     boundsUrl: assetUrl('data/2/accum_bounds.json'),
     desc: '≥10℃ 年活动积温 4000℃·d 以上方可满足茶树生长需求',
@@ -51,7 +51,7 @@ const FACTORS = {
     id: 'rad',
     name: '光照',
     short: '光照',
-    icon: '☀️',
+    icon: '',
     png: assetUrl('data/2/rad_suitability.png'),
     boundsUrl: assetUrl('data/2/rad_bounds.json'),
     desc: '茶树喜光耐阴，年太阳辐射总量适中为最适宜',
@@ -66,7 +66,7 @@ const FACTORS = {
     id: 'ph',
     name: '酸碱度',
     short: 'pH',
-    icon: '🧪',
+    icon: '',
     png: assetUrl('data/2/ph_suitability.png'),
     boundsUrl: assetUrl('data/2/ph_bounds.json'),
     desc: '茶树喜酸性土壤，pH 4.5–5.5 为最适宜区',
@@ -98,11 +98,11 @@ const COMPOSITE = {
 const FACTOR_ORDER = ['precip', 'temp', 'accum', 'rad', 'ph']
 
 const MAP_BOUNDS = [
-  [3.82, 73.49],
-  [53.57, 135.10],
+  [-2521178, -15157622], // [southY, westX] Albers
+  [16124181,  15157622], // [northY, eastX] Albers
 ]
 
-const PROV_BG_URL = assetUrl('data/2/china-provinces.geojson')
+const PROV_BG_URL = assetUrl('data/2/china-provinces-albers.geojson')
 
 const PROV_STYLE = {
   color: '#A8A28D',
@@ -137,6 +137,7 @@ export async function loadFactorBounds(factorId) {
     const res = await fetch(cfg.boundsUrl)
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
     const b = await res.json()
+    // Albers 米制坐标: [[southY, westX], [northY, eastX]]
     return [[b.south, b.west], [b.north, b.east]]
   } catch (e) {
     console.warn('[ch2] bounds load failed:', factorId, e)

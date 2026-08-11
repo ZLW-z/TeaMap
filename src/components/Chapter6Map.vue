@@ -3,311 +3,380 @@
     <ChapterIntro
       ch-no="拓 展"
       title="世界共饮"
-      desc="茶越山海，化为世界共饮之物。悬停一国，见中国茶之占比，亦见当地饮茶之俗。"
+      desc="茶香跨越山海国界，从中国走向全球各地，融入不同地域生活日常，多元饮茶习俗共生交融，编织出异彩纷呈的世界茶文化图景。"
       :duration="2.5"
       @done="onIntroDone"
     />
 
-    <div class="map-fullscreen" :class="{ show: introDone }" ref="scrollContainer">
-    <!-- 全球数据看板 -->
-    <div class="stats-board card-stagger">
-      <div v-for="(s, si) in GLOBAL_STATS" :key="s.label" class="stat-card" :style="{ animationDelay: (si * 0.08) + 's' }">
-        <span class="stat-icon">{{ s.icon }}</span>
-        <div class="stat-body">
-          <div class="stat-value num-roll">{{ s.value }}<small>{{ s.unit }}</small></div>
-          <div class="stat-label">{{ s.label }}</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- TOP5 进口国条形图 -->
-    <div class="importers-bar card-stagger" style="animation-delay: 0.32s;">
-      <h3 class="bar-title">TOP5 茶叶进口国 · 占比</h3>
-      <div class="bar-rows">
-        <div v-for="(item, idx) in TOP_IMPORTERS" :key="item.country" class="bar-row" :style="{ animationDelay: (idx * 0.12) + 's' }">
-          <span class="bar-country">{{ item.country }}</span>
-          <div class="bar-track">
-            <div class="bar-fill bar-grow-fill" :style="{ width: item.rate + '%', background: item.color, animationDelay: (idx * 0.12) + 's' }"></div>
-          </div>
-          <span class="bar-pct">{{ item.rate }}%</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- 世界地图区域 -->
-    <div class="map-container radial-emerge" ref="mapContainer">
-      <!-- 只有地图做 3D 倾斜 -->
-      <div class="map-scene" :style="{ transform: sceneTransform }" :class="{ 'is-3d': is3D }">
-        <div class="map-tilt">
-          <div ref="mapEl" class="world-map"></div>
-        </div>
+    <div class="map-fullscreen" :class="{ show: introDone }">
+      <div class="bg-layer">
+        <div class="bg-image" :style="{ backgroundImage: `url(${bgImageUrl})` }"></div>
+        <div class="bg-mask"></div>
       </div>
 
-      <!-- 以下覆盖层保持 2D 正视角，不随地图倾斜 -->
-      <!-- 地标标签层 -->
-      <div class="marker-layer">
+      <!-- 旋转立体地球 -->
+      <div class="globe-wrap" ref="globeWrap">
+        <svg ref="globeSvg" class="globe-svg" :width="size.w" :height="size.h" :viewBox="`0 0 ${size.w} ${size.h}`"></svg>
+        <div class="globe-tooltip" ref="tooltipEl" hidden></div>
+        <ul class="globe-legend">
+          <li><span class="dot origin"></span>茶之原产地</li>
+          <li><span class="dot importer"></span>主要进口国</li>
+        </ul>
+        <div class="globe-hint">拖拽旋转 · 悬停查看</div>
+      </div>
+
+      <!-- 信息卡 -->
+      <transition name="card-slide">
         <div
-          v-for="(p, idx) in TEA_CULTURE_POINTS"
-          :key="p.id"
-          class="landmark-marker wave-pop"
-          :class="{ active: selectedPoint && selectedPoint.id === p.id, origin: p.isOrigin }"
-          :style="{ ...getMarkerStyle(p), animationDelay: (idx * 0.15) + 's' }"
-          @mouseenter="onMarkerHover(p)"
-          @mouseleave="onMarkerLeave"
-          @click.stop="onMarkerClick(p)"
+          v-if="selectedPoint || hoveredPoint"
+          class="info-card"
+          :class="{ pinned: selectedPoint }"
         >
-          <div class="marker-pin">
-            <div class="pin-head">
-              <img :src="p.image" :alt="p.country" @error="onImgError" />
+          <div v-if="selectedPoint" class="card-close" @click="selectedPoint = null">×</div>
+          <div class="card-body">
+            <div class="card-header">
+              <span class="card-country">{{ (selectedPoint || hoveredPoint).country }}</span>
+              <span v-if="(selectedPoint || hoveredPoint).importRate" class="card-import">
+                中国茶进口占比 {{ (selectedPoint || hoveredPoint).importRate }}
+              </span>
             </div>
-            <div class="pin-stick"></div>
-            <div class="pin-dot"></div>
-          </div>
-          <div class="marker-label">{{ p.country }}</div>
-        </div>
-      </div>
-
-      <!-- 图例 -->
-      <div class="map-legend">
-        <div class="legend-row"><span class="legend-dot origin"></span>茶之原产地</div>
-        <div class="legend-row"><span class="legend-dot import"></span>主要进口国</div>
-      </div>
-    </div>
-
-    <!-- 信息卡 -->
-    <transition name="card-slide">
-      <div v-if="selectedPoint || hoveredPoint" class="info-card slide-in-right card-stagger" :class="{ pinned: selectedPoint }">
-        <div v-if="selectedPoint" class="card-close" @click="selectedPoint = null">×</div>
-        <div class="card-image">
-          <img :src="(selectedPoint || hoveredPoint).image" :alt="(selectedPoint || hoveredPoint).country" @error="onImgError" />
-          <div class="card-img-overlay">
-            <span class="card-country">{{ (selectedPoint || hoveredPoint).country }}</span>
-            <span v-if="(selectedPoint || hoveredPoint).importRate" class="card-import">中国茶进口占比 {{ (selectedPoint || hoveredPoint).importRate }}</span>
+            <h3 class="card-title">{{ (selectedPoint || hoveredPoint).title }}</h3>
+            <div class="card-tags">
+              <span class="tag">{{ (selectedPoint || hoveredPoint).drinkStyle }}</span>
+              <span class="tag type">{{ (selectedPoint || hoveredPoint).teaType }}</span>
+            </div>
+            <p class="card-intro">{{ (selectedPoint || hoveredPoint).intro }}</p>
+            <div class="card-image-bottom">
+              <img
+                v-if="(selectedPoint || hoveredPoint).image"
+                :src="(selectedPoint || hoveredPoint).image"
+                :alt="(selectedPoint || hoveredPoint).country"
+                @error="onImgErrorBottom"
+              />
+              <div v-else class="card-image-fallback-bottom">
+                <span class="fallback-text">{{ (selectedPoint || hoveredPoint).country }}</span>
+              </div>
+            </div>
+            <p v-if="!selectedPoint && hoveredPoint" class="card-hint"></p>
           </div>
         </div>
-        <div class="card-body">
-          <h3 class="card-title">{{ (selectedPoint || hoveredPoint).title }}</h3>
-          <div class="card-tags">
-            <span class="tag">{{ (selectedPoint || hoveredPoint).drinkStyle }}</span>
-            <span class="tag type">{{ (selectedPoint || hoveredPoint).teaType }}</span>
-          </div>
-          <p class="card-intro">{{ (selectedPoint || hoveredPoint).intro }}</p>
-          <p v-if="!selectedPoint && hoveredPoint" class="card-hint">点击 📌 查看完整信息</p>
-        </div>
-      </div>
-    </transition>
+      </transition>
     </div>
   </section>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
-import L from 'leaflet'
-import gsap from 'gsap'
+import { ref, reactive, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import * as d3 from 'd3'
+import { feature } from 'topojson-client'
 import ChapterIntro from './ChapterIntro.vue'
-import { TEA_CULTURE_POINTS, TOP_IMPORTERS, GLOBAL_STATS } from '../data/ch6.js'
+import { TEA_CULTURE_POINTS } from '../data/ch6.js'
+import { assetUrl } from '../utils/base.js'
 
 const props = defineProps({ id: { type: String, required: true } })
 
-const mapEl = ref(null)
-const mapContainer = ref(null)
-const scrollContainer = ref(null)
+const globeWrap = ref(null)
+const globeSvg = ref(null)
+const tooltipEl = ref(null)
 const selectedPoint = ref(null)
 const hoveredPoint = ref(null)
-const sceneTransform = ref('')
-const forceUpdate = ref(0)
 const introDone = ref(false)
-const is3D = ref(false)
+const size = reactive({ w: 800, h: 600 })
 
-let map = null
-let tl = null
+// 把数据映射成点（区分原产地 / 进口国）
+const POINTS = TEA_CULTURE_POINTS.map(p => ({
+  ...p,
+  type: p.isOrigin ? 'origin' : 'importer',
+}))
+
+const LAND_URL = assetUrl('/data/6/land-110m.json')
+const bgImageUrl = assetUrl('/data/6/bg-ch6-tea.jpg')
+
+let landFeature = null
+let projection = null
+let path = null
+let svgSel = null
+let gSphere, gGraticule, gLand, gPoints
+let autoRotate = true
+let hoverInside = false
+let timerHandle = null
+let dragStart = null
+let resumeTimer = null
+let wrapEnterHandler = null
+let wrapLeaveHandler = null
 
 function onImgError(e) {
   e.target.style.display = 'none'
   e.target.parentElement.style.background = 'linear-gradient(135deg, #B28F4C, #516D33)'
 }
-
-const sceneAngle = ref(0)
-const sceneScale = ref(1)
-const PERSPECTIVE_D = 2600 // 与 .map-container CSS perspective 一致
-
-// 把 Leaflet 地图内的像素坐标 → 经过 rotateX + perspective 投影后的屏幕坐标（相对于 .map-container）
-function projectToScreen(ptX, ptY, mapW, mapH) {
-  // 地图中心
-  const cx = mapW / 2
-  const cy = mapH / 2
-
-  // 相对中心偏移
-  let x = ptX - cx
-  let y = ptY - cy
-
-  // rotateX 变换（绕 X 轴旋转，Y 坐标会产生 Z 位移）
-  const angleRad = sceneAngle.value * Math.PI / 180
-  const cosA = Math.cos(angleRad)
-  const sinA = Math.sin(angleRad)
-
-  // rotateX: y' = y*cos - z*sin, z' = y*sin + z*cos
-  const yTilted = y * cosA
-  const zTilted = y * sinA // 地图原本 z=0，旋转后产生 z 位移
-
-  // perspective 投影：screenScale = d / (d - z)
-  const pScale = PERSPECTIVE_D / (PERSPECTIVE_D - zTilted)
-
-  // 整体 scale
-  const s = sceneScale.value
-
-  // 最终屏幕坐标（相对于地图中心）
-  const screenX = cx + x * pScale * s
-  const screenY = cy + yTilted * pScale * s
-
-  return { x: screenX, y: screenY, scale: pScale, z: zTilted }
+function onImgErrorBottom(e) {
+  e.target.style.display = 'none'
+  e.target.parentElement.querySelector('.card-image-fallback-bottom').style.display = 'flex'
 }
 
-// 根据经纬度计算标记在 map-container 中的像素位置
-function getMarkerStyle(p) {
-  forceUpdate.value
-  const container = mapEl.value
-  if (!container || !map || !mapContainer.value) return { display: 'none' }
+function measure() {
+  const wrap = globeWrap.value
+  if (!wrap) return { w: 800, h: 600 }
+  const w = Math.max(320, wrap.clientWidth)
+  const h = Math.min(640, Math.max(400, w))
+  return { w, h }
+}
 
-  const pt = map.latLngToContainerPoint([p.lat, p.lon])
-  const mapW = container.clientWidth
-  const mapH = container.clientHeight
-
-  const proj = projectToScreen(pt.x, pt.y, mapW, mapH)
-
-  return {
-    left: proj.x + 'px',
-    top: proj.y + 'px',
-    // 轻微缩放增强立体层次感（近处稍大，远处稍小）
-    transform: `translate(-50%, -100%) scale(${0.9 + proj.scale * 0.1})`,
-    transformOrigin: 'center bottom',
-    zIndex: 600 + Math.round(proj.z),
+function onResize() {
+  const m = measure()
+  if (m.w === size.w && m.h === size.h) return
+  size.w = m.w
+  size.h = m.h
+  if (projection) {
+    projection.scale(Math.min(m.w, m.h) * 0.46).translate([m.w / 2, m.h / 2])
+    gSphere.selectAll('circle').attr('cx', m.w / 2).attr('cy', m.h / 2).attr('r', projection.scale())
+    render()
   }
 }
 
-// 2D → 3D 自动转换动画
-function play2DTo3D() {
-  if (!mapContainer.value) return
-  is3D.value = false
-  sceneAngle.value = 0
-  sceneScale.value = 1
+async function initGlobe() {
+  const { w, h } = measure()
+  size.w = w
+  size.h = h
 
-  // 初始 2D 状态
-  sceneTransform.value = 'rotateX(0deg) scale(1)'
+  svgSel = d3.select(globeSvg.value)
+  svgSel.attr('width', w).attr('height', h).attr('viewBox', `0 0 ${w} ${h}`)
 
-  // GSAP 时序：停顿 → 缓动转为 3D
-  tl = gsap.timeline({
-    onComplete: () => { is3D.value = true }
-  })
+  // 球体投影 — 初始看向亚洲（茶之原乡）
+  projection = d3.geoOrthographic()
+    .scale(Math.min(w, h) * 0.46)
+    .translate([w / 2, h / 2])
+    .rotate([-105, -18, 0])
+    .clipAngle(90)
 
-  // 先停顿 2.5 秒，让 2D 地图被看清
-  tl.to({}, { duration: 2.5 })
+  path = d3.geoPath(projection)
 
-  // 然后用 2 秒转换为 3D
-  tl.to({ angle: 38, scale: 0.96 }, {
-    duration: 2,
-    ease: 'power2.inOut',
-    onUpdate: function() {
-      const angle = this.targets()[0].angle
-      const sc = this.targets()[0].scale
-      sceneAngle.value = angle
-      sceneScale.value = sc
-      // perspective 在父元素上，这里只放 transform
-      sceneTransform.value = `rotateX(${angle}deg) scale(${sc})`
-      forceUpdate.value++
-    }
-  })
-}
+  // === Defs：球面渐变阴影 ===
+  const defs = svgSel.append('defs')
+  const grad = defs.append('radialGradient')
+    .attr('id', 'ch6-sphere-shade')
+    .attr('cx', '35%').attr('cy', '32%').attr('r', '72%')
+  grad.append('stop').attr('offset', '0%').attr('stop-color', 'rgba(255,255,255,0.32)')
+  grad.append('stop').attr('offset', '55%').attr('stop-color', 'rgba(255,255,255,0)')
+  grad.append('stop').attr('offset', '100%').attr('stop-color', 'rgba(81,109,51,0.18)')
 
-function onMarkerHover(p) {
-  if (!selectedPoint.value) {
-    hoveredPoint.value = p
+  // 陆地光晕（外层环绕）
+  const glowGrad = defs.append('radialGradient')
+    .attr('id', 'ch6-sphere-glow')
+    .attr('cx', '50%').attr('cy', '50%').attr('r', '50%')
+  glowGrad.append('stop').attr('offset', '78%').attr('stop-color', 'rgba(178,143,76,0)')
+  glowGrad.append('stop').attr('offset', '92%').attr('stop-color', 'rgba(178,143,76,0.18)')
+  glowGrad.append('stop').attr('offset', '100%').attr('stop-color', 'rgba(178,143,76,0)')
+
+  // === 图层 ===
+  gSphere = svgSel.append('g')
+  gGraticule = svgSel.append('g')
+  gLand = svgSel.append('g')
+  gPoints = svgSel.append('g')
+
+  // 外层光晕
+  gSphere.append('circle')
+    .attr('cx', w / 2).attr('cy', h / 2).attr('r', projection.scale() * 1.05)
+    .attr('fill', 'url(#ch6-sphere-glow)')
+    .attr('pointer-events', 'none')
+
+  // 球体本体（海洋）
+  gSphere.append('circle')
+    .attr('cx', w / 2).attr('cy', h / 2).attr('r', projection.scale())
+    .attr('class', 'sphere-ocean')
+    .attr('fill', '#F7F4EB')
+    .attr('stroke', '#C3C19A')
+    .attr('stroke-width', 1)
+
+  // 球面阴影叠加
+  gSphere.append('circle')
+    .attr('cx', w / 2).attr('cy', h / 2).attr('r', projection.scale())
+    .attr('fill', 'url(#ch6-sphere-shade)')
+    .attr('pointer-events', 'none')
+
+  // === 加载世界陆地数据 ===
+  try {
+    const world = await fetch(LAND_URL).then(r => r.json())
+    landFeature = feature(world, world.objects.land)
+  } catch (e) {
+    console.error('加载 land-110m 失败', e)
   }
-}
 
-function onMarkerLeave() {
-  hoveredPoint.value = null
-}
+  // 经纬线
+  const graticule = d3.geoGraticule10()
+  gGraticule.selectAll('path').data([graticule]).join('path')
+    .attr('class', 'graticule-line')
+    .attr('d', path)
+    .attr('fill', 'none')
+    .attr('stroke', '#C3C19A')
+    .attr('stroke-width', 0.6)
+    .attr('opacity', 0.45)
 
-function onMarkerClick(p) {
-  selectedPoint.value = p
-  hoveredPoint.value = null
-  if (map) {
-    map.flyTo([p.lat, p.lon], Math.max(map.getZoom(), 3), { duration: 0.8 })
+  // 陆地
+  if (landFeature) {
+    gLand.selectAll('path').data([landFeature]).join('path')
+      .attr('class', 'land-shape')
+      .attr('d', path)
+      .attr('fill', '#EFE9DA')
+      .attr('stroke', '#B28F4C')
+      .attr('stroke-width', 0.5)
+      .attr('stroke-opacity', 0.55)
   }
-}
 
-function initMap() {
-  map = L.map(mapEl.value, {
-    center: [25, 30],
-    zoom: 2,
-    minZoom: 1,
-    maxZoom: 6,
-    worldCopyJump: true,
-    zoomControl: true,
-    attributionControl: false,
+  // 茶文化点
+  const pts = gPoints.selectAll('g.pt').data(POINTS).enter().append('g')
+    .attr('class', d => `pt pt-${d.type}`)
+    .style('cursor', 'pointer')
+    .on('mouseenter', (event, d) => {
+      hoverInside = true
+      hoveredPoint.value = d
+      showTooltip(event, d)
+    })
+    .on('mousemove', (event) => moveTooltip(event))
+    .on('mouseleave', () => {
+      hoverInside = false
+      if (!selectedPoint.value) hoveredPoint.value = null
+      hideTooltip()
+    })
+    .on('click', (event, d) => {
+      event.stopPropagation()
+      selectedPoint.value = d
+      hoveredPoint.value = null
+      hideTooltip()
+    })
+
+  pts.append('circle').attr('class', 'halo').attr('r', 9)
+  pts.append('circle').attr('class', 'core').attr('r', 4)
+
+  render()
+
+  // === 自动旋转 ===
+  let lastT = 0
+  timerHandle = d3.timer(t => {
+    if (!autoRotate) { lastT = t; return }
+    const dt = t - lastT
+    lastT = t
+    const r = projection.rotate()
+    const speed = hoverInside ? 0.0035 : 0.013
+    projection.rotate([r[0] + dt * speed, r[1], r[2]])
+    render()
   })
 
-  // 世界地图底图 — 浅色风格
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
-    subdomains: 'abcd',
-    maxZoom: 19,
-  }).addTo(map)
+  // === 拖拽旋转 ===
+  svgSel.call(
+    d3.drag()
+      .on('start', (event) => {
+        autoRotate = false
+        hideTooltip()
+        dragStart = { x: event.x, y: event.y, rot: projection.rotate() }
+      })
+      .on('drag', (event) => {
+        if (!dragStart) return
+        const dx = event.x - dragStart.x
+        const dy = event.y - dragStart.y
+        const k = 0.4
+        const newRot = [
+          dragStart.rot[0] + dx * k,
+          Math.max(-85, Math.min(85, dragStart.rot[1] - dy * k)),
+          dragStart.rot[2],
+        ]
+        projection.rotate(newRot)
+        render()
+      })
+      .on('end', () => {
+        dragStart = null
+        if (resumeTimer) clearTimeout(resumeTimer)
+        resumeTimer = setTimeout(() => { autoRotate = true }, 1800)
+      })
+  )
 
-  // 点击地图空白处取消选中
-  map.on('click', () => {
+  // 点击地球空白处取消选中
+  svgSel.on('click', () => {
     selectedPoint.value = null
   })
 
-  // 地图移动/缩放时更新标记位置
-  map.on('move zoom', onMapMove)
+  // 鼠标进入地球区域时减速
+  const wrap = globeWrap.value
+  wrapEnterHandler = () => { hoverInside = true }
+  wrapLeaveHandler = () => { hoverInside = false }
+  wrap.addEventListener('pointerenter', wrapEnterHandler)
+  wrap.addEventListener('pointerleave', wrapLeaveHandler)
 
-  // 把 Leaflet 缩放控件从地图容器中移到外层 2D 容器（保持正视角）
-  setTimeout(() => {
-    const ctrl = mapEl.value?.querySelector('.leaflet-control-zoom')
-    if (ctrl && mapContainer.value) {
-      ctrl.style.position = 'absolute'
-      ctrl.style.right = '16px'
-      ctrl.style.bottom = '14px'
-      ctrl.style.zIndex = '900'
-      mapContainer.value.appendChild(ctrl)
-    }
-  }, 50)
+  // 尺寸响应
+  window.addEventListener('resize', onResize)
 }
 
-let moveTimer = null
-function onMapMove() {
-  if (moveTimer) cancelAnimationFrame(moveTimer)
-  moveTimer = requestAnimationFrame(() => {
-    forceUpdate.value++
-  })
+function render() {
+  if (landFeature) {
+    gLand.selectAll('path').attr('d', path)
+  }
+  gGraticule.selectAll('path').attr('d', path)
+
+  const visible = (d) => {
+    const r = projection.rotate()
+    const center = [-r[0], -r[1]]
+    return d3.geoDistance([d.lon, d.lat], center) < Math.PI / 2 - 0.02
+  }
+
+  gPoints.selectAll('g.pt')
+    .attr('transform', d => {
+      const c = projection([d.lon, d.lat])
+      if (!c) return 'translate(-9999,-9999)'
+      return `translate(${c[0]},${c[1]})`
+    })
+    .attr('opacity', d => visible(d) ? 1 : 0)
+}
+
+// === Tooltip ===
+function showTooltip(event, d) {
+  const tip = tooltipEl.value
+  if (!tip) return
+  tip.innerHTML = `
+    <span class="tip-kind tip-${d.type}">${d.type === 'origin' ? '原产地' : '进口国'}</span>
+    <strong>${d.country}</strong>
+    <em>${d.drinkStyle}</em>
+  `
+  tip.hidden = false
+  moveTooltip(event)
+}
+function moveTooltip(event) {
+  const tip = tooltipEl.value
+  if (!tip || tip.hidden) return
+  const rect = globeWrap.value.getBoundingClientRect()
+  const x = event.clientX - rect.left
+  const y = event.clientY - rect.top
+  const tw = tip.offsetWidth
+  const th = tip.offsetHeight
+  let left = x + 14
+  let top = y + 14
+  if (left + tw > rect.width - 8) left = x - tw - 14
+  if (top + th > rect.height - 8) top = y - th - 14
+  tip.style.left = `${Math.max(8, left)}px`
+  tip.style.top = `${Math.max(8, top)}px`
+}
+function hideTooltip() {
+  const tip = tooltipEl.value
+  if (tip) tip.hidden = true
 }
 
 function onIntroDone() {
   introDone.value = true
-  setTimeout(() => {
-    if (map) map.invalidateSize()
-    play2DTo3D()
-  }, 300)
+  setTimeout(() => initGlobe(), 200)
 }
 
 onMounted(async () => {
   await nextTick()
-  initMap()
-  // 2D→3D 动画在 intro 结束后由 onIntroDone 触发
+  // 真正的初始化在 intro 结束后触发
 })
 
 onBeforeUnmount(() => {
-  if (tl) tl.kill()
-  // 把 zoom 控件归还到 map 容器（否则 map.remove 时会残留 DOM）
-  if (map && mapEl.value && mapContainer.value) {
-    const ctrl = mapContainer.value.querySelector('.leaflet-control-zoom')
-    if (ctrl) mapEl.value.appendChild(ctrl)
-  }
-  if (moveTimer) cancelAnimationFrame(moveTimer)
-  if (map) {
-    map.remove()
-    map = null
+  if (timerHandle) timerHandle.stop()
+  if (resumeTimer) clearTimeout(resumeTimer)
+  window.removeEventListener('resize', onResize)
+  const wrap = globeWrap.value
+  if (wrap) {
+    if (wrapEnterHandler) wrap.removeEventListener('pointerenter', wrapEnterHandler)
+    if (wrapLeaveHandler) wrap.removeEventListener('pointerleave', wrapLeaveHandler)
   }
 })
 </script>
@@ -327,260 +396,184 @@ onBeforeUnmount(() => {
   opacity: 0;
   transition: opacity 0.8s ease;
   overflow-y: auto;
-  padding: 1rem 2rem 5rem;
+  padding: 1.5rem 2rem 4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  position: fixed;
+}
+.map-fullscreen .bg-layer {
+  position: fixed;
+  top: 60px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+.map-fullscreen .bg-layer .bg-image {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.28;
+  filter: blur(5px);
+  transform: scale(1.05);
+}
+.map-fullscreen .bg-layer .bg-mask {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(239,233,218,0.45) 0%, rgba(247,244,235,0.65) 60%, rgba(247,244,235,0.8) 100%);
+}
+.map-fullscreen > .globe-wrap,
+.map-fullscreen > .legend-box,
+.map-fullscreen > .tip-box,
+.map-fullscreen > .rotate-tip,
+.map-fullscreen > .ch-nav {
+  position: relative;
+  z-index: 1;
 }
 .map-fullscreen.show {
   opacity: 1;
 }
 
-/* === 全球数据看板 === */
-.stats-board {
-  max-width: 1100px;
-  margin: 0 auto 1.5rem;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1rem;
-}
-.stat-card {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: linear-gradient(135deg, #FAF7EF, #F2EDE0);
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 16px 18px;
-  box-shadow: 0 2px 8px rgba(81, 109, 51, 0.06);
-}
-.stat-icon {
-  font-size: 1.8rem;
-  flex-shrink: 0;
-}
-.stat-value {
-  font: 900 1.6rem/1 var(--serif);
-  color: var(--c-olive);
-}
-.stat-value small {
-  font-size: 0.7rem;
-  font-weight: 500;
-  color: var(--c-beige-dark);
-  margin-left: 4px;
-}
-.stat-label {
-  font: 500 0.75rem/1.3 var(--sans);
-  color: var(--muted);
-  margin-top: 2px;
-}
-
-/* === TOP5 进口国条形图 === */
-.importers-bar {
-  max-width: 1100px;
-  margin: 0 auto 2rem;
-  background: linear-gradient(135deg, #FAF7EF, #F5F1E8);
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 20px 24px;
-}
-.bar-title {
-  font: 600 0.9rem/1 var(--serif);
-  color: var(--c-olive);
-  margin-bottom: 14px;
-}
-.bar-rows {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.bar-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.bar-country {
-  width: 70px;
-  font: 500 0.82rem/1 var(--sans);
-  color: var(--c-olive-deep2);
-  text-align: right;
-  flex-shrink: 0;
-}
-.bar-track {
-  flex: 1;
-  height: 22px;
-  background: rgba(0,0,0,0.04);
-  border-radius: 6px;
-  overflow: hidden;
-}
-.bar-fill {
-  height: 100%;
-  border-radius: 6px;
-  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.bar-pct {
-  width: 50px;
-  font: 600 0.8rem/1 var(--sans);
-  color: var(--c-gold-deep);
-  flex-shrink: 0;
-}
-
-/* === 地图场景 === */
-.map-container {
+/* === 旋转地球容器 === */
+.globe-wrap {
   position: relative;
-  max-width: 1400px;
+  width: 100%;
+  max-width: 880px;
   margin: 0 auto;
-  padding: 1rem 0 0;
-  /* perspective 放在父容器上，子元素才能真正 3D 透视 */
-  perspective: 2600px;
-  perspective-origin: 50% 50%;
+  touch-action: none;
 }
 
-/* 只有地图本身做 3D 倾斜 —— perspective 在父元素上，这里只放 transform */
-.map-scene {
+.globe-svg {
+  display: block;
   width: 100%;
-  height: 620px;
-  transform-style: preserve-3d;
-  will-change: transform;
+  height: auto;
+  cursor: grab;
+  touch-action: none;
 }
-.map-tilt {
-  width: 100%;
-  height: 100%;
-  transform-style: preserve-3d;
-}
-.world-map {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background: #E8E4D9;
-  border-radius: 0;
-  border: none;
-  box-shadow: none;
-}
-.map-scene.is-3d .world-map {
-  box-shadow: 0 42px 80px -18px rgba(60, 50, 30, 0.25), 0 16px 36px -14px rgba(60, 50, 30, 0.15);
+.globe-svg:active {
+  cursor: grabbing;
 }
 
-/* === 地标标签层（2D 正视角覆盖层） === */
-.marker-layer {
+/* === 点位（原产地/进口国） === */
+:deep(.pt) { transition: opacity 0.25s ease; }
+:deep(.pt .halo) {
+  transition: r 0.2s ease, fill-opacity 0.2s ease;
+}
+:deep(.pt .core) {
+  stroke: #F7F4EB;
+  stroke-width: 1.4;
+  transition: r 0.2s ease;
+}
+:deep(.pt-origin .core) { fill: #516D33; }
+:deep(.pt-origin .halo) { fill: #516D33; fill-opacity: 0.22; }
+:deep(.pt-importer .core) { fill: #B28F4C; }
+:deep(.pt-importer .halo) { fill: #B28F4C; fill-opacity: 0.22; }
+
+:deep(.pt:hover .core) { r: 5.5; }
+:deep(.pt:hover .halo) { r: 12; fill-opacity: 0.36; }
+
+/* 标记呼吸脉冲（原产地） */
+:deep(.pt-origin .halo) {
+  animation: ch6HaloPulse 2.6s ease-in-out infinite;
+}
+@keyframes ch6HaloPulse {
+  0%, 100% { r: 9; fill-opacity: 0.22; }
+  50% { r: 13; fill-opacity: 0.08; }
+}
+
+/* === Tooltip === */
+.globe-tooltip {
   position: absolute;
-  top: 1rem;
-  left: 0;
-  width: 100%;
-  height: 620px;
   pointer-events: none;
-  z-index: 600;
+  z-index: 10;
+  background: rgba(247, 244, 235, 0.96);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 8px 12px;
+  max-width: 240px;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  box-shadow: 0 4px 18px rgba(50, 42, 38, 0.12);
+  backdrop-filter: blur(6px);
 }
-.landmark-marker {
-  position: absolute;
-  transform: translate(-50%, -100%);
-  pointer-events: auto;
-  cursor: pointer;
-  z-index: 600;
-  transition: transform 0.3s ease;
+.globe-tooltip strong {
+  display: block;
+  font: 700 0.9rem/1.2 var(--serif);
+  color: var(--c-olive);
+  margin: 4px 0 2px;
 }
-.landmark-marker:hover,
-.landmark-marker.active {
-  z-index: 700;
-  transform: translate(-50%, -108%);
+.globe-tooltip em {
+  display: block;
+  font: 400 0.72rem/1.4 var(--sans);
+  font-style: normal;
+  color: var(--ink-soft);
 }
+.globe-tooltip .tip-kind {
+  display: inline-block;
+  font: 500 0.62rem/1 var(--sans);
+  letter-spacing: 0.08em;
+  padding: 2px 6px;
+  border-radius: 3px;
+  text-transform: uppercase;
+}
+.tip-kind.tip-origin { background: rgba(81,109,51,0.12); color: var(--c-olive); }
+.tip-kind.tip-importer { background: rgba(178,143,76,0.16); color: var(--c-gold-deep); }
 
-.marker-pin {
-  position: relative;
+/* === 图例 === */
+.globe-legend {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
   display: flex;
   flex-direction: column;
-  align-items: center;
-}
-.pin-head {
-  width: 54px;
-  height: 54px;
-  border-radius: 50%;
-  overflow: hidden;
-  border: 3px solid #fff;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-  background: linear-gradient(135deg, #B28F4C, #516D33);
-  transition: all 0.3s ease;
-}
-.pin-head img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.landmark-marker:hover .pin-head,
-.landmark-marker.active .pin-head {
-  width: 64px;
-  height: 64px;
-  border-color: var(--c-gold);
-  box-shadow: 0 6px 20px rgba(178, 143, 76, 0.4);
-}
-.pin-stick {
-  width: 2px;
-  height: 18px;
-  background: linear-gradient(to bottom, var(--c-gold), var(--c-olive));
-  margin-top: -1px;
-}
-.pin-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--c-olive);
-  border: 2px solid #fff;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-  margin-top: -5px;
-}
-.landmark-marker.origin .pin-dot {
-  background: var(--c-olive-mid);
-}
-.landmark-marker:not(.origin) .pin-dot {
-  background: var(--c-gold);
-}
-
-.marker-label {
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  margin-top: 4px;
-  font: 600 0.72rem/1 var(--sans);
-  color: var(--c-olive);
-  background: rgba(255,255,255,0.92);
-  padding: 3px 8px;
-  border-radius: 4px;
-  white-space: nowrap;
+  gap: 6px;
+  font: 500 0.7rem/1 var(--sans);
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+  pointer-events: none;
+  background: rgba(247, 244, 235, 0.7);
+  padding: 8px 12px;
+  border-radius: 6px;
   border: 1px solid var(--line);
-  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-  opacity: 0;
-  transition: opacity 0.3s;
 }
-.landmark-marker:hover .marker-label,
-.landmark-marker.active .marker-label {
-  opacity: 1;
-}
-
-/* === 图例（2D 正视角覆盖层） === */
-.map-legend {
-  position: absolute;
-  top: calc(1rem + 14px);
-  left: 14px;
-  background: rgba(255,255,255,0.9);
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 8px 14px;
-  font: 500 0.75rem/1.5 var(--sans);
-  color: var(--c-olive-deep2);
-  z-index: 800;
-  backdrop-filter: blur(4px);
-}
-.legend-row {
+.globe-legend li {
   display: flex;
   align-items: center;
   gap: 6px;
 }
-.legend-dot {
+.globe-legend .dot {
+  display: inline-block;
   width: 10px;
   height: 10px;
   border-radius: 50%;
   border: 2px solid #fff;
   box-shadow: 0 1px 2px rgba(0,0,0,0.15);
 }
-.legend-dot.origin { background: var(--c-olive-mid); }
-.legend-dot.import { background: var(--c-gold); }
+.globe-legend .dot.origin { background: #516D33; }
+.globe-legend .dot.importer { background: #B28F4C; }
+
+/* 操作提示 */
+.globe-hint {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  font: 400 0.68rem/1 var(--sans);
+  letter-spacing: 0.15em;
+  color: var(--muted);
+  background: rgba(247, 244, 235, 0.7);
+  padding: 6px 10px;
+  border-radius: 4px;
+  border: 1px solid var(--line);
+  pointer-events: none;
+}
 
 /* === 信息卡 === */
 .info-card {
@@ -589,14 +582,17 @@ onBeforeUnmount(() => {
   top: 50%;
   transform: translateY(-50%);
   width: 380px;
+  height: 80vh;
   max-height: 80vh;
-  background: rgba(255,255,255,0.95);
+  background: rgba(255, 255, 255, 0.96);
   border: 1px solid var(--line);
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
   z-index: 1000;
   backdrop-filter: blur(8px);
+  display: flex;
+  flex-direction: column;
 }
 .info-card.pinned {
   border-color: var(--c-gold);
@@ -604,12 +600,12 @@ onBeforeUnmount(() => {
 }
 .card-close {
   position: absolute;
-  top: 8px;
-  right: 10px;
+  top: 10px;
+  right: 12px;
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.9);
+  background: rgba(255, 255, 255, 0.9);
   border: 1px solid var(--line);
   display: flex;
   align-items: center;
@@ -624,55 +620,50 @@ onBeforeUnmount(() => {
   background: var(--c-olive);
   color: #fff;
 }
-.card-image {
-  position: relative;
-  width: 100%;
-  height: 180px;
-  overflow: hidden;
+.fallback-text {
+  font: 900 1.6rem/1.2 var(--serif);
+  color: #F7F4EB;
+  letter-spacing: 0.1em;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.3);
 }
-.card-image img {
-  width: 100%;
+.card-body {
+  padding: 18px 20px 20px;
+  overflow-y: auto;
+  flex: 1;
   height: 100%;
-  object-fit: cover;
 }
-.card-img-overlay {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: linear-gradient(transparent, rgba(0,0,0,0.6));
-  padding: 24px 16px 10px;
+.card-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(178, 143, 76, 0.2);
 }
 .card-country {
-  font: 700 1.1rem/1 var(--serif);
-  color: #fff;
-  text-shadow: 0 1px 4px rgba(0,0,0,0.4);
+  font: 700 1.2rem/1 var(--serif);
+  color: var(--c-olive);
 }
 .card-import {
   font: 600 0.72rem/1 var(--sans);
   color: #fff;
-  background: rgba(178, 143, 76, 0.85);
+  background: var(--c-gold);
   padding: 4px 8px;
   border-radius: 4px;
-}
-.card-body {
-  padding: 14px 18px 18px;
-  overflow-y: auto;
-  max-height: calc(80vh - 180px);
+  flex-shrink: 0;
+  margin-left: 10px;
 }
 .card-title {
   font: 700 1.05rem/1.3 var(--serif);
   color: var(--c-olive);
   margin-bottom: 8px;
+  margin-top: 4px;
 }
 .card-tags {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 .tag {
   font: 500 0.7rem/1 var(--sans);
@@ -686,17 +677,67 @@ onBeforeUnmount(() => {
   color: var(--c-gold-deep);
 }
 .card-intro {
-  font: 400 0.82rem/1.7 var(--sans);
+  font: 400 0.85rem/1.75 var(--sans);
   color: #444;
+  margin-bottom: 16px;
+}
+.card-image-bottom {
+  width: 100%;
+  margin-top: 8px;
+  margin-bottom: 4px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(194, 193, 154, 0.4);
+  box-shadow: 0 2px 8px rgba(81, 109, 51, 0.08);
+}
+.card-image-bottom img {
+  width: 100%;
+  height: auto;
+  max-height: 320px;
+  object-fit: contain;
+  display: block;
+  background: var(--c-paper-2);
+}
+.card-image-fallback-bottom {
+  width: 100%;
+  height: 200px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #516D33 0%, #5C7C3A 50%, #B28F4C 100%);
+  position: relative;
+}
+.card-image-fallback-bottom::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(247,244,235,0.15), transparent 50%),
+    radial-gradient(circle at 70% 70%, rgba(81,109,51,0.2), transparent 50%);
 }
 .card-hint {
-  margin-top: 8px;
+  margin-top: 12px;
   font: 500 0.72rem/1 var(--sans);
   color: var(--c-gold);
   text-align: center;
 }
 
-/* === 过渡动画 === */
+/* 滚动条美化 */
+.card-body::-webkit-scrollbar {
+  width: 6px;
+}
+.card-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+.card-body::-webkit-scrollbar-thumb {
+  background: rgba(178, 143, 76, 0.35);
+  border-radius: 3px;
+}
+.card-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(178, 143, 76, 0.55);
+}
+
+/* === 过渡 === */
 .card-slide-enter-active,
 .card-slide-leave-active {
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -709,67 +750,32 @@ onBeforeUnmount(() => {
 
 /* === 响应式 === */
 @media (max-width: 960px) {
-  .stats-board {
-    grid-template-columns: repeat(2, 1fr);
-  }
   .info-card {
     width: 320px;
-  }
-  .world-map {
-    height: 460px;
+    height: 75vh;
+    max-height: 75vh;
   }
 }
 @media (max-width: 640px) {
   .map-fullscreen {
     padding: 1rem 1rem 4rem;
   }
-  .stats-board {
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
-  .stat-card {
-    padding: 12px;
-  }
-  .stat-value {
-    font-size: 1.2rem;
-  }
   .info-card {
     width: calc(100% - 24px);
     right: 12px;
+    top: auto;
+    bottom: 12px;
+    transform: none;
+    height: 60vh;
+    max-height: 60vh;
   }
-  .world-map {
-    height: 380px;
+  .card-slide-enter-from,
+  .card-slide-leave-to {
+    opacity: 0;
+    transform: translateY(30px);
   }
-  .pin-head {
-    width: 40px;
-    height: 40px;
+  .info-card {
+    transform: none;
   }
-}
-
-/* ---------- 信息卡内部交错淡入 ---------- */
-.info-card.card-stagger > * {
-  animation-delay: 0.15s;
-}
-.info-card.card-stagger .card-image { animation-delay: 0s; }
-.info-card.card-stagger .card-title-row { animation-delay: 0.12s; }
-.info-card.card-stagger .card-desc { animation-delay: 0.24s; }
-.info-card.card-stagger .card-tags { animation-delay: 0.36s; }
-
-/* ---------- 地标标记激活时的色彩波浪 ---------- */
-.landmark-marker.active .pin-head {
-  animation: ch6Pulse 1.2s cubic-bezier(.4,0,.2,1) infinite;
-}
-@keyframes ch6Pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(178,143,76,.4); }
-  50% { box-shadow: 0 0 0 8px rgba(178,143,76,0); }
-}
-
-/* ---------- 条形图动画容器 ---------- */
-.bar-row {
-  animation: barSlideIn .5s cubic-bezier(.4,0,.2,1) both;
-}
-@keyframes barSlideIn {
-  from { opacity: 0; transform: translateX(-16px); }
-  to { opacity: 1; transform: translateX(0); }
 }
 </style>

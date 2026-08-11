@@ -3,7 +3,7 @@
     <ChapterIntro
       ch-no="第 一 章"
       title="茶生山水间"
-      desc="山为骨，水为脉。DEM 高程铺底，唐代八大茶区以水墨边界渐次浮现，古茶树三型如星散落，照见茶之原生格局。"
+      desc="群山蕴灵气，活水育新芽。茶自山野萌芽扎根，循着山川脉络散落四方，这片广袤土地，便是茶叶最初的故乡。"
       :duration="2.5"
       @done="onIntroDone"
     />
@@ -14,13 +14,20 @@
 
       <!-- 图例 -->
       <div class="map-legend">
-        <div class="legend-title">图例</div>
-        <div class="legend-row dem"><span class="sw"></span>高程地形（DEM）</div>
-        <div class="legend-row prov"><span class="sw"></span>行政区划</div>
-        <div class="legend-row tang" :class="{ dim: stage < 1 }"><span class="sw"></span>唐代产茶区</div>
-        <div class="legend-row t1" :class="{ dim: stage < 2 }"><span class="sw"></span>古茶树 · 野生型（{{ counts[1] }}）</div>
-        <div class="legend-row t2" :class="{ dim: stage < 2 }"><span class="sw"></span>古茶树 · 过渡/其他（{{ counts[2] }}）</div>
-        <div class="legend-row t3" :class="{ dim: stage < 2 }"><span class="sw"></span>古茶树 · 栽培型（{{ counts[3] }}）</div>
+        <div class="legend-title">图 例</div>
+        <div class="legend-row tang" :class="{ dim: stage < 1 }">
+          <span class="sw tang-sw"></span>唐代产茶区
+        </div>
+        <div class="legend-subtitle">古茶树 · 现存资源</div>
+        <div class="legend-row t1" :class="{ dim: stage < 2 }">
+          <span class="sw t-sw"></span>野生型 <span class="count">（{{ counts[1] }}）</span>
+        </div>
+        <div class="legend-row t2" :class="{ dim: stage < 2 }">
+          <span class="sw t-sw t2"></span>过渡/其他 <span class="count">（{{ counts[2] }}）</span>
+        </div>
+        <div class="legend-row t3" :class="{ dim: stage < 2 }">
+          <span class="sw t-sw t3"></span>栽培型 <span class="count">（{{ counts[3] }}）</span>
+        </div>
       </div>
     </div>
   </section>
@@ -32,69 +39,131 @@ import L from 'leaflet'
 import { createAlbersCRS } from '../utils/crs.js'
 import ChapterIntro from './ChapterIntro.vue'
 import {
-  DEM_IMG, loadDemBounds, MAP_INIT,
-  PROV_BG_URL, TANG_AREAS_URL, TEA_TREES_URL,
-  TREE_TYPE_STYLE, PROV_STYLE, TANG_STYLE
+  BG_DEM_IMG, MASK_IMG, DEM_IMG, loadDemBounds, MAP_INIT,
+  OUTLINE_URL, TENDASH_URL, TANG_AREAS_URL, TEA_TREES_URL,
+  TREE_TYPE_STYLE, OUTLINE_STYLE, TENDASH_STYLE, TANG_STYLE, TANG_BLUR_STYLE
 } from '../config/ch1.js'
 
 const props = defineProps({ id: { type: String, default: 'ch1' } })
 
 const mapEl = ref(null)
-let map = null, demLayer = null, provLayer = null, tangLayer = null
+let map = null
+let bgDemLayer = null, maskLayer = null, demLayer = null
+let outlineLayer = null, tendashLayer = null, tangLayer = null, tangBlurLayer = null
 let treeMarkers = []
 const stage = ref(0)
 const counts = reactive({ 1: 0, 2: 0, 3: 0 })
 const introDone = ref(false)
+// SVG <defs> 高斯模糊滤镜引用 id (保证唯一)
+const TANG_BLUR_FILTER_ID = 'tang-blur-filter-' + Math.random().toString(36).slice(2, 8)
 
 function onIntroDone() {
   introDone.value = true
-  // 延迟启动地图图层动画，等地图容器进场完毕
   setTimeout(() => {
     if (map) map.invalidateSize()
     applyStage(0, true)
+    // 1.5s 后 → Stage 1 (产茶区淡入 + 遮罩淡出)
     autoTimers.push(setTimeout(() => applyStage(1), 1500))
+    // 4.0s 后 → Stage 2 (茶树点淡入)
     autoTimers.push(setTimeout(() => applyStage(2), 4000))
   }, 300)
 }
 
 let animRAF = null
 let tangRAF = null
+let maskRAF = null
 let autoTimers = []
 
 // ----------- 初始化地图 -----------
 async function initMap() {
+  const albersCRS = createAlbersCRS()
+  // 使用 SVG renderer (默认就是 SVG), 稍后给 SVG <defs> 注入高斯模糊滤镜
+  const svgRenderer = L.svg({ padding: 2 })
   map = L.map(mapEl.value, {
-    crs: createAlbersCRS(),
-    center: [33, 108],
-    zoom: 4,
-    minZoom: 3,
-    maxZoom: 8,
+    crs: albersCRS,
+    center: MAP_INIT.center,
+    zoom: MAP_INIT.zoom,
+    minZoom: MAP_INIT.minZoom,
+    maxZoom: MAP_INIT.maxZoom,
     scrollWheelZoom: true,
     zoomControl: true,
     attributionControl: false,
     dragging: true,
     doubleClickZoom: false,
     touchZoom: true,
-    keyboard: false
+    keyboard: false,
+    renderer: svgRenderer
   })
 
-  // 0) 省份行政区划底图
-  try {
-    const rp = await fetch(PROV_BG_URL)
-    const provData = await rp.json()
-    provLayer = L.geoJSON(provData, { style: () => ({ ...PROV_STYLE }) }).addTo(map)
-  } catch (e) { console.warn('load provinces failed:', e) }
+  // 注入 SVG <defs> 高斯模糊滤镜: 两个 blur radius
+  // 1. tang-blur-big:   σ=14px —— 模糊扩展的底晕 (向外扩张大)
+  // 2. tang-blur-small: σ=7px  —— 顶部轻微软化边缘
+  setTimeout(installSvgFilters, 50)
 
-  // 1) DEM
   const demBounds = await loadDemBounds()
-  demLayer = L.imageOverlay(DEM_IMG, demBounds, { opacity: 1 }).addTo(map)
 
-  // 2) 唐代茶区
+  // === Layer 0: 背景全球 DEM (淡色, 底层, 一直可见) ===
+  bgDemLayer = L.imageOverlay(BG_DEM_IMG, demBounds, {
+    opacity: 0.78, interactive: false
+  }).addTo(map)
+
+  // === Layer 1: 遮罩层 (中国外半透明白, 聚焦) ===
+  // 在 Stage 0 为不透明，Stage>=1 时淡出到 0（产茶区、茶树点叠加上来时移除遮罩）
+  maskLayer = L.imageOverlay(MASK_IMG, demBounds, {
+    opacity: 0, interactive: false
+  }).addTo(map)
+
+  // === Layer 2: 中国 DEM + 下沉投影阴影 (主要视觉层) ===
+  demLayer = L.imageOverlay(DEM_IMG, demBounds, {
+    opacity: 1, interactive: false
+  }).addTo(map)
+
+  // === Layer 3: 轮廓线 + 十段线 (线画层面) ===
+  try {
+    const ro = await fetch(OUTLINE_URL)
+    const outlineData = await ro.json()
+    outlineLayer = L.geoJSON(outlineData, {
+      style: () => ({ ...OUTLINE_STYLE }),
+      interactive: false
+    }).addTo(map)
+  } catch (e) { console.warn('load outline failed:', e) }
+
+  try {
+    const rt = await fetch(TENDASH_URL)
+    const tendashData = await rt.json()
+    tendashLayer = L.geoJSON(tendashData, {
+      style: () => ({ ...TENDASH_STYLE }),
+      interactive: false
+    }).addTo(map)
+  } catch (e) { console.warn('load tendash failed:', e) }
+
+  // === Layer 4: 唐代茶区 (初始隐藏) —— 双层: 底层模糊扩张 + 顶层轻微柔边 ===
+  // 效果: 没有清晰的边界线, 填充向外有高斯模糊扩展, 像模糊区划
   try {
     const r1 = await fetch(TANG_AREAS_URL)
     const tangData = await r1.json()
+
+    // Layer 4a: 模糊扩张底层 (先渲染, 在最下面)
+    tangBlurLayer = L.geoJSON(tangData, {
+      style: () => ({
+        ...TANG_BLUR_STYLE,
+        opacity: 0,
+        fillOpacity: 0,
+        filter: `url(#${TANG_BLUR_FILTER_ID}-big)`
+      }),
+      interactive: false
+    })
+    tangBlurLayer.addTo(map)
+
+    // Layer 4b: 轻微柔边的主填充层 (在上面)
     tangLayer = L.geoJSON(tangData, {
-      style: () => ({ ...TANG_STYLE, opacity: 0, fillOpacity: 0 })
+      style: () => ({
+        ...TANG_STYLE,
+        opacity: 0,
+        fillOpacity: 0,
+        filter: `url(#${TANG_BLUR_FILTER_ID}-small)`
+      }),
+      interactive: true
     })
     tangLayer.bindTooltip(layer => {
       const p = layer.feature.properties
@@ -104,25 +173,30 @@ async function initMap() {
     tangLayer.addTo(map)
   } catch (e) { console.warn('load tang areas failed:', e) }
 
-  // 3) 古茶树点
+  // === Layer 5: 古茶树点 (Albers坐标: [x_meter, y_meter]) ===
   try {
     const r2 = await fetch(TEA_TREES_URL)
     const treeData = await r2.json()
     treeData.features.forEach(f => {
-      const [lon, lat] = f.geometry.coordinates
-      const t = f.properties.type || 2
+      const g = f && f.geometry
+      if (!g || !Array.isArray(g.coordinates) || g.coordinates.length < 2) return
+      const [x_m, y_m] = g.coordinates
+      if (typeof x_m !== 'number' || typeof y_m !== 'number' || !isFinite(x_m) || !isFinite(y_m)) return
+      const t = (f.properties && (f.properties.type || 2)) || 2
       const s = TREE_TYPE_STYLE[t]
       counts[t] = (counts[t] || 0) + 1
-      const m = L.circleMarker([lat, lon], {
+      // Leaflet [lat, lng] = [y_meter, x_meter]
+      const m = L.circleMarker([y_m, x_m], {
         radius: 7,
         color: '#fff',
         weight: 1.5,
         fillColor: s.fill,
         fillOpacity: 0, opacity: 0
       })
-      const name = f.properties.name || '古茶树'
-      const province = f.properties.province
-      const species = f.properties.species
+      const props = f.properties || {}
+      const name = props.name || '古茶树'
+      const province = props.province
+      const species = props.species
       const tn = s.label
       m.bindPopup(
         `<div style="font-family:Noto Sans SC,sans-serif;min-width:170px">
@@ -130,7 +204,7 @@ async function initMap() {
           <span style="font-size:12px;color:#4a4a40">类型：${tn}</span><br/>
           ${province ? `<span style="font-size:12px;color:#4a4a40">省份：${province}</span><br/>` : ''}
           ${species ? `<span style="font-size:12px;color:#4a4a40">学名：<i>${species}</i></span><br/>` : ''}
-          <span style="font-size:11px;color:#8a8478">${lat.toFixed(3)}, ${lon.toFixed(3)}</span>
+          <span style="font-size:11px;color:#8a8478">坐标：${(y_m/1000).toFixed(1)}km, ${(x_m/1000).toFixed(1)}km</span>
         </div>`
       )
       m._teaType = t
@@ -139,10 +213,57 @@ async function initMap() {
     })
   } catch (e) { console.warn('load tea trees failed:', e) }
 
-  // 自动适配视图到中国区域
-  map.fitBounds([[18, 75], [53, 135]], { animate: false })
+  map.fitBounds(MAP_INIT.fitBounds, { animate: false })
   setTimeout(() => map && map.invalidateSize(), 300)
-  // 自动播放在 intro 结束后由 onIntroDone 触发
+}
+
+// --- Mask 淡入淡出动画 (Stage 切换遮罩用) ---
+function animateMaskOpacity(target, immediate) {
+  if (!maskLayer) return
+  if (immediate) {
+    maskLayer.setOpacity(target)
+    return
+  }
+  cancelAnimationFrame(maskRAF)
+  const cur = maskLayer.options && typeof maskLayer.options.opacity === 'number'
+    ? maskLayer.options.opacity : 0
+  let start = null, DUR = 900
+  const tick = ts => {
+    if (start === null) start = ts
+    const e = Math.min(1, (ts - start) / DUR)
+    const k = e < 1 ? 1 - Math.pow(1 - e, 3) : 1
+    maskLayer.setOpacity(cur + (target - cur) * k)
+    if (e < 1) maskRAF = requestAnimationFrame(tick)
+  }
+  maskRAF = requestAnimationFrame(tick)
+}
+
+// --- 给 Leaflet 渲染的 SVG 注入 <defs> 高斯模糊滤镜 ---
+//   σ=14 用于底层向外扩散晕染, σ=6 用于顶层轻微柔边去硬边
+function installSvgFilters() {
+  if (!map) return
+  const svg = mapEl.value && mapEl.value.querySelector('svg')
+  if (!svg) { setTimeout(installSvgFilters, 100); return }
+  // 避免重复注入
+  if (svg.querySelector('#' + CSS.escape(TANG_BLUR_FILTER_ID + '-big'))) return
+  let defs = svg.querySelector('defs')
+  if (!defs) {
+    defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs')
+    svg.insertBefore(defs, svg.firstChild)
+  }
+  defs.insertAdjacentHTML('beforeend', `
+    <filter id="${TANG_BLUR_FILTER_ID}-big" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="14" result="blur14"/>
+      <feGaussianBlur in="blur14" stdDeviation="8" result="blur22"/>
+      <feMerge>
+        <feMergeNode in="blur22"/>
+        <feMergeNode in="blur14"/>
+      </feMerge>
+    </filter>
+    <filter id="${TANG_BLUR_FILTER_ID}-small" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="5.5"/>
+    </filter>
+  `)
 }
 
 function setTangOpacity(layer, targetOp, targetFOp, immediate) {
@@ -178,12 +299,35 @@ function applyStage(next, immediate = false) {
   if (next === stage.value && !immediate) return
   stage.value = next
 
-  const demOp = [1.00, 0.82, 0.68][next]
+  // Stage 定义:
+  // 0 — 仅 DEM 展示 (背景DEM + 遮罩 + 中国DEM + 轮廓 + 十段线): 遮罩打开 = 聚焦中国
+  // 1 — 产茶区淡入; 遮罩淡出为 0 (用户需求: 产茶区/茶树点叠加上来时不再遮罩中国 DEM)
+  // 2 — 茶树点淡入; 保持遮罩关闭
+
+  // === 背景 DEM 透明度: 全程略低, 保持"底色感" ===
+  const bgOp = [0.78, 0.70, 0.65][next]
+  if (bgDemLayer) bgDemLayer.setOpacity(bgOp)
+
+  // === 中国 DEM 透明度 (顶层): 略有弱化, 让位给上层数据 ===
+  const demOp = [1.00, 0.90, 0.80][next]
   if (demLayer) demLayer.setOpacity(demOp)
 
-  const tang = [{ o: 0, f: 0 }, { o: 1, f: 0.55 }, { o: 1, f: 0.42 }][next]
-  setTangOpacity(tangLayer, tang.o, tang.f, immediate)
+  // === 遮罩: Stage 0 显示, Stage 1+ 关闭 ===
+  // 用户需求: 当产茶区图层和古茶树点位图层叠加上来时不需要给中国DEM增加遮罩
+  const maskOp = [0.65, 0.0, 0.0][next]
+  animateMaskOpacity(maskOp, immediate)
 
+  // === 唐代茶区: Stage>=1 淡入 —— 双层: 底层模糊更淡、范围更大; 顶层更清晰 ===
+  // 填充向外高斯模糊扩散, 像没有清晰边界的模糊区划
+  const tang = [
+    { o: 0,    f: 0,    bo: 0,    bf: 0 },
+    { o: 0.95, f: 0.68, bo: 0.95, bf: 0.48 },  // Stage 1: 完整显示模糊区划
+    { o: 0.85, f: 0.55, bo: 0.80, bf: 0.42 }   // Stage 2: 让位茶树点
+  ][next]
+  setTangOpacity(tangLayer, tang.o, tang.f, immediate)
+  setTangOpacity(tangBlurLayer, tang.bo, tang.bf, immediate)
+
+  // === 古茶树点: Stage>=2 淡入 ===
   if (next >= 2) {
     treeMarkers.forEach(m => { if (!map.hasLayer(m)) m.addTo(map) })
     animateTreesIn(immediate)
@@ -218,12 +362,12 @@ function animateTreesIn(immediate) {
 
 onMounted(async () => {
   await initMap()
-  // 不在此处启动自动播放，等 intro 动画结束
 })
 
 onBeforeUnmount(() => {
   cancelAnimationFrame(animRAF)
   cancelAnimationFrame(tangRAF)
+  cancelAnimationFrame(maskRAF)
   autoTimers.forEach(t => clearTimeout(t))
   autoTimers = []
   if (map) { map.remove(); map = null }
@@ -252,47 +396,82 @@ onBeforeUnmount(() => {
 .map {
   width: 100%;
   height: 100%;
-  background: #DDD5C0;
+  /* 匹配背景DEM的米纸色，让无数据处颜色一致 */
+  background: #EDE9DE;
 }
 
 /* 图例 */
 .map-legend {
   position: absolute;
-  left: 14px;
-  bottom: 14px;
-  background: rgba(247, 244, 235, 0.93);
+  left: 16px;
+  bottom: 18px;
+  background: rgba(247, 244, 235, 0.94);
   border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 12px 14px;
+  border-radius: 10px;
+  padding: 14px 16px;
   font: 400 12px/1.5 var(--sans);
   color: var(--ink-soft);
-  min-width: 200px;
+  min-width: 218px;
   backdrop-filter: blur(4px);
   z-index: 500;
+  box-shadow: 0 4px 20px rgba(81, 109, 51, 0.08);
 }
 .legend-title {
-  font: 600 12px/1 var(--serif);
+  font: 600 13px/1 var(--serif);
   color: var(--c-olive);
-  letter-spacing: 0.1em;
-  margin-bottom: 8px;
+  letter-spacing: 0.15em;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(81, 109, 51, 0.15);
+}
+.legend-subtitle {
+  font: 500 11px/1 var(--sans);
+  color: #8a8478;
+  letter-spacing: 0.05em;
+  margin: 10px 0 6px;
 }
 .legend-row {
-  display: flex; align-items: center; gap: 8px; margin: 4px 0;
+  display: flex; align-items: center; gap: 9px; margin: 5px 0;
   transition: opacity 0.5s ease;
 }
 .legend-row.dim { opacity: 0.25; }
+.legend-row .count {
+  color: #8a8478;
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+  font-size: 11px;
+}
 .legend-row .sw {
   width: 14px; height: 14px; border-radius: 3px; flex: 0 0 auto;
   border: 1px solid rgba(0,0,0,0.12);
 }
-.legend-row.dem .sw { background: linear-gradient(135deg,#3D5428,#C3C19A); }
-.legend-row.prov .sw { background: #E8E2D0; border: 0.8px solid #A8A28D; }
-.legend-row.tang .sw { background: #D4B44C; border: 1.5px solid #8E6F38; }
-.legend-row.t1 .sw { background: #C8462E; border-radius: 50%; }
-.legend-row.t2 .sw { background: #B28F4C; border-radius: 50%; }
-.legend-row.t3 .sw { background: #2F5D3A; border-radius: 50%; }
+
+/* 产茶区 swatch */
+.legend-row .tang-sw {
+  background: #D4B44C;
+  border: 1.5px solid #8E6F38;
+  border-radius: 2px;
+}
+
+/* 茶树点 swatch: 圆形, 白边 */
+.legend-row .t-sw {
+  width: 13px; height: 13px;
+  border-radius: 50%;
+  background: #C8462E;
+  border: 1.5px solid #fff;
+  box-shadow: 0 0 0 1px rgba(200, 70, 46, 0.25);
+}
+.legend-row .t-sw.t2 {
+  background: #B28F4C;
+  box-shadow: 0 0 0 1px rgba(178, 143, 76, 0.25);
+}
+.legend-row .t-sw.t3 {
+  background: #2F5D3A;
+  box-shadow: 0 0 0 1px rgba(47, 93, 58, 0.25);
+}
 
 @media (max-width: 880px) {
-  .map-legend { left: 8px; bottom: 8px; min-width: 170px; padding: 10px; font-size: 11px; }
+  .map-legend { left: 8px; bottom: 8px; min-width: 190px; padding: 10px 12px; font-size: 11px; }
+  .legend-title { font-size: 12px; }
 }
 </style>

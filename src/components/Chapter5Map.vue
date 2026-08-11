@@ -3,381 +3,330 @@
     <ChapterIntro
       ch-no="第 五 章"
       title="今日茶境"
-      desc="以茶树喻产业：根系深扎产区沃土，叶片舒展茶种格局，枝条伸向海外流向。"
+      desc="千年茶脉绵延至今，国内茶园规模稳步扩张，茶叶外销步履不停，现代产业续写着茶业蓬勃发展的新篇章。"
       :duration="2.5"
       @done="onIntroDone"
     />
 
-    <div class="map-fullscreen" :class="{ show: introDone }">
-    <!-- Tab navigation -->
-    <nav class="ch5-tabs">
-      <button
-        v-for="tab in tabs"
-        :key="tab.key"
-        :class="['ch5-tab', { active: activeTab === tab.key }]"
-        @click="activeTab = tab.key"
-      >
-        <span class="tab-icon">{{ tab.icon }}</span>
-        <span class="tab-label">{{ tab.label }}</span>
-      </button>
-    </nav>
+    <div class="map-fullscreen ch5-redesign" :class="{ show: introDone }">
 
-    <!-- ============================== Home view ============================== -->
-    <div v-show="activeTab === 'home'" class="ch5-view ch5-view-home">
-      <div class="ch5-tree-scene">
-        <svg viewBox="0 0 1200 760" class="tree-svg" preserveAspectRatio="xMidYMid meet">
-          <defs>
-            <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#F7F4EB" />
-              <stop offset="40%" stop-color="#E8E4D0" />
-              <stop offset="75%" stop-color="#D8DCC0" />
-              <stop offset="100%" stop-color="#C5D6AC" />
-            </linearGradient>
-            <linearGradient id="groundGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#C3C19A" />
-              <stop offset="30%" stop-color="#A5A37A" />
-              <stop offset="100%" stop-color="#6B5D3A" />
-            </linearGradient>
-            <radialGradient id="sunGlow" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stop-color="rgba(255,240,200,0.6)" />
-              <stop offset="100%" stop-color="rgba(255,240,200,0)" />
-            </radialGradient>
-          </defs>
+      <!-- =============== LEFT: Tea tree with 3 clickable zones =============== -->
+      <div class="ch5-left">
+        <div class="ch5-tree-scene single-tree">
+          <svg viewBox="0 0 600 820" class="tree-svg" preserveAspectRatio="xMidYMid meet">
+            <defs>
+              <!-- 扩散圆动画 -->
+              <radialGradient id="rippleGrad" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="rgba(255,255,255,0.85)" />
+                <stop offset="60%" stop-color="rgba(255,255,255,0.28)" />
+                <stop offset="100%" stop-color="rgba(255,255,255,0)" />
+              </radialGradient>
+              <linearGradient id="skyGrad2" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#F0EBDC" />
+                <stop offset="50%" stop-color="#E0DECC" />
+                <stop offset="100%" stop-color="#D8DCC0" />
+              </linearGradient>
+              <linearGradient id="groundGrad2" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#B8B484" />
+                <stop offset="30%" stop-color="#9A9567" />
+                <stop offset="100%" stop-color="#6B5D3A" />
+              </linearGradient>
+            </defs>
 
-          <!-- Sky -->
-          <rect x="0" y="0" width="1200" height="490" fill="url(#skyGrad)" />
-          <!-- Sun glow -->
-          <circle cx="950" cy="120" r="100" fill="url(#sunGlow)" />
-          <circle cx="950" cy="120" r="35" fill="rgba(255,235,180,0.5)" />
-          <!-- Ground -->
-          <rect x="0" y="485" width="1200" height="275" fill="url(#groundGrad)" />
-          <!-- Ground line -->
-          <path d="M0,488 Q300,475 600,488 T1200,488" stroke="#8a8478" stroke-width="1" fill="none" opacity="0.4" />
+            <!-- 背景 -->
+            <rect x="0" y="0" width="600" height="630" fill="url(#skyGrad2)" rx="18" />
+            <rect x="0" y="630" width="600" height="190" fill="url(#groundGrad2)" rx="18" />
 
-          <!-- ===== Tree 1 (left, smaller) ===== -->
-          <g class="tea-tree tree-1" style="transform-origin: 250px 490px;">
-            <image :href="TREE_IMG_URL" x="130" y="180" width="270" height="380" preserveAspectRatio="xMidYEnd meet" />
-          </g>
-
-          <!-- ===== Tree 2 (center, largest) ===== -->
-          <g class="tea-tree tree-2" style="transform-origin: 600px 490px;">
-            <image :href="TREE_IMG_URL" x="400" y="100" width="400" height="460" preserveAspectRatio="xMidYEnd meet" />
-          </g>
-
-          <!-- ===== Tree 3 (right, medium) ===== -->
-          <g class="tea-tree tree-3" style="transform-origin: 950px 490px;">
-            <image :href="TREE_IMG_URL" x="810" y="140" width="310" height="420" preserveAspectRatio="xMidYEnd meet" />
-          </g>
-
-          <!-- Floating leaves decoration -->
-          <g class="floating-leaves">
-            <ellipse cx="400" cy="100" rx="8" ry="5" fill="#7A9A55" opacity="0.5" class="float-leaf fl-1" />
-            <ellipse cx="800" cy="80" rx="7" ry="4" fill="#6F9150" opacity="0.5" class="float-leaf fl-2" />
-            <ellipse cx="500" cy="60" rx="6" ry="4" fill="#7A9A55" opacity="0.4" class="float-leaf fl-3" />
-            <ellipse cx="700" cy="120" rx="7" ry="5" fill="#6F9150" opacity="0.4" class="float-leaf fl-4" />
-          </g>
-
-          <!-- ===== Interactive zone: Leaves (top) ===== -->
-          <g class="zone-group" @mouseenter="hoveredZone = 'leaves'" @mouseleave="hoveredZone = null" @click="activeTab = 'leaves'">
-            <rect x="0" y="20" width="1200" height="270" :class="['zone-rect', { 'zone-active': hoveredZone === 'leaves' }]" rx="8" />
-            <g class="zone-label" transform="translate(60, 55)">
-              <rect x="0" y="0" width="210" height="56" rx="10" :style="{ fill: hoveredZone === 'leaves' ? 'rgba(92,124,58,0.92)' : 'rgba(247,244,235,0.88)' }" />
-              <text x="16" y="24" :style="{ fill: hoveredZone === 'leaves' ? '#F7F4EB' : '#5C7C3A', 'font-size': '14px', 'font-weight': 700 }">叶片 · 茶种结构</text>
-              <text x="16" y="46" :style="{ fill: hoveredZone === 'leaves' ? '#EFE9DA' : '#4a4a40', 'font-size': '20px', 'font-weight': 900, 'font-family': 'serif' }">{{ fmt(output, 2) }} 万吨</text>
+            <!-- 单棵大茶树（放大1.5倍居中，底部与土面对齐并略下移） -->
+            <g class="tea-tree single-big-tree" style="transform-origin: 300px 630px;">
+              <image :href="TREE_IMG_URL" x="-90" y="-120" width="780" height="1050" preserveAspectRatio="xMidYEnd meet" />
             </g>
-            <text x="1170" y="50" text-anchor="end" :style="{ fill: '#A5A37A', 'font-size': '12px', 'letter-spacing': '0.15em' }">点击进入 →</text>
-          </g>
 
-          <!-- ===== Interactive zone: Branches (middle) ===== -->
-          <g class="zone-group" @mouseenter="hoveredZone = 'branches'" @mouseleave="hoveredZone = null" @click="activeTab = 'branches'">
-            <rect x="0" y="290" width="1200" height="210" :class="['zone-rect', { 'zone-active': hoveredZone === 'branches' }]" rx="8" />
-            <g class="zone-label" transform="translate(60, 440)">
-              <rect x="0" y="0" width="210" height="56" rx="10" :style="{ fill: hoveredZone === 'branches' ? 'rgba(107,68,35,0.92)' : 'rgba(247,244,235,0.88)' }" />
-              <text x="16" y="24" :style="{ fill: hoveredZone === 'branches' ? '#F7F4EB' : '#6B4423', 'font-size': '14px', 'font-weight': 700 }">枝条 · 出口流向</text>
-              <text x="16" y="46" :style="{ fill: hoveredZone === 'branches' ? '#EFE9DA' : '#4a4a40', 'font-size': '20px', 'font-weight': 900, 'font-family': 'serif' }">{{ fmt(exportTotal / 1e8, 2) }} 亿元</text>
+            <!-- ============ 区域1: 叶片（对应茶树右上叶片团） ============ -->
+            <g class="click-zone zone-leaves"
+               :class="{ active: activePhonePanel === 'leaves', hover: hoveredZone === 'leaves' }"
+               @mouseenter="hoveredZone = 'leaves'"
+               @mouseleave="hoveredZone = null"
+               @click="activePhonePanel = 'leaves'"
+            >
+              <!-- 点击热区（覆盖右上叶片团） -->
+              <circle cx="390" cy="220" r="108" fill="rgba(255,255,255,0.001)" stroke="none" style="cursor:pointer" />
+              <!-- 扩散圆动效（圆心即热区中心） -->
+              <circle class="ripple ripple-1" cx="390" cy="220" r="18" fill="url(#rippleGrad)" />
+              <circle class="ripple ripple-2" cx="390" cy="220" r="18" fill="url(#rippleGrad)" />
+              <circle class="ripple ripple-3" cx="390" cy="220" r="18" fill="url(#rippleGrad)" />
+              <!-- 标注框（左上） -->
+              <g class="zone-tag" transform="translate(24, 76)">
+                <rect x="0" y="0" width="152" height="64" rx="12"
+                      :fill="activePhonePanel === 'leaves' ? 'rgba(92,124,58,0.95)' : 'rgba(247,244,235,0.92)'" />
+                <text x="14" y="26"
+                      :fill="activePhonePanel === 'leaves' ? '#FFF8E8' : '#5C7C3A'"
+                      style="font-size:13px;font-weight:700;letter-spacing:0.05em">叶片 · 茶种</text>
+                <text x="14" y="52"
+                      :fill="activePhonePanel === 'leaves' ? '#EFE9DA' : '#4A4A40'"
+                      style="font-size:22px;font-weight:900;font-family:serif">{{ fmt(output, 2) }}万吨</text>
+              </g>
+              <!-- 引线：标签右下 → 热区中心左下 -->
+              <line x1="176" y1="106" x2="320" y2="232" stroke="#5C7C3A" stroke-width="2" stroke-dasharray="4 4" fill="none" opacity="0.75" />
             </g>
-          </g>
 
-          <!-- ===== Interactive zone: Roots (bottom) ===== -->
-          <g class="zone-group" @mouseenter="hoveredZone = 'roots'" @mouseleave="hoveredZone = null" @click="activeTab = 'roots'">
-            <rect x="0" y="500" width="1200" height="240" :class="['zone-rect', { 'zone-active': hoveredZone === 'roots' }]" rx="8" />
-            <g class="zone-label" transform="translate(60, 680)">
-              <rect x="0" y="0" width="210" height="56" rx="10" :style="{ fill: hoveredZone === 'roots' ? 'rgba(178,143,76,0.92)' : 'rgba(247,244,235,0.88)' }" />
-              <text x="16" y="24" :style="{ fill: hoveredZone === 'roots' ? '#F7F4EB' : '#B28F4C', 'font-size': '14px', 'font-weight': 700 }">根系 · 生产根基</text>
-              <text x="16" y="46" :style="{ fill: hoveredZone === 'roots' ? '#EFE9DA' : '#4a4a40', 'font-size': '20px', 'font-weight': 900, 'font-family': 'serif' }">{{ fmt(gardenArea, 2) }} 千公顷</text>
+            <!-- ============ 区域2: 枝条（对应主干中部） ============ -->
+            <g class="click-zone zone-branches"
+               :class="{ active: activePhonePanel === 'branches', hover: hoveredZone === 'branches' }"
+               @mouseenter="hoveredZone = 'branches'"
+               @mouseleave="hoveredZone = null"
+               @click="activePhonePanel = 'branches'"
+            >
+              <circle cx="285" cy="520" r="108" fill="rgba(255,255,255,0.001)" stroke="none" style="cursor:pointer" />
+              <circle class="ripple ripple-1" cx="285" cy="520" r="18" fill="url(#rippleGrad)" />
+              <circle class="ripple ripple-2" cx="285" cy="520" r="18" fill="url(#rippleGrad)" />
+              <circle class="ripple ripple-3" cx="285" cy="520" r="18" fill="url(#rippleGrad)" />
+              <g class="zone-tag" transform="translate(24, 484)">
+                <rect x="0" y="0" width="164" height="64" rx="12"
+                      :fill="activePhonePanel === 'branches' ? 'rgba(107,68,35,0.95)' : 'rgba(247,244,235,0.92)'" />
+                <text x="14" y="26"
+                      :fill="activePhonePanel === 'branches' ? '#FFF8E8' : '#6B4423'"
+                      style="font-size:13px;font-weight:700;letter-spacing:0.05em">枝条 · 出口</text>
+                <text x="14" y="52"
+                      :fill="activePhonePanel === 'branches' ? '#EFE9DA' : '#4A4A40'"
+                      style="font-size:22px;font-weight:900;font-family:serif">{{ fmt(exportTotal / 1e8, 2) }}亿元</text>
+              </g>
+              <line x1="188" y1="516" x2="218" y2="520" stroke="#6B4423" stroke-width="2" stroke-dasharray="4 4" fill="none" opacity="0.75" />
             </g>
-          </g>
-        </svg>
-      </div>
 
-      <!-- Zone cards -->
-      <div class="ch5-zone-cards">
-        <div class="ch5-zone-card" :style="{ '--zone-color': '#B28F4C' }" @click="activeTab = 'roots'">
-          <div class="zone-card-top">
-            <span class="zone-card-icon">🌱</span>
-            <span class="zone-card-title">根系 / 生产根基</span>
-          </div>
-          <div class="zone-card-stat">
-            <span class="ch5-stat-num">{{ fmt(gardenArea, 2) }}</span>
-            <span class="zone-card-unit">千公顷 · 茶园面积</span>
-          </div>
-        </div>
-        <div class="ch5-zone-card" :style="{ '--zone-color': '#5C7C3A' }" @click="activeTab = 'leaves'">
-          <div class="zone-card-top">
-            <span class="zone-card-icon">🍃</span>
-            <span class="zone-card-title">叶片 / 茶种结构</span>
-          </div>
-          <div class="zone-card-stat">
-            <span class="ch5-stat-num">{{ fmt(output, 2) }}</span>
-            <span class="zone-card-unit">万吨 · 茶叶产量</span>
-          </div>
-        </div>
-        <div class="ch5-zone-card" :style="{ '--zone-color': '#6B4423' }" @click="activeTab = 'branches'">
-          <div class="zone-card-top">
-            <span class="zone-card-icon">🌐</span>
-            <span class="zone-card-title">枝条 / 出口流向</span>
-          </div>
-          <div class="zone-card-stat">
-            <span class="ch5-stat-num">{{ fmt(exportTotal / 1e8, 2) }}</span>
-            <span class="zone-card-unit">亿元 · 出口总额</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ============================== Roots view ============================== -->
-    <div v-show="activeTab === 'roots'" class="ch5-view ch5-view-roots">
-      <div class="ch5-controls">
-        <div class="ch5-metric-toggle">
-          <button
-            v-for="m in metricOptions"
-            :key="m.key"
-            :class="['toggle-btn', { active: metric === m.key }]"
-            :style="metric === m.key ? { background: m.color, borderColor: m.color } : {}"
-            @click="setMetric(m.key)"
-          >{{ m.label }}</button>
-        </div>
-        <div class="ch5-year-slider">
-          <span class="slider-label">年份</span>
-          <input type="range" :min="allProvinceYears[0]" :max="allProvinceYears[allProvinceYears.length - 1]" step="1" v-model.number="rootsYear" class="slider-input" />
-          <span class="slider-value">{{ rootsYear }}</span>
+            <!-- ============ 区域3: 根系（对应泥土层根部中心） ============ -->
+            <g class="click-zone zone-roots"
+               :class="{ active: activePhonePanel === 'roots', hover: hoveredZone === 'roots' }"
+               @mouseenter="hoveredZone = 'roots'"
+               @mouseleave="hoveredZone = null"
+               @click="activePhonePanel = 'roots'"
+            >
+              <circle cx="295" cy="750" r="112" fill="rgba(255,255,255,0.001)" stroke="none" style="cursor:pointer" />
+              <circle class="ripple ripple-1" cx="295" cy="750" r="18" fill="url(#rippleGrad)" />
+              <circle class="ripple ripple-2" cx="295" cy="750" r="18" fill="url(#rippleGrad)" />
+              <circle class="ripple ripple-3" cx="295" cy="750" r="18" fill="url(#rippleGrad)" />
+              <g class="zone-tag" transform="translate(24, 738)">
+                <rect x="0" y="0" width="180" height="64" rx="12"
+                      :fill="activePhonePanel === 'roots' ? 'rgba(178,143,76,0.95)' : 'rgba(247,244,235,0.92)'" />
+                <text x="14" y="26"
+                      :fill="activePhonePanel === 'roots' ? '#FFF8E8' : '#B28F4C'"
+                      style="font-size:13px;font-weight:700;letter-spacing:0.05em">根系 · 生产</text>
+                <text x="14" y="52"
+                      :fill="activePhonePanel === 'roots' ? '#EFE9DA' : '#4A4A40'"
+                      style="font-size:22px;font-weight:900;font-family:serif">{{ fmt(gardenArea, 2) }}千公顷</text>
+              </g>
+              <line x1="204" y1="770" x2="240" y2="752" stroke="#B28F4C" stroke-width="2" stroke-dasharray="4 4" fill="none" opacity="0.75" />
+            </g>
+          </svg>
         </div>
       </div>
 
-      <div class="ch5-overview-grid">
-        <div class="ch5-overview-card">
-          <div class="ov-label">全国茶园面积</div>
-          <div class="ov-value"><span class="ch5-stat-num">{{ fmt(rootsOverview.gardenArea, 2) }}</span><span class="ov-unit">千公顷</span></div>
-        </div>
-        <div class="ch5-overview-card">
-          <div class="ov-label">全国茶叶产量</div>
-          <div class="ov-value"><span class="ch5-stat-num">{{ fmt(rootsOverview.totalOutput, 2) }}</span><span class="ov-unit">万吨</span></div>
-        </div>
-        <div class="ch5-overview-card">
-          <div class="ov-label">产量同比</div>
-          <div class="ov-value">
-            <span class="ch5-stat-num" :style="{ color: rootsOverview.yoy >= 0 ? '#5C7C3A' : '#A8453A' }">
-              {{ rootsOverview.yoy !== null ? (rootsOverview.yoy >= 0 ? '+' : '') + rootsOverview.yoy.toFixed(2) + '%' : '—' }}
-            </span>
+      <!-- =============== RIGHT: Phone/Tablet screen waterfall =============== -->
+      <div class="ch5-right">
+        <div class="phone-frame" :class="'panel-' + activePhonePanel">
+          <!-- 手机顶部状态栏 -->
+          <div class="phone-notch">
+            <div class="notch-speaker"></div>
+            <div class="notch-cam"></div>
           </div>
-        </div>
-        <div class="ch5-overview-card">
-          <div class="ov-label">统计省份数</div>
-          <div class="ov-value"><span class="ch5-stat-num">{{ rootsOverview.provinceCount }}</span><span class="ov-unit">个</span></div>
-        </div>
-      </div>
+          <div class="phone-statusbar">
+            <span class="sb-time">9:41</span>
+            <span class="sb-title">{{ activePhonePanel === 'roots' ? '生产根基' : activePhonePanel === 'leaves' ? '茶种结构' : '出口流向' }}</span>
+            <span class="sb-signal">●●●</span>
+          </div>
 
-      <div class="ch5-roots-main">
-        <div class="ch5-card ch5-map-panel">
-          <div class="card-title">{{ metricLabel }}分布 · {{ rootsYear }}年</div>
-          <div class="chart-container chart-map">
-            <div v-if="!mapReady" class="ch5-map-loading">地图加载中…</div>
-            <EChart v-else :option="rootsMapOption" @click="onMapClick" />
-          </div>
-        </div>
-        <div class="ch5-card ch5-province-detail">
-          <div class="card-title">{{ selectedProvince }} · 详情</div>
-          <div v-if="rootsProvinceDetail" class="province-detail-body">
-            <div class="province-mini-stats">
-              <div class="mini-stat">
-                <span class="mini-label">茶园面积</span>
-                <span class="mini-val">{{ fmt(rootsProvinceDetail.gardenArea, 2) }} <small>千公顷</small></span>
+          <!-- 手机小程序内容区（瀑布流） -->
+          <div class="phone-screen" :key="activePhonePanel">
+
+            <!-- ========== 根系：生产根基（瀑布流） ========== -->
+            <div v-if="activePhonePanel === 'roots'" class="waterfall-panel panel-roots">
+
+              <!-- 顶部小工具条 -->
+              <div class="wf-controls wf-ctrl-inline">
+                <div class="ch5-metric-toggle small">
+                  <button
+                    v-for="m in metricOptions"
+                    :key="m.key"
+                    :class="['toggle-btn', { active: metric === m.key }]"
+                    :style="metric === m.key ? { background: m.color, borderColor: m.color } : {}"
+                    @click="setMetric(m.key)"
+                  >{{ m.label }}</button>
+                </div>
+                <div class="ch5-year-slider small">
+                  <input type="range" :min="allProvinceYears[0]" :max="allProvinceYears[allProvinceYears.length - 1]" step="1" v-model.number="rootsYear" class="slider-input" />
+                  <span class="slider-value">{{ rootsYear }}</span>
+                </div>
               </div>
-              <div class="mini-stat">
-                <span class="mini-label">茶叶产量</span>
-                <span class="mini-val">{{ fmt(rootsProvinceDetail.totalOutput, 2) }} <small>万吨</small></span>
+
+              <!-- 概览 2x2 -->
+              <div class="wf-overview-grid">
+                <div class="ch5-overview-card small-card">
+                  <div class="ov-label">茶园面积</div>
+                  <div class="ov-value"><span class="ch5-stat-num">{{ fmt(rootsOverview.gardenArea, 2) }}</span><span class="ov-unit">千公顷</span></div>
+                </div>
+                <div class="ch5-overview-card small-card">
+                  <div class="ov-label">茶叶产量</div>
+                  <div class="ov-value"><span class="ch5-stat-num">{{ fmt(rootsOverview.totalOutput, 2) }}</span><span class="ov-unit">万吨</span></div>
+                </div>
+                <div class="ch5-overview-card small-card">
+                  <div class="ov-label">产量同比</div>
+                  <div class="ov-value">
+                    <span class="ch5-stat-num" :style="{ color: rootsOverview.yoy >= 0 ? '#5C7C3A' : '#A8453A' }">
+                      {{ rootsOverview.yoy !== null ? (rootsOverview.yoy >= 0 ? '+' : '') + rootsOverview.yoy.toFixed(2) + '%' : '—' }}
+                    </span>
+                  </div>
+                </div>
+                <div class="ch5-overview-card small-card">
+                  <div class="ov-label">统计省份</div>
+                  <div class="ov-value"><span class="ch5-stat-num">{{ rootsOverview.provinceCount }}</span><span class="ov-unit">个</span></div>
+                </div>
               </div>
-              <div class="mini-stat">
-                <span class="mini-label">{{ metricLabel }}</span>
-                <span class="mini-val" :style="{ color: metricColor }">{{ fmt(rootsProvinceDetail.metricValue, 2) }} <small>{{ metricUnit }}</small></span>
+
+              <!-- 地图 -->
+              <div class="ch5-card small-card wf-map-card">
+                <div class="card-title-sm">{{ metricLabel }}分布</div>
+                <div class="chart-container chart-map">
+                  <div v-if="!mapReady" class="ch5-map-loading">加载中…</div>
+                  <EChart v-else :option="rootsMapOption" @click="onMapClick" style="height:280px" />
+                </div>
               </div>
-            </div>
-            <div class="chart-container chart-province-trend">
-              <EChart :option="rootsProvinceTrendOption" />
-            </div>
-          </div>
-          <div v-else class="empty-hint">点击地图选择省份</div>
-        </div>
-      </div>
 
-      <div class="ch5-card ch5-ranking-panel">
-        <div class="card-title">{{ metricLabel }} TOP 15 · {{ rootsYear }}年</div>
-        <div class="chart-container chart-ranking">
-          <EChart :option="rootsRankingOption" />
-        </div>
-      </div>
-    </div>
+              <!-- 省份详情 -->
+              <div class="ch5-card small-card wf-prov-card">
+                <div class="card-title-sm">{{ selectedProvince }} · 详情</div>
+                <div v-if="rootsProvinceDetail" class="province-detail-body small">
+                  <div class="chart-container chart-province-trend small">
+                    <EChart :option="rootsProvinceTrendOption" style="height:200px" />
+                  </div>
+                </div>
+                <div v-else class="empty-hint small">点击地图选择省份</div>
+              </div>
 
-    <!-- ============================== Leaves view ============================== -->
-    <div v-show="activeTab === 'leaves'" class="ch5-view ch5-view-leaves">
-      <div class="ch5-controls">
-        <div class="ch5-year-select">
-          <span class="slider-label">出口年份</span>
-          <select v-model.number="leavesYear" class="select-input">
-            <option v-for="y in leavesYears" :key="y" :value="y">{{ y }}</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="ch5-overview-grid">
-        <div class="ch5-overview-card">
-          <div class="ov-label">出口总额</div>
-          <div class="ov-value"><span class="ch5-stat-num">{{ fmt(leavesOverview.totalExport / 1e8, 2) }}</span><span class="ov-unit">亿元</span></div>
-        </div>
-        <div class="ch5-overview-card">
-          <div class="ov-label">第一大出口茶种</div>
-          <div class="ov-value"><span class="ch5-stat-num" :style="{ fontSize: '1.3rem' }">{{ leavesOverview.topType || '—' }}</span></div>
-        </div>
-        <div class="ch5-overview-card">
-          <div class="ov-label">茶种类别数</div>
-          <div class="ov-value"><span class="ch5-stat-num">{{ leavesOverview.typeCount }}</span><span class="ov-unit">类</span></div>
-        </div>
-        <div class="ch5-overview-card">
-          <div class="ov-label">最新茶叶总产量</div>
-          <div class="ov-value"><span class="ch5-stat-num">{{ fmt(leavesOverview.latestOutput, 2) }}</span><span class="ov-unit">万吨</span></div>
-        </div>
-      </div>
-
-      <div class="ch5-charts-row">
-        <div class="ch5-card">
-          <div class="card-title">茶种出口结构 · {{ leavesYear }}年</div>
-          <div class="chart-container chart-pie">
-            <EChart :option="leavesPieOption" />
-          </div>
-        </div>
-        <div class="ch5-card">
-          <div class="card-title">全国茶叶产量趋势</div>
-          <div class="chart-container chart-trend">
-            <EChart :option="leavesTrendOption" />
-          </div>
-        </div>
-      </div>
-
-      <div class="ch5-card">
-        <div class="card-title">茶种出口演变 2015—2024</div>
-        <div class="chart-container chart-stacked">
-          <EChart :option="leavesStackedOption" />
-        </div>
-      </div>
-
-      <div class="ch5-tea-cards">
-        <div
-          v-for="card in leavesTeaCards"
-          :key="card.type"
-          class="ch5-tea-card"
-          :style="{ '--tea-color': card.color }"
-        >
-          <div class="tea-card-header">
-            <span class="tea-card-icon">{{ card.icon }}</span>
-            <div class="tea-card-titles">
-              <span class="tea-card-name">{{ card.type }}</span>
-              <span class="tea-card-en">{{ card.en }}</span>
-            </div>
-          </div>
-          <p class="tea-card-desc">{{ card.desc }}</p>
-          <div class="tea-card-val" v-if="card.value > 0">
-            <span class="val-num">{{ fmt(card.value / 1e8, 2) }}</span>
-            <span class="val-unit">亿元</span>
-          </div>
-          <div class="tea-card-val" v-else>
-            <span class="val-num muted">—</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ============================== Branches view ============================== -->
-    <div v-show="activeTab === 'branches'" class="ch5-view ch5-view-branches">
-      <div class="ch5-controls">
-        <div class="ch5-year-select">
-          <span class="slider-label">出口年份</span>
-          <select v-model.number="branchesYear" class="select-input">
-            <option v-for="y in branchesYears" :key="y" :value="y">{{ y }}</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="ch5-overview-grid">
-        <div class="ch5-overview-card">
-          <div class="ov-label">出口总额</div>
-          <div class="ov-value"><span class="ch5-stat-num">{{ fmt(branchesOverview.totalExport / 1e8, 2) }}</span><span class="ov-unit">亿元</span></div>
-        </div>
-        <div class="ch5-overview-card">
-          <div class="ov-label">第一大目的地</div>
-          <div class="ov-value"><span class="ch5-stat-num" :style="{ fontSize: '1.3rem' }">{{ branchesOverview.topCountry || '—' }}</span></div>
-        </div>
-        <div class="ch5-overview-card">
-          <div class="ov-label">出口目的地数</div>
-          <div class="ov-value"><span class="ch5-stat-num">{{ branchesOverview.countryCount }}</span><span class="ov-unit">个</span></div>
-        </div>
-        <div class="ch5-overview-card">
-          <div class="ov-label">出口注册省份数</div>
-          <div class="ov-value"><span class="ch5-stat-num">{{ branchesOverview.provinceCount }}</span><span class="ov-unit">个</span></div>
-        </div>
-      </div>
-
-      <div class="ch5-card">
-        <div class="card-title">省份 → 目的地 桑基图 · {{ branchesYear }}年</div>
-        <div class="chart-container chart-sankey">
-          <EChart :option="branchesSankeyOption" />
-        </div>
-      </div>
-
-      <div class="ch5-charts-row">
-        <div class="ch5-card">
-          <div class="card-title">TOP 15 目的地 · {{ branchesYear }}年</div>
-          <div class="chart-container chart-country-rank">
-            <EChart :option="branchesCountryRankOption" />
-          </div>
-        </div>
-        <div class="ch5-card">
-          <div class="card-title">出口总额趋势</div>
-          <div class="chart-container chart-branch-trend">
-            <EChart :option="branchesTrendOption" />
-          </div>
-        </div>
-      </div>
-
-      <div class="ch5-province-shares">
-        <div class="shares-title">出口省份占比 TOP 8 · {{ branchesYear }}年</div>
-        <div class="shares-grid">
-          <div
-            v-for="(s, i) in branchesProvinceShares"
-            :key="s.name"
-            class="ch5-share-card"
-          >
-            <div class="share-rank" :style="{ background: i < 3 ? 'var(--c-gold)' : 'var(--c-beige)' }">{{ i + 1 }}</div>
-            <div class="share-info">
-              <div class="share-name">{{ s.name }}</div>
-              <div class="share-val">{{ fmt(s.valueYi, 2) }} 亿元 · {{ s.pct.toFixed(1) }}%</div>
-              <div class="share-bar-wrap">
-                <div class="share-bar" :style="{ width: s.pct + '%', background: 'var(--c-olive-mid)' }"></div>
+              <!-- TOP10 排名 -->
+              <div class="ch5-card small-card wf-rank-card">
+                <div class="card-title-sm">{{ metricLabel }} TOP 10</div>
+                <div class="chart-container chart-ranking small">
+                  <EChart :option="rootsRankingOption" style="height:260px" />
+                </div>
               </div>
             </div>
+
+            <!-- ========== 叶片：茶种结构（瀑布流） ========== -->
+            <div v-if="activePhonePanel === 'leaves'" class="waterfall-panel panel-leaves">
+
+              <div class="wf-controls wf-ctrl-inline">
+                <div class="ch5-year-select small">
+                  <select v-model.number="leavesYear" class="select-input">
+                    <option v-for="y in leavesYears" :key="y" :value="y">{{ y }}</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="wf-overview-grid">
+                <div class="ch5-overview-card small-card">
+                  <div class="ov-label">出口总额</div>
+                  <div class="ov-value"><span class="ch5-stat-num">{{ fmt(leavesOverview.totalExport / 1e8, 2) }}</span><span class="ov-unit">亿</span></div>
+                </div>
+                <div class="ch5-overview-card small-card">
+                  <div class="ov-label">首类茶种</div>
+                  <div class="ov-value"><span class="ch5-stat-num">{{ leavesOverview.topType || '—' }}</span></div>
+                </div>
+                <div class="ch5-overview-card small-card">
+                  <div class="ov-label">茶种类</div>
+                  <div class="ov-value"><span class="ch5-stat-num">{{ leavesOverview.typeCount }}</span><span class="ov-unit">类</span></div>
+                </div>
+                <div class="ch5-overview-card small-card">
+                  <div class="ov-label">总产量</div>
+                  <div class="ov-value"><span class="ch5-stat-num">{{ fmt(leavesOverview.latestOutput, 2) }}</span><span class="ov-unit">万吨</span></div>
+                </div>
+              </div>
+
+              <!-- 饼图（茶种出口结构） -->
+              <div class="ch5-card small-card">
+                <div class="card-title-sm">茶种出口结构</div>
+                <div class="chart-container chart-pie small">
+                  <EChart :option="leavesPieOption" style="height:260px" />
+                </div>
+              </div>
+
+              <!-- 茶种产量趋势 -->
+              <div class="ch5-card small-card">
+                <div class="card-title-sm">茶种产量趋势</div>
+                <div class="chart-container chart-trend small">
+                  <EChart :option="leavesTrendOption" style="height:240px" />
+                </div>
+              </div>
+
+              <!-- 堆叠面积图（茶种出口演变） -->
+              <div class="ch5-card small-card">
+                <div class="card-title-sm">茶种出口演变 15—24</div>
+                <div class="chart-container chart-stacked small">
+                  <EChart :option="leavesStackedOption" style="height:260px" />
+                </div>
+              </div>
+            </div>
+
+            <!-- ========== 枝条：出口流向（瀑布流） ========== -->
+            <div v-if="activePhonePanel === 'branches'" class="waterfall-panel panel-branches">
+
+              <div class="wf-controls wf-ctrl-inline">
+                <div class="ch5-year-select small">
+                  <select v-model.number="branchesYear" class="select-input">
+                    <option v-for="y in branchesYears" :key="y" :value="y">{{ y }}</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="wf-overview-grid">
+                <div class="ch5-overview-card small-card">
+                  <div class="ov-label">出口总额</div>
+                  <div class="ov-value"><span class="ch5-stat-num">{{ fmt(branchesOverview.totalExport / 1e8, 2) }}</span><span class="ov-unit">亿</span></div>
+                </div>
+                <div class="ch5-overview-card small-card">
+                  <div class="ov-label">首位目的</div>
+                  <div class="ov-value"><span class="ch5-stat-num">{{ branchesOverview.topCountry || '—' }}</span></div>
+                </div>
+                <div class="ch5-overview-card small-card">
+                  <div class="ov-label">目的数</div>
+                  <div class="ov-value"><span class="ch5-stat-num">{{ branchesOverview.countryCount }}</span><span class="ov-unit">国</span></div>
+                </div>
+                <div class="ch5-overview-card small-card">
+                  <div class="ov-label">出口省份</div>
+                  <div class="ov-value"><span class="ch5-stat-num">{{ branchesOverview.provinceCount }}</span><span class="ov-unit">省</span></div>
+                </div>
+              </div>
+
+              <!-- 桑基图 -->
+              <div class="ch5-card small-card wf-sankey-card">
+                <div class="card-title-sm">省→目的地 桑基图</div>
+                <div class="chart-container chart-sankey small">
+                  <EChart :option="branchesSankeyOption" style="height:320px" />
+                </div>
+              </div>
+
+              <!-- TOP 10 目的地 -->
+              <div class="ch5-card small-card">
+                <div class="card-title-sm">TOP 10 目的地</div>
+                <div class="chart-container chart-country-rank small">
+                  <EChart :option="branchesCountryRankOption" style="height:260px" />
+                </div>
+              </div>
+
+              <!-- 出口趋势 -->
+              <div class="ch5-card small-card">
+                <div class="card-title-sm">出口趋势</div>
+                <div class="chart-container chart-branch-trend small">
+                  <EChart :option="branchesTrendOption" style="height:240px" />
+                </div>
+              </div>
+            </div>
+
           </div>
+          <!-- 手机底部 Home indicator -->
+          <div class="phone-homebar"></div>
         </div>
       </div>
-    </div>
+
     </div>
   </section>
 </template>
@@ -411,14 +360,45 @@ const props = defineProps({ id: { type: String, required: true } })
 // 茶树图资源路径
 const TREE_IMG_URL = assetUrl('data/5/茶树.png')
 
-// ---- Tab system ----
+// ---- 数据辅助：判断值是否为 "空/0/不存在"，为 true 则从可视化中剔除（折线转 null、饼/排名/Sankey过滤）
+function isMissingVal(v) {
+  if (v === null || v === undefined || v === '') return true
+  if (typeof v === 'number') {
+    return Number.isNaN(v) || v === 0
+  }
+  // 字符串：形如 "—" / "-" / "--" / 0 字符串等 → 空
+  if (typeof v === 'string') {
+    const s = v.trim()
+    if (!s) return true
+    if (/^[—\-–~_·]*$/.test(s)) return true
+    const num = Number(s)
+    if (!Number.isNaN(num)) return num === 0
+    return false
+  }
+  return false
+}
+// 折线/堆叠用：缺失返回 null（ECharts 自动断线不绘制），非缺失原样
+function numOrNull(v) {
+  return isMissingVal(v) ? null : (typeof v === 'number' ? v : Number(v))
+}
+function arrHasAnyValue(arr) {
+  return arr.some(v => v !== null && v !== undefined)
+}
+
+// ---- Tab system (兼容原逻辑) ----
 const tabs = [
   { key: 'home', label: '茶树全景', icon: '🌳' },
   { key: 'roots', label: '根系·生产', icon: '🌱' },
   { key: 'leaves', label: '叶片·茶种', icon: '🍃' },
   { key: 'branches', label: '枝条·出口', icon: '🌐' },
 ]
-const activeTab = ref('home')
+// 手机屏幕当前显示的面板: roots/leaves/branches
+const activePhonePanel = ref('roots')
+// 保持 activeTab 为一个常量，用于原 roots/leaves/branches 选项内 v-show 始终显示（因为在手机里，不是整屏切换了）
+const activeTab = computed({
+  get() { return activePhonePanel.value },
+  set(v) { if (['roots','leaves','branches'].includes(v)) activePhonePanel.value = v }
+})
 
 // ---- Shared refs ----
 const sectionEl = ref(null)
@@ -512,9 +492,11 @@ const rootsMapData = computed(() => {
   return provinceData
     .map(p => {
       const yd = p.years.find(y => y.year === rootsYear.value)
-      return { name: p.province, value: yd ? (yd[metric.value] || 0) : 0 }
+      const v = yd ? yd[metric.value] : null
+      if (isMissingVal(v)) return { name: p.province, value: 0 }
+      return { name: p.province, value: typeof v === 'number' ? v : Number(v) }
     })
-    .filter(d => d.value > 0)
+    .filter(d => !isMissingVal(d.value) && d.value > 0)
 })
 
 const rootsMapOption = computed(() => {
@@ -560,24 +542,37 @@ const rootsProvinceDetail = computed(() => {
   const prov = getProvince(selectedProvince.value)
   if (!prov) return null
   const yd = prov.years.find(y => y.year === rootsYear.value)
+  // 只保留有该指标值的年份（去除 0/null/NaN 的年份点）
+  const filteredYears = []
+  const filteredValues = []
+  prov.years.forEach(y => {
+    const v = y[metric.value]
+    if (!isMissingVal(v)) {
+      filteredYears.push(y.year)
+      filteredValues.push(typeof v === 'number' ? v : Number(v))
+    }
+  })
   return {
     name: prov.province,
     gardenArea: yd?.gardenArea || 0,
     totalOutput: yd?.totalOutput || 0,
-    metricValue: yd ? (yd[metric.value] || 0) : 0,
-    years: prov.years.map(y => y.year),
-    values: prov.years.map(y => y[metric.value] || 0),
+    metricValue: yd ? (isMissingVal(yd[metric.value]) ? 0 : (yd[metric.value] || 0)) : 0,
+    years: filteredYears,
+    values: filteredValues,
   }
 })
 
 const rootsProvinceTrendOption = computed(() => {
   const detail = rootsProvinceDetail.value
-  if (!detail) return {}
+  if (!detail || !detail.years.length) return {}
   return {
     tooltip: {
       ...tooltipBase,
       trigger: 'axis',
-      formatter: ps => `${ps[0].axisValue}年<br/>${metricLabel.value}：${fmt(ps[0].value, 2)} ${metricUnit.value}`,
+      formatter: ps => {
+        const v = ps[0]?.value
+        return `${v.axisValue ?? ps[0]?.axisValue}年<br/>${metricLabel.value}：${fmt(v.value ?? v.data, 2)} ${metricUnit.value}`
+      },
     },
     grid: { left: 48, right: 16, top: 16, bottom: 28 },
     xAxis: { type: 'category', data: detail.years, axisLine: axisLineStyle, axisLabel: axisLabelStyle },
@@ -585,6 +580,7 @@ const rootsProvinceTrendOption = computed(() => {
     series: [{
       type: 'line',
       data: detail.values,
+      connectNulls: false,
       smooth: true,
       symbol: 'circle',
       symbolSize: 6,
@@ -604,7 +600,7 @@ const rootsRankingOption = computed(() => {
   const data = rootsMapData.value
     .slice()
     .sort((a, b) => b.value - a.value)
-    .slice(0, 15)
+    .slice(0, 10)
     .reverse()
   return {
     tooltip: {
@@ -644,10 +640,11 @@ function onMapClick(params) {
 // ============================================================
 const leavesOverview = computed(() => {
   const yd = teaTypeData.find(d => d.year === leavesYear.value)
-  const totalExport = yd ? yd.types.reduce((s, t) => s + t.value, 0) : 0
-  const sorted = yd ? [...yd.types].sort((a, b) => b.value - a.value) : []
+  const validTypes = yd ? yd.types.filter(t => !isMissingVal(t.value)) : []
+  const totalExport = validTypes.reduce((s, t) => s + (Number(t.value) || 0), 0)
+  const sorted = validTypes.slice().sort((a, b) => Number(b.value) - Number(a.value))
   const topType = sorted.length ? sorted[0].type : ''
-  const typeCount = yd ? yd.types.length : 0
+  const typeCount = validTypes.length
   const latestNat = getNational(latestFullYear())
   return {
     totalExport,
@@ -660,6 +657,13 @@ const leavesOverview = computed(() => {
 const leavesPieOption = computed(() => {
   const yd = teaTypeData.find(d => d.year === leavesYear.value)
   if (!yd) return {}
+  const data = yd.types
+    .filter(t => !isMissingVal(t.value))
+    .map(t => ({
+      name: t.type,
+      value: Number(t.value) || 0,
+      itemStyle: { color: TEA_COLORS[t.type] || '#8A8270' },
+    }))
   return {
     tooltip: {
       ...tooltipBase,
@@ -689,61 +693,81 @@ const leavesPieOption = computed(() => {
         label: { fontSize: 13, fontWeight: 700 },
         itemStyle: { shadowBlur: 10, shadowColor: 'rgba(0,0,0,0.15)' },
       },
-      data: yd.types.map(t => ({
-        name: t.type,
-        value: t.value,
-        itemStyle: { color: TEA_COLORS[t.type] || '#8A8270' },
-      })),
+      data,
     }],
   }
 })
 
 const leavesTrendOption = computed(() => {
   const years = nationalData.map(d => d.year)
+  const totalSeries = {
+    name: '茶叶总产量',
+    color: '#5C7C3A',
+    data: nationalData.map(d => numOrNull(d.totalOutput)),
+  }
+  const greenSeries = {
+    name: '绿茶',
+    color: '#6F9150',
+    data: nationalData.map(d => numOrNull(d.greenTea)),
+  }
+  const blackSeries = {
+    name: '红茶',
+    color: '#A8453A',
+    data: nationalData.map(d => numOrNull(d.blackTea)),
+  }
+  const allSeries = [totalSeries, greenSeries, blackSeries].filter(s => arrHasAnyValue(s.data))
   return {
-    tooltip: { ...tooltipBase, trigger: 'axis' },
+    tooltip: {
+      ...tooltipBase,
+      trigger: 'axis',
+      formatter: ps => {
+        let html = `<b>${ps[0]?.axisValue ?? ''}年</b>`
+        ps.forEach(p => {
+          if (p.value == null) return
+          html += `<br/>${p.marker}${p.seriesName}：${fmt(p.value, 2)} 万吨`
+        })
+        return html
+      },
+    },
     legend: {
       top: 5,
       textStyle: { color: '#5A6655', fontSize: 11 },
-      data: ['茶叶总产量', '绿茶', '红茶'],
+      data: allSeries.map(s => s.name),
     },
     grid: { left: 48, right: 20, top: 40, bottom: 30 },
     xAxis: { type: 'category', data: years, axisLine: axisLineStyle, axisLabel: axisLabelStyle },
     yAxis: { type: 'value', name: '万吨', nameTextStyle: { color: '#5A6655', fontSize: 11 }, axisLine: axisLineStyle, axisLabel: axisLabelStyle, splitLine: splitLineStyle },
-    series: [
-      {
-        name: '茶叶总产量',
-        type: 'line',
-        data: nationalData.map(d => d.totalOutput),
-        smooth: true,
-        lineStyle: { color: '#5C7C3A', width: 2.5 },
-        itemStyle: { color: '#5C7C3A' },
-        areaStyle: { color: 'rgba(92,124,58,0.12)' },
+    series: allSeries.map(s => ({
+      name: s.name,
+      type: 'line',
+      data: s.data,
+      connectNulls: false,
+      smooth: true,
+      lineStyle: {
+        color: s.color,
+        width: s.name === '茶叶总产量' ? 2.5 : 2,
       },
-      {
-        name: '绿茶',
-        type: 'line',
-        data: nationalData.map(d => d.greenTea),
-        smooth: true,
-        lineStyle: { color: '#6F9150', width: 2 },
-        itemStyle: { color: '#6F9150' },
-      },
-      {
-        name: '红茶',
-        type: 'line',
-        data: nationalData.map(d => d.blackTea),
-        smooth: true,
-        lineStyle: { color: '#A8453A', width: 2 },
-        itemStyle: { color: '#A8453A' },
-      },
-    ],
+      itemStyle: { color: s.color },
+      areaStyle: s.name === '茶叶总产量' ? { color: 'rgba(92,124,58,0.12)' } : undefined,
+    })),
   }
 })
 
 const leavesStackedOption = computed(() => {
   const yearRange = teaTypeData.filter(d => d.year >= 2015 && d.year <= 2024)
   const years = yearRange.map(d => d.year)
-  const types = TEA_ORDER.filter(t => t !== '其他')
+  const allTypes = TEA_ORDER.filter(t => t !== '其他')
+  // 生成每个茶种的年度数据（0/空 → null，不参与堆叠绘制）
+  const typedSeriesData = allTypes.map(type => {
+    const data = yearRange.map(d => {
+      const t = d.types.find(x => x.type === type)
+      return t ? numOrNull(t.value) : null
+    })
+    return { type, data }
+  }).filter(ts => arrHasAnyValue(ts.data))
+
+  const types = typedSeriesData.map(s => s.type)
+
   return {
     tooltip: {
       ...tooltipBase,
@@ -751,6 +775,7 @@ const leavesStackedOption = computed(() => {
       formatter: ps => {
         let html = `<b>${ps[0].axisValue}年</b>`
         ps.forEach(p => {
+          if (p.value == null) return
           html += `<br/>${p.marker}${p.seriesName}：${fmt(p.value / 1e8, 2)} 亿元`
         })
         return html
@@ -771,18 +796,16 @@ const leavesStackedOption = computed(() => {
       axisLabel: { ...axisLabelStyle, formatter: v => (v / 1e8).toFixed(1) },
       splitLine: splitLineStyle,
     },
-    series: types.map(type => ({
-      name: type,
+    series: typedSeriesData.map(ts => ({
+      name: ts.type,
       type: 'line',
       stack: 'total',
-      areaStyle: { opacity: 0.55, color: TEA_COLORS[type] || '#8A8270' },
-      lineStyle: { color: TEA_COLORS[type] || '#8A8270', width: 1.5 },
-      itemStyle: { color: TEA_COLORS[type] || '#8A8270' },
+      areaStyle: { opacity: 0.55, color: TEA_COLORS[ts.type] || '#8A8270' },
+      lineStyle: { color: TEA_COLORS[ts.type] || '#8A8270', width: 1.5 },
+      itemStyle: { color: TEA_COLORS[ts.type] || '#8A8270' },
+      connectNulls: false,
       smooth: true,
-      data: yearRange.map(d => {
-        const t = d.types.find(x => x.type === type)
-        return t ? t.value : 0
-      }),
+      data: ts.data,
     })),
   }
 })
@@ -790,9 +813,13 @@ const leavesStackedOption = computed(() => {
 const leavesTeaCards = computed(() => {
   const yd = teaTypeData.find(d => d.year === leavesYear.value)
   const valueMap = {}
-  if (yd) yd.types.forEach(t => { valueMap[t.type] = t.value })
+  if (yd) yd.types.forEach(t => {
+    if (!isMissingVal(t.value)) valueMap[t.type] = Number(t.value) || 0
+  })
+  // 只返回当前年份有非0/非空数据的茶种，其余从卡片中隐藏
   return TEA_ORDER
     .filter(t => t !== '其他')
+    .filter(type => !isMissingVal(valueMap[type]))
     .map(type => ({
       type,
       ...TEA_INFO[type],
@@ -807,20 +834,34 @@ const leavesTeaCards = computed(() => {
 const branchesOverview = computed(() => {
   const yd = countryData.find(d => d.year === branchesYear.value)
   const pd = provinceExportData.find(d => d.year === branchesYear.value)
-  if (!yd) return { totalExport: 0, topCountry: '', countryCount: 0, provinceCount: 0 }
-  const totalExport = yd.countries.reduce((s, c) => s + c.value, 0)
-  const sorted = [...yd.countries].sort((a, b) => b.value - a.value)
+  const validCountries = yd ? yd.countries.filter(c => !isMissingVal(c.value)) : []
+  const validProvinces = pd ? pd.provinces.filter(p => !isMissingVal(p.value)) : []
+  const totalExport = validCountries.reduce((s, c) => s + (Number(c.value) || 0), 0)
+  const sorted = validCountries.slice().sort((a, b) => Number(b.value) - Number(a.value))
   return {
     totalExport,
     topCountry: sorted.length ? sorted[0].name : '',
-    countryCount: yd.countries.length,
-    provinceCount: pd ? pd.provinces.length : 0,
+    countryCount: validCountries.length,
+    provinceCount: validProvinces.length,
   }
 })
 
 const branchesSankeyOption = computed(() => {
   const yd = sankeyData.find(d => d.year === branchesYear.value)
   if (!yd) return {}
+  // 只保留 value 有效（非 0/空）的连线
+  const validLinks = yd.links
+    .filter(l => !isMissingVal(l.value))
+    .map(l => ({
+      source: l.source,
+      target: l.target,
+      value: Number(l.value) || 0,
+      lineStyle: { color: 'gradient', opacity: 0.35, curveness: 0.5 },
+    }))
+  // 只保留出现在有效 links 中的节点（避免孤立节点）
+  const usedNames = new Set()
+  validLinks.forEach(l => { usedNames.add(l.source); usedNames.add(l.target) })
+  const validNodes = yd.nodes.filter(n => usedNames.has(n.name))
   return {
     tooltip: {
       ...tooltipBase,
@@ -842,17 +883,12 @@ const branchesSankeyOption = computed(() => {
       nodeGap: 8,
       layoutIterations: 64,
       emphasis: { focus: 'adjacency' },
-      data: yd.nodes.map(n => ({
+      data: validNodes.map(n => ({
         name: n.name,
         itemStyle: { color: n.category === 'province' ? '#5C7C3A' : '#C8A155' },
         label: { color: '#3A4D38', fontSize: 11 },
       })),
-      links: yd.links.map(l => ({
-        source: l.source,
-        target: l.target,
-        value: l.value,
-        lineStyle: { color: 'gradient', opacity: 0.35, curveness: 0.5 },
-      })),
+      links: validLinks,
       lineStyle: { curveness: 0.5 },
     }],
   }
@@ -861,7 +897,12 @@ const branchesSankeyOption = computed(() => {
 const branchesCountryRankOption = computed(() => {
   const yd = countryData.find(d => d.year === branchesYear.value)
   if (!yd) return {}
-  const sorted = [...yd.countries].sort((a, b) => b.value - a.value).slice(0, 15).reverse()
+  const sorted = yd.countries
+    .filter(c => !isMissingVal(c.value))
+    .map(c => ({ ...c, value: Number(c.value) || 0 }))
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 10)
+    .reverse()
   return {
     tooltip: {
       ...tooltipBase,
@@ -890,16 +931,34 @@ const branchesCountryRankOption = computed(() => {
 })
 
 const branchesTrendOption = computed(() => {
-  const trend = countryData.map(d => ({
-    year: d.year,
-    total: d.countries.reduce((s, c) => s + c.value, 0),
-  }))
-  const maxItem = trend.reduce((m, d) => (d.total > m.total ? d : m), trend[0] || { year: 0, total: 0 })
+  // 2026年未结束、数据不完整，从趋势图中剔除（不进x轴也不绘制该年点）
+  const trend = countryData
+    .filter(d => d.year < 2026)
+    .map(d => {
+      const total = d.countries.reduce((s, c) => {
+        if (isMissingVal(c.value)) return s
+        return s + (Number(c.value) || 0)
+      }, 0)
+      // 当年没有任何有效数据 → 返回 null，折线断档
+      const noValid = d.countries.length === 0 || d.countries.every(c => isMissingVal(c.value))
+      return {
+        year: d.year,
+        total: noValid ? null : total,
+      }
+    })
+  const validItems = trend.filter(d => d.total !== null)
+  const maxItem = validItems.length
+    ? validItems.reduce((m, d) => (d.total > m.total ? d : m), validItems[0])
+    : null
   return {
     tooltip: {
       ...tooltipBase,
       trigger: 'axis',
-      formatter: ps => `<b>${ps[0].axisValue}年</b><br/>出口总额：${fmt(ps[0].value, 2)} 亿元`,
+      formatter: ps => {
+        const v = ps[0]?.value
+        if (v == null) return `${ps[0]?.axisValue ?? ''}年<br/>暂无出口数据`
+        return `<b>${ps[0]?.axisValue ?? ''}年</b><br/>出口总额：${fmt(v, 2)} 亿元`
+      },
     },
     grid: { left: 52, right: 30, top: 30, bottom: 30 },
     xAxis: { type: 'category', data: trend.map(d => d.year), axisLine: axisLineStyle, axisLabel: axisLabelStyle },
@@ -913,7 +972,8 @@ const branchesTrendOption = computed(() => {
     },
     series: [{
       type: 'line',
-      data: trend.map(d => d.total / 1e8),
+      data: trend.map(d => d.total == null ? null : d.total / 1e8),
+      connectNulls: false,
       smooth: true,
       symbol: 'circle',
       symbolSize: 7,
@@ -925,13 +985,13 @@ const branchesTrendOption = computed(() => {
           { offset: 1, color: 'rgba(107,68,35,0.03)' },
         ]),
       },
-      markPoint: {
+      markPoint: maxItem ? {
         symbol: 'pin',
         symbolSize: 48,
         data: [{ name: '最大值', value: maxItem.total / 1e8, xAxis: maxItem.year, yAxis: maxItem.total / 1e8 }],
         itemStyle: { color: '#B28F4C' },
         label: { color: '#fff', fontSize: 10, formatter: p => p.value.toFixed(1) },
-      },
+      } : undefined,
     }],
   }
 })
@@ -939,8 +999,11 @@ const branchesTrendOption = computed(() => {
 const branchesProvinceShares = computed(() => {
   const yd = provinceExportData.find(d => d.year === branchesYear.value)
   if (!yd) return []
-  const total = yd.provinces.reduce((s, p) => s + p.value, 0)
-  return yd.provinces
+  const validProvinces = yd.provinces
+    .filter(p => !isMissingVal(p.value))
+    .map(p => ({ ...p, value: Number(p.value) || 0 }))
+  const total = validProvinces.reduce((s, p) => s + p.value, 0)
+  return validProvinces
     .slice()
     .sort((a, b) => b.value - a.value)
     .slice(0, 8)
@@ -974,14 +1037,14 @@ onMounted(async () => {
 
 <style scoped>
 /* ============================================================
-   Chapter 5 · 今日茶境
+   Chapter 5 · 今日茶境  (Redesign: Tree + Phone waterfall)
    ============================================================ */
 .chapter-5 {
   position: relative;
   background: var(--c-paper-2);
 }
 
-.map-fullscreen {
+.map-fullscreen.ch5-redesign {
   position: fixed;
   top: 60px;
   left: 0;
@@ -989,649 +1052,441 @@ onMounted(async () => {
   bottom: 0;
   opacity: 0;
   transition: opacity 0.8s ease;
-  overflow-y: auto;
-  padding: 1rem 2rem 5rem;
+  overflow: hidden;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr minmax(380px, 480px);
+  gap: 24px;
+  padding: 1.6rem 2rem 1.6rem 2rem;
 }
-.map-fullscreen.show {
+.map-fullscreen.ch5-redesign.show {
   opacity: 1;
 }
 
-/* ---- Tab navigation ---- */
-.ch5-tabs {
+/* ============ LEFT · Tea tree ============ */
+.ch5-left {
   display: flex;
-  justify-content: center;
-  gap: 12px;
-  max-width: 900px;
-  margin: 0 auto 2rem;
-  flex-wrap: wrap;
-}
-
-.ch5-tab {
-  display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 22px;
-  border: 1.5px solid var(--c-beige);
-  border-radius: 30px;
-  background: var(--c-paper);
-  color: var(--c-olive);
-  font: 500 14px/1 var(--serif);
-  cursor: pointer;
-  transition: all 0.25s ease;
-  letter-spacing: 0.05em;
+  justify-content: center;
+  min-height: 0;
 }
 
-.ch5-tab:hover {
-  border-color: var(--c-olive-mid);
-  background: rgba(247, 244, 235, 0.9);
-  transform: translateY(-1px);
-}
-
-.ch5-tab.active {
-  background: var(--c-olive);
-  border-color: var(--c-olive);
-  color: var(--c-paper);
-  box-shadow: 0 3px 14px rgba(81, 109, 51, 0.28);
-}
-
-.ch5-tab .tab-icon {
-  font-size: 16px;
-}
-
-/* ---- View container ---- */
-.ch5-view {
-  max-width: 1280px;
-  margin: 0 auto;
-}
-
-/* ============================================================
-   Home view · Tea tree SVG scene
-   ============================================================ */
-.ch5-view-home {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.ch5-tree-scene {
-  background: linear-gradient(160deg, var(--c-paper) 0%, var(--c-paper-2) 100%);
-  border-radius: 14px;
-  border: 1px solid var(--line);
+.ch5-tree-scene.single-tree {
+  background: linear-gradient(160deg, rgba(245,240,228,0.6) 0%, rgba(220,228,200,0.55) 100%);
+  border-radius: 24px;
+  border: 1px solid rgba(165,163,122,0.35);
   overflow: hidden;
-  box-shadow: 0 4px 24px rgba(81, 109, 51, 0.08);
+  box-shadow:
+    0 10px 36px rgba(81, 109, 51, 0.14),
+    inset 0 0 120px rgba(255,255,255,0.35);
+  width: 100%;
+  max-width: 640px;
+  aspect-ratio: 600 / 820;
+  max-height: calc(100vh - 60px - 3.2rem);
 }
 
 .tree-svg {
   display: block;
   width: 100%;
-  height: auto;
-  max-height: 640px;
+  height: 100%;
 }
 
-/* Sway animation for trees */
-.tea-tree {
-  animation: tree-sway 5s ease-in-out infinite;
-  transform-box: fill-box;
+.tea-tree.single-big-tree {
+  animation: tree-sway-single 6s ease-in-out infinite;
+  transform-origin: 300px 630px;
+  transform-box: view-box;
+  filter: drop-shadow(0 12px 20px rgba(70, 90, 40, 0.22));
 }
 
-.tree-1 { animation-delay: 0s; animation-duration: 5.5s; }
-.tree-2 { animation-delay: -1.2s; animation-duration: 6s; }
-.tree-3 { animation-delay: -2.5s; animation-duration: 5s; }
-
-@keyframes tree-sway {
+@keyframes tree-sway-single {
   0%, 100% { transform: rotate(0deg); }
-  25% { transform: rotate(0.4deg); }
-  75% { transform: rotate(-0.4deg); }
+  30% { transform: rotate(0.3deg); }
+  70% { transform: rotate(-0.3deg); }
 }
 
-/* Floating leaves */
-.float-leaf {
+/* ---------- Click zones ---------- */
+.click-zone {
+  transition: filter 0.25s ease;
+}
+.click-zone.hover {
+  filter: drop-shadow(0 0 10px rgba(255,255,255,0.7));
+}
+.click-zone.active {
+  filter: drop-shadow(0 0 14px rgba(255,255,255,0.95));
+}
+
+/* 扩散圆动效 */
+.ripple {
   transform-box: fill-box;
   transform-origin: center;
+  opacity: 0;
+}
+.ripple-1 { animation: ripple-expand 2.4s ease-out 0s infinite; }
+.ripple-2 { animation: ripple-expand 2.4s ease-out 0.8s infinite; }
+.ripple-3 { animation: ripple-expand 2.4s ease-out 1.6s infinite; }
+
+@keyframes ripple-expand {
+  0% {
+    opacity: 0.9;
+    transform: scale(0.6);
+  }
+  70% {
+    opacity: 0.35;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(3.8);
+  }
 }
 
-.fl-1 { animation: float-down 8s ease-in 1s infinite; }
-.fl-2 { animation: float-down 10s ease-in 3s infinite; }
-.fl-3 { animation: float-down 9s ease-in 5s infinite; }
-.fl-4 { animation: float-down 11s ease-in 0.5s infinite; }
+/* active时加速 + 更亮 */
+.click-zone.active .ripple-1 { animation-duration: 1.6s; }
+.click-zone.active .ripple-2 { animation-duration: 1.6s; }
+.click-zone.active .ripple-3 { animation-duration: 1.6s; }
 
-@keyframes float-down {
-  0% { transform: translate(0, 0) rotate(0deg); opacity: 0.5; }
-  50% { opacity: 0.3; }
-  100% { transform: translate(30px, 380px) rotate(360deg); opacity: 0; }
-}
-
-/* Interactive zones */
-.zone-group {
-  cursor: pointer;
-}
-
-.zone-rect {
-  fill: transparent;
-  transition: fill 0.3s ease;
-}
-
-.zone-rect.zone-active {
-  fill: rgba(81, 109, 51, 0.06);
-}
-
-.zone-label text {
+.zone-tag text {
   font-family: var(--serif);
   pointer-events: none;
-  transition: all 0.3s ease;
 }
 
-/* Zone cards */
-.ch5-zone-cards {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.2rem;
-}
-
-.ch5-zone-card {
-  --zone-color: var(--c-olive);
-  background: linear-gradient(135deg, #FAF7EF 0%, #F5F1E8 100%);
-  border: 1px solid var(--line);
-  border-left: 4px solid var(--zone-color);
-  border-radius: 12px;
-  padding: 1.2rem 1.4rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 12px rgba(81, 109, 51, 0.06);
-}
-
-.ch5-zone-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 24px rgba(81, 109, 51, 0.14);
-  border-left-width: 6px;
-}
-
-.zone-card-top {
+/* ============ RIGHT · Phone / Tablet frame ============ */
+.ch5-right {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 0.8rem;
+  justify-content: center;
+  min-height: 0;
 }
 
-.zone-card-icon {
-  font-size: 24px;
-}
-
-.zone-card-title {
-  font: 600 15px/1 var(--serif);
-  color: var(--zone-color);
-  letter-spacing: 0.05em;
-}
-
-.zone-card-stat {
+.phone-frame {
+  width: 100%;
+  max-width: 440px;
+  height: calc(100vh - 60px - 3.2rem);
+  max-height: 880px;
+  background: #1a1a1a;
+  border-radius: 44px;
+  padding: 12px;
+  box-shadow:
+    0 30px 60px rgba(0, 0, 0, 0.35),
+    0 0 0 2px #2a2a2a,
+    inset 0 0 0 1px #000;
+  position: relative;
   display: flex;
-  align-items: baseline;
-  gap: 8px;
+  flex-direction: column;
+  transition: all 0.5s ease;
 }
 
-.zone-card-unit {
-  font: 400 12px/1 var(--sans);
-  color: var(--muted);
+/* 不同面板对应颜色边框发光 */
+.phone-frame.panel-roots   { box-shadow: 0 30px 60px rgba(0,0,0,0.35), 0 0 0 2px #2a2a2a, 0 0 28px rgba(178,143,76,0.35), inset 0 0 0 1px #000; }
+.phone-frame.panel-leaves  { box-shadow: 0 30px 60px rgba(0,0,0,0.35), 0 0 0 2px #2a2a2a, 0 0 28px rgba(92,124,58,0.35),  inset 0 0 0 1px #000; }
+.phone-frame.panel-branches{ box-shadow: 0 30px 60px rgba(0,0,0,0.35), 0 0 0 2px #2a2a2a, 0 0 28px rgba(107,68,35,0.35), inset 0 0 0 1px #000; }
+
+/* 顶部刘海 */
+.phone-notch {
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 28px;
+  background: #0a0a0a;
+  border-radius: 18px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.notch-speaker {
+  width: 40px; height: 6px;
+  background: #222;
+  border-radius: 4px;
+}
+.notch-cam {
+  width: 12px; height: 12px;
+  background: radial-gradient(circle at 35% 35%, #4a5a6a 0%, #0a0a0a 70%);
+  border-radius: 50%;
+}
+
+/* 状态栏 */
+.phone-statusbar {
+  height: 44px;
+  padding: 0 22px 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  background: transparent;
+  border-top-left-radius: 32px;
+  border-top-right-radius: 32px;
+  flex-shrink: 0;
+  z-index: 10;
+  position: relative;
+}
+.sb-time { min-width: 40px; }
+.sb-title {
+  font: 600 14px/1 var(--serif);
+  letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.92);
+  text-shadow: 0 0 6px rgba(0,0,0,0.4);
+}
+.sb-signal { font-size: 10px; opacity: 0.75; }
+
+/* 屏幕内部 */
+.phone-screen {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: linear-gradient(180deg, #F4F0E3 0%, #EDE8D4 100%);
+  border-radius: 32px;
+  padding: 10px 14px 18px;
+  position: relative;
+  scrollbar-width: thin;
+  scrollbar-color: #B8B484 transparent;
+}
+
+.phone-screen::-webkit-scrollbar { width: 4px; }
+.phone-screen::-webkit-scrollbar-thumb { background: #B8B484; border-radius: 2px; }
+
+/* 底部 home indicator */
+.phone-homebar {
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.phone-homebar::after {
+  content: "";
+  width: 120px;
+  height: 5px;
+  background: #555;
+  border-radius: 3px;
 }
 
 /* ============================================================
-   Controls (metric toggle, year slider, year select)
+   Waterfall panels · 瀑布流排布
    ============================================================ */
-.ch5-controls {
+.waterfall-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: fadeSlideUp 0.45s ease;
+}
+
+@keyframes fadeSlideUp {
+  0% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Controls 小控件 */
+.wf-controls.wf-ctrl-inline {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 1.5rem;
-  flex-wrap: wrap;
-  margin-bottom: 1.2rem;
-  padding: 0.8rem 1.2rem;
-  background: var(--c-paper);
-  border: 1px solid var(--line);
-  border-radius: 10px;
+  gap: 8px;
+  padding: 6px 2px 4px;
 }
 
-.ch5-metric-toggle {
+/* 小版 Controls */
+.ch5-metric-toggle.small {
   display: flex;
   gap: 0;
-  border: 1.5px solid var(--c-beige);
-  border-radius: 8px;
+  border: 1px solid rgba(165,163,122,0.55);
+  border-radius: 7px;
   overflow: hidden;
+  background: rgba(255,255,255,0.7);
 }
-
-.toggle-btn {
-  padding: 7px 20px;
+.ch5-metric-toggle.small .toggle-btn {
+  padding: 4px 8px;
+  font-size: 11px;
+  letter-spacing: 0;
   border: none;
-  background: var(--c-paper);
-  color: var(--ink-soft);
-  font: 500 13px/1 var(--sans);
-  cursor: pointer;
-  transition: all 0.2s ease;
+}
+.ch5-metric-toggle.small .toggle-btn:not(:last-child) {
+  border-right: 1px solid rgba(165,163,122,0.4);
 }
 
-.toggle-btn:not(:last-child) {
-  border-right: 1px solid var(--c-beige);
-}
-
-.toggle-btn:hover {
-  background: var(--c-paper-2);
-}
-
-.toggle-btn.active {
-  color: #fff;
-}
-
-.ch5-year-slider {
+.ch5-year-slider.small {
   display: flex;
   align-items: center;
-  gap: 12px;
-}
-
-.slider-label {
-  font: 500 13px/1 var(--sans);
-  color: var(--c-olive);
-  letter-spacing: 0.05em;
-  white-space: nowrap;
-}
-
-.slider-input {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 200px;
-  height: 6px;
-  border-radius: 3px;
-  background: var(--c-beige);
-  outline: none;
-}
-
-.slider-input::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: var(--c-olive);
-  cursor: pointer;
-  border: 2px solid #fff;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-}
-
-.slider-input::-moz-range-thumb {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: var(--c-olive);
-  cursor: pointer;
-  border: 2px solid #fff;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-}
-
-.slider-value {
-  font: 700 16px/1 var(--serif);
-  color: var(--c-olive);
-  min-width: 48px;
-  text-align: center;
-}
-
-.ch5-year-select {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.select-input {
-  padding: 6px 16px;
-  border: 1.5px solid var(--c-beige);
-  border-radius: 8px;
-  background: var(--c-paper);
-  color: var(--c-olive);
-  font: 500 14px/1 var(--sans);
-  cursor: pointer;
-  outline: none;
-}
-
-.select-input:focus {
-  border-color: var(--c-olive-mid);
-}
-
-/* ============================================================
-   Overview cards grid
-   ============================================================ */
-.ch5-overview-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.ch5-overview-card {
-  background: linear-gradient(135deg, #FAF7EF 0%, #F5F1E8 100%);
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 1rem 1.2rem;
-  box-shadow: 0 2px 10px rgba(81, 109, 51, 0.05);
-}
-
-.ov-label {
-  font: 400 12px/1.4 var(--sans);
-  color: var(--muted);
-  letter-spacing: 0.05em;
-  margin-bottom: 0.5rem;
-}
-
-.ov-value {
-  display: flex;
-  align-items: baseline;
   gap: 6px;
 }
-
-.ov-unit {
-  font: 400 12px/1 var(--sans);
-  color: var(--beige-dark, #A5A37A);
+.ch5-year-slider.small .slider-input {
+  width: 120px;
+  height: 4px;
+}
+.ch5-year-slider.small .slider-input::-webkit-slider-thumb {
+  width: 14px; height: 14px;
+}
+.ch5-year-slider.small .slider-value {
+  font-size: 13px;
+  min-width: 36px;
 }
 
-.ch5-stat-num {
-  font: 900 1.7rem/1 var(--serif);
-  color: var(--c-olive);
-  letter-spacing: 0.02em;
+.ch5-year-select.small .select-input {
+  padding: 4px 10px;
+  font-size: 12px;
+  border-radius: 6px;
+}
+.ch5-year-select.small .slider-label { display: none; }
+
+/* ============ 概览 grid 手机版 ============ */
+.wf-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
 }
 
-/* ============================================================
-   Card container
-   ============================================================ */
-.ch5-card {
-  background: linear-gradient(135deg, #FAF7EF 0%, #F5F1E8 100%);
-  border: 1px solid var(--line);
+.ch5-overview-card.small-card {
+  background: linear-gradient(135deg, rgba(250,247,239,0.92) 0%, rgba(245,241,232,0.92) 100%);
+  border: 1px solid rgba(165,163,122,0.35);
   border-radius: 12px;
-  padding: 1rem 1.2rem 1.2rem;
-  box-shadow: 0 2px 14px rgba(81, 109, 51, 0.06);
+  padding: 10px 12px;
+  box-shadow: 0 2px 8px rgba(81,109,51,0.06);
+}
+.ch5-overview-card.small-card .ov-label {
+  font-size: 11px;
+  margin-bottom: 4px;
+  letter-spacing: 0.03em;
+}
+.ch5-overview-card.small-card .ov-unit { font-size: 10px; }
+.ch5-overview-card.small-card .ch5-stat-num {
+  font-size: 1.25rem;
 }
 
-.card-title {
-  font: 600 15px/1 var(--serif);
+/* ============ 通用 card 手机版 ============ */
+.ch5-card.small-card {
+  background: linear-gradient(135deg, rgba(250,247,239,0.95) 0%, rgba(245,241,232,0.95) 100%);
+  border: 1px solid rgba(165,163,122,0.35);
+  border-radius: 14px;
+  padding: 10px 12px 12px;
+  box-shadow: 0 2px 10px rgba(81,109,51,0.06);
+}
+
+.card-title-sm {
+  font: 600 13px/1 var(--serif);
   color: var(--c-olive);
-  letter-spacing: 0.05em;
-  margin-bottom: 0.8rem;
-  padding-bottom: 0.6rem;
-  border-bottom: 1px solid var(--line);
+  letter-spacing: 0.04em;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px dashed rgba(165,163,122,0.4);
 }
 
-.chart-container {
-  width: 100%;
-}
-
-.chart-map { height: 460px; }
-.chart-province-trend { height: 200px; }
-.chart-ranking { height: 380px; }
-.chart-pie { height: 340px; }
-.chart-trend { height: 340px; }
-.chart-stacked { height: 360px; }
-.chart-sankey { height: 420px; }
-.chart-country-rank { height: 360px; }
-.chart-branch-trend { height: 340px; }
+.chart-container { width: 100%; }
 
 .ch5-map-loading {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100%;
-  font: 400 14px/1 var(--sans);
-  color: var(--muted);
-}
-
-.empty-hint {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   height: 200px;
-  font: 400 14px/1 var(--sans);
-  color: var(--muted);
-}
-
-/* ============================================================
-   Roots view layout
-   ============================================================ */
-.ch5-roots-main {
-  display: grid;
-  grid-template-columns: 1.5fr 1fr;
-  gap: 1.2rem;
-  margin-bottom: 1.2rem;
-}
-
-.province-detail-body {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.province-mini-stats {
-  display: flex;
-  gap: 0.6rem;
-}
-
-.mini-stat {
-  flex: 1;
-  background: var(--c-paper);
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 0.6rem 0.8rem;
-  text-align: center;
-}
-
-.mini-label {
-  display: block;
-  font: 400 11px/1.4 var(--sans);
-  color: var(--muted);
-  margin-bottom: 4px;
-}
-
-.mini-val {
-  display: block;
-  font: 700 16px/1 var(--serif);
-  color: var(--c-olive);
-}
-
-.mini-val small {
-  font: 400 11px/1 var(--sans);
-  color: var(--muted);
-}
-
-/* ============================================================
-   Leaves view layout
-   ============================================================ */
-.ch5-charts-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.2rem;
-  margin-bottom: 1.2rem;
-}
-
-.ch5-tea-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 1rem;
-  margin-top: 1.5rem;
-}
-
-.ch5-tea-card {
-  --tea-color: var(--c-olive);
-  background: linear-gradient(135deg, #FAF7EF 0%, #F5F1E8 100%);
-  border: 1px solid var(--line);
-  border-top: 3px solid var(--tea-color);
-  border-radius: 10px;
-  padding: 1rem 1.1rem;
-  transition: all 0.25s ease;
-}
-
-.ch5-tea-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(81, 109, 51, 0.12);
-}
-
-.tea-card-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 0.6rem;
-}
-
-.tea-card-icon {
-  font-size: 22px;
-}
-
-.tea-card-titles {
-  display: flex;
-  flex-direction: column;
-}
-
-.tea-card-name {
-  font: 700 15px/1.2 var(--serif);
-  color: var(--tea-color);
-}
-
-.tea-card-en {
-  font: 400 11px/1 var(--sans);
-  color: var(--muted);
-  letter-spacing: 0.05em;
-}
-
-.tea-card-desc {
-  font: 400 12.5px/1.6 var(--serif);
-  color: var(--ink-soft);
-  margin: 0 0 0.6rem;
-}
-
-.tea-card-val {
-  display: flex;
-  align-items: baseline;
-  gap: 4px;
-  border-top: 1px dashed var(--line);
-  padding-top: 0.5rem;
-}
-
-.val-num {
-  font: 700 18px/1 var(--serif);
-  color: var(--tea-color);
-}
-
-.val-num.muted {
-  color: var(--muted);
-}
-
-.val-unit {
   font: 400 12px/1 var(--sans);
   color: var(--muted);
 }
 
-/* ============================================================
-   Branches view layout
-   ============================================================ */
-.ch5-province-shares {
-  margin-top: 1.5rem;
-}
-
-.shares-title {
-  font: 600 15px/1 var(--serif);
-  color: var(--c-olive);
-  letter-spacing: 0.05em;
-  margin-bottom: 1rem;
-}
-
-.shares-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 0.8rem;
-}
-
-.ch5-share-card {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: linear-gradient(135deg, #FAF7EF 0%, #F5F1E8 100%);
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  padding: 0.7rem 1rem;
-}
-
-.share-rank {
+.empty-hint.small {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  font: 700 14px/1 var(--serif);
-  color: #fff;
-  flex-shrink: 0;
+  height: 100px;
+  font-size: 12px;
+  color: var(--muted);
 }
 
-.share-info {
-  flex: 1;
-  min-width: 0;
+/* province detail 小版 */
+.province-detail-body.small {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.province-mini-stats.small {
+  display: flex;
+  gap: 6px;
+}
+.province-mini-stats.small .mini-stat {
+  padding: 6px 4px;
+  border-radius: 6px;
+  border: 1px solid rgba(165,163,122,0.3);
+}
+.province-mini-stats.small .mini-label { font-size: 10px; margin-bottom: 2px; }
+.province-mini-stats.small .mini-val { font-size: 12px; }
+.province-mini-stats.small .mini-val small { font-size: 9px; }
+
+/* 图表行 */
+.wf-charts-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
 }
 
-.share-name {
-  font: 600 14px/1.3 var(--serif);
-  color: var(--c-olive);
-  margin-bottom: 2px;
+/* ============ 叶片茶种卡片 小版 ============ */
+.ch5-tea-cards.small-wrap {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
 }
+.ch5-tea-card.small {
+  --tea-color: var(--c-olive);
+  background: linear-gradient(135deg, rgba(250,247,239,0.95) 0%, rgba(245,241,232,0.95) 100%);
+  border: 1px solid rgba(165,163,122,0.3);
+  border-top: 3px solid var(--tea-color);
+  border-radius: 10px;
+  padding: 8px 10px;
+}
+.ch5-tea-card.small .tea-card-icon { font-size: 16px; }
+.ch5-tea-card.small .tea-card-name { font-size: 13px; }
+.ch5-tea-card.small .tea-card-en { font-size: 10px; }
+.ch5-tea-card.small .tea-card-desc { font-size: 11px; line-height: 1.5; margin: 0 0 4px; }
+.ch5-tea-card.small .tea-card-val { padding-top: 4px; }
+.ch5-tea-card.small .val-num { font-size: 14px; }
+.ch5-tea-card.small .val-unit { font-size: 10px; }
 
-.share-val {
-  font: 400 12px/1.4 var(--sans);
-  color: var(--ink-soft);
-  margin-bottom: 4px;
+/* ============ 枝条 省份占比 小版 ============ */
+.ch5-province-shares.small-wrap { margin-top: 2px; }
+.ch5-province-shares.small-wrap .shares-title {
+  font-size: 13px;
+  margin-bottom: 8px;
 }
-
-.share-bar-wrap {
-  height: 5px;
-  background: var(--c-paper-3);
-  border-radius: 3px;
-  overflow: hidden;
+.shares-grid.small {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
-
-.share-bar {
-  height: 100%;
-  border-radius: 3px;
-  transition: width 0.4s ease;
+.ch5-share-card.small {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, rgba(250,247,239,0.95) 0%, rgba(245,241,232,0.95) 100%);
+  border: 1px solid rgba(165,163,122,0.3);
+  border-radius: 8px;
+  padding: 6px 8px;
 }
+.ch5-share-card.small .share-rank {
+  width: 22px; height: 22px;
+  font-size: 11px;
+}
+.ch5-share-card.small .share-name { font-size: 12px; }
+.ch5-share-card.small .share-val { font-size: 10px; margin-bottom: 2px; }
+.ch5-share-card.small .share-bar-wrap { height: 4px; }
 
 /* ============================================================
-   Responsive
+   响应式：窄屏时上下堆叠
    ============================================================ */
-@media (max-width: 960px) {
-  .ch5-overview-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .ch5-roots-main,
-  .ch5-charts-row {
+@media (max-width: 1100px) {
+  .map-fullscreen.ch5-redesign {
     grid-template-columns: 1fr;
+    overflow-y: auto;
+    gap: 16px;
+    padding: 1rem 1.2rem 2rem;
   }
-  .ch5-zone-cards {
-    grid-template-columns: 1fr;
+  .ch5-tree-scene.single-tree {
+    max-height: 560px;
+    margin: 0 auto;
   }
-}
-
-@media (max-width: 600px) {
-  .map-fullscreen {
-    padding: 0.5rem 1rem 3rem;
-  }
-  .ch5-overview-grid {
-    grid-template-columns: 1fr;
-  }
-  .ch5-controls {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  .ch5-metric-toggle {
-    justify-content: center;
-  }
-  .ch5-year-slider {
-    justify-content: center;
-  }
-  .slider-input {
-    width: 100%;
-  }
-  .ch5-stat-num {
-    font-size: 1.4rem;
+  .phone-frame {
+    max-height: 760px;
+    margin: 0 auto;
   }
 }
 </style>
