@@ -6,16 +6,59 @@
         <span class="brand-icon">茶</span>
         <span class="brand-text">茶之中国</span>
       </div>
-      <div class="nav-links">
-        <router-link
-          v-for="r in navItems"
-          :key="r.path"
-          :to="r.path"
-          :class="{ active: currentRoute === r.path }"
-        >
-          <span class="nav-num">{{ r.idx }}</span>
-          <span class="nav-label">{{ r.label }}</span>
-        </router-link>
+      <div class="nav-track">
+        <!-- 章节导航按钮容器：flex 均匀分布
+             每个按钮始终占据「胶囊宽度 + 间隙」的一致空间，
+             保证圆点态与胶囊态之间的边缘距离自适应且相等 -->
+        <div class="nav-chapters-wrap">
+          <!-- 虚线连接线：相对于 wrap 定位，端点基于 wrap 坐标系计算 -->
+          <svg class="nav-connector" preserveAspectRatio="none">
+            <line
+              :x1="connectorStart"
+              :x2="connectorEnd"
+              y1="50%"
+              y2="50%"
+              class="connector-line"
+            />
+          </svg>
+          <router-link
+            v-for="(r, i) in navItems"
+            :key="r.path"
+            :to="r.path"
+            class="nav-chapter"
+            :class="{
+              'is-active': currentRoute === r.path,
+              'is-hover': hoverIdx === i && currentRoute !== r.path,
+              'has-deco': i < navItems.length - 1,
+            }"
+            @mouseenter="hoverIdx = i"
+            @mouseleave="hoverIdx = -1"
+          >
+            <!-- 胶囊占位符：透明但占据与真实胶囊相同的宽度
+                 → 无论显示圆点还是胶囊，按钮都占同样空间
+                 → 相邻符号边缘间距离保持一致 -->
+            <span class="nav-pill nav-pill--spacer" aria-hidden="true">
+              <span class="nav-pill-num">{{ r.idx }}</span>
+              <span class="nav-pill-label">{{ r.label }}</span>
+            </span>
+
+            <!-- 默认态：双描边圆点（位于按钮中心） -->
+            <span class="nav-dot">
+              <span class="nav-dot-inner"></span>
+            </span>
+            <!-- 激活/悬浮态：圆角矩形标签（同样位于按钮中心，叠在占位符上） -->
+            <span class="nav-pill nav-pill--visible">
+              <span class="nav-pill-num">{{ r.idx }}</span>
+              <span class="nav-pill-label">{{ r.label }}</span>
+            </span>
+
+            <!-- 章节间装饰小圆点：定位在当前按钮右外侧（两按钮正中间） -->
+            <span v-if="i < navItems.length - 1" class="nav-deco">
+              <span class="nav-deco-dot"></span>
+              <span class="nav-deco-dot nav-deco-dot--s"></span>
+            </span>
+          </router-link>
+        </div>
       </div>
       <div class="nav-progress">
         <div class="progress-fill" :style="{ width: progressPct + '%' }"></div>
@@ -92,6 +135,37 @@ const nextLabel = computed(() => {
 })
 
 const progressPct = ref(0)
+const hoverIdx = ref(-1)
+
+// 虚线起止：从第一章按钮中心到第六章按钮中心
+// 通过动态测量各章节按钮中心位置来连线
+const connectorStart = ref('0%')
+const connectorEnd = ref('100%')
+
+function updateConnectorRange() {
+  const wrap = document.querySelector('.nav-chapters-wrap')
+  const chapters = document.querySelectorAll('.nav-chapter')
+  if (!wrap || chapters.length < 2) return
+  const wrapRect = wrap.getBoundingClientRect()
+  const firstRect = chapters[0].getBoundingClientRect()
+  const lastRect = chapters[chapters.length - 1].getBoundingClientRect()
+  const firstCx = (firstRect.left + firstRect.right) / 2 - wrapRect.left
+  const lastCx = (lastRect.left + lastRect.right) / 2 - wrapRect.left
+  const wrapW = wrapRect.width
+  connectorStart.value = (firstCx / wrapW * 100).toFixed(2) + '%'
+  connectorEnd.value = (lastCx / wrapW * 100).toFixed(2) + '%'
+}
+
+onMounted(() => {
+  window.addEventListener('scroll', onScroll, { passive: true })
+  window.addEventListener('resize', updateConnectorRange)
+  updateConnectorRange()
+})
+onBeforeUnmount(() => {
+  window.removeEventListener('scroll', onScroll)
+  window.removeEventListener('resize', updateConnectorRange)
+})
+
 function onScroll() {
   const h = document.documentElement
   const max = Math.max(1, h.scrollHeight - h.clientHeight)
@@ -151,57 +225,189 @@ onBeforeUnmount(() => {
   letter-spacing: 0.05em;
 }
 
-.nav-links {
+.nav-track {
+  position: relative;
   display: flex;
-  gap: 4px;
+  align-items: stretch;
   margin-left: 32px;
   flex: 1;
-  overflow-x: auto;
+  height: 100%;
+  overflow: visible;
+  padding: 0 4px;
+  box-sizing: border-box;
 }
-.nav-links::-webkit-scrollbar { display: none; }
 
-.nav-links a {
+/* ===== 章节按钮容器：Grid 6 等分 =====
+   列宽相等 → 章中心距离永远相等，随容器宽度自适应变化 ✓ */
+.nav-chapters-wrap {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  align-items: stretch;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+}
+
+/* 虚线连接线 */
+.nav-connector {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+  z-index: 1;
+}
+.connector-line {
+  stroke: rgba(81, 109, 51, 0.28);
+  stroke-width: 1.2;
+  stroke-dasharray: 2 3;
+  vector-effect: non-scaling-stroke;
+}
+
+/* ===== 章节按钮：占满整列宽度（关键！）
+   这样：
+   - 装饰点放在 right:0 + translate(50%) → 正好是两列中心的正中点 ✓
+   - 圆点/胶囊绝对定位在 50% 50% → 正好是列中心 ✓
+   - 无论胶囊如何展开，都在列内居中，列宽大于胶囊宽度 → 不会和邻居拥挤 ✓
+   - 列中心距 = 列宽 = 相等 → 章与章"中心距离"永远相等 ✓
+*/
+.nav-chapter {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  z-index: 2;
+  text-decoration: none;
+  overflow: visible;
+}
+
+/* 胶囊占位符：占空间但透明，作为可点击区域宽度参考（同时防止Grid列过窄） */
+.nav-pill--spacer {
+  visibility: hidden;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 14px;
+  font: 500 12px var(--sans);
+  white-space: nowrap;
+  pointer-events: none;
+}
+.nav-pill--spacer .nav-pill-num { font-weight: 600; font-size: 11px; }
+.nav-pill--spacer .nav-pill-label { letter-spacing: 0.03em; }
+
+/* 双描边圆点：绝对定位在列中心 */
+.nav-dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(1);
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1.5px solid var(--c-olive, #516D33);
+  background: transparent;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 2;
+}
+.nav-dot-inner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--c-olive, #516D33);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ===== 圆角矩形标签（可见版）：绝对定位在同一中心 ===== */
+.nav-pill--visible {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.6);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 14px;
+  background: var(--c-olive, #516D33);
+  color: var(--c-paper, #EFE9DA);
+  font: 500 12px var(--sans);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 10px -2px rgba(61, 84, 40, 0.3);
+  z-index: 3;
+}
+.nav-pill-num {
+  font-weight: 600;
+  font-size: 11px;
+  opacity: 0.85;
+}
+.nav-pill-label {
+  letter-spacing: 0.03em;
+}
+
+/* 激活态（胶囊完全不透明） */
+.nav-chapter.is-active .nav-dot {
+  transform: translate(-50%, -50%) scale(0);
+  opacity: 0;
+}
+.nav-chapter.is-active .nav-pill--visible {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+  pointer-events: auto;
+  box-shadow: 0 4px 16px -4px rgba(61, 84, 40, 0.4);
+}
+
+/* 悬浮态（非激活）：80% 透明度 + 发光 */
+.nav-chapter.is-hover .nav-dot {
+  transform: translate(-50%, -50%) scale(0);
+  opacity: 0;
+}
+.nav-chapter.is-hover .nav-pill--visible {
+  opacity: 0.8;
+  transform: translate(-50%, -50%) scale(1);
+  pointer-events: auto;
+  box-shadow:
+    0 0 0 2px rgba(139, 160, 106, 0.45),
+    0 0 14px 2px rgba(139, 160, 106, 0.55),
+    0 0 28px 6px rgba(139, 160, 106, 0.25);
+}
+
+/* 装饰小圆点：定位在当前按钮右边缘 → 正好是两按钮之间间隙的中点 */
+.nav-deco {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translate(50%, -50%);
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 14px;
-  border-radius: 24px;
-  text-decoration: none;
-  color: var(--ink-soft, #4a4a40);
-  font: 500 13px var(--sans);
-  white-space: nowrap;
-  transition: all 0.3s ease;
-  border: 1px solid transparent;
+  pointer-events: none;
+  z-index: 1;
 }
-.nav-links a .nav-num {
-  width: 20px;
-  height: 20px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--c-paper, #EFE9DA);
-  color: var(--c-olive-mid, #5C7C3A);
+.nav-deco-dot {
+  width: 3px;
+  height: 3px;
   border-radius: 50%;
-  font: 600 11px var(--sans);
-  transition: all 0.3s ease;
+  background: rgba(81, 109, 51, 0.4);
+  flex-shrink: 0;
 }
-.nav-links a:hover {
-  color: var(--c-olive, #516D33);
-  background: rgba(81,109,51,0.08);
-}
-.nav-links a:hover .nav-num {
-  background: var(--c-olive, #516D33);
-  color: #fff;
-}
-.nav-links a.active {
-  color: var(--c-olive, #516D33);
-  background: var(--c-paper, #EFE9DA);
-  border-color: var(--c-olive-light, #8BA06A);
-  font-weight: 600;
-}
-.nav-links a.active .nav-num {
-  background: var(--c-olive, #516D33);
-  color: #fff;
+.nav-deco-dot--s {
+  width: 2px;
+  height: 2px;
+  background: rgba(81, 109, 51, 0.28);
 }
 
 .nav-progress {
@@ -282,8 +488,17 @@ onBeforeUnmount(() => {
 
 @media (max-width: 880px) {
   .nav-brand .brand-text { display: none; }
-  .nav-links { margin-left: 16px; }
-  .nav-links a { padding: 6px 10px; font-size: 12px; }
-  .nav-links a .nav-label { display: none; }
+  .nav-track { margin-left: 12px; }
+  .nav-dot { width: 14px; height: 14px; }
+  /* 小屏：胶囊只显示序号，占位符和可见版都要改 */
+  .nav-pill--spacer,
+  .nav-pill--visible {
+    font-size: 11px;
+    padding: 4px 10px;
+  }
+  .nav-pill--spacer .nav-pill-label,
+  .nav-pill--visible .nav-pill-label {
+    display: none;
+  }
 }
 </style>
