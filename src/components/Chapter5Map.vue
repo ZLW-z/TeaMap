@@ -33,9 +33,9 @@
               </linearGradient>
             </defs>
 
-            <!-- 背景 -->
-            <rect x="0" y="0" width="600" height="630" fill="url(#skyGrad2)" rx="18" />
-            <rect x="0" y="630" width="600" height="190" fill="url(#groundGrad2)" rx="18" />
+            <!-- 背景：天空缩短，深色土壤继续上移60px，覆盖更多茶树根系 -->
+            <rect x="0" y="0" width="600" height="490" fill="url(#skyGrad2)" rx="18" />
+            <rect x="0" y="470" width="600" height="350" fill="url(#groundGrad2)" rx="18" />
 
             <!-- 单棵大茶树（放大1.5倍居中，底部与土面对齐并略下移） -->
             <g class="tea-tree single-big-tree" style="transform-origin: 300px 630px;">
@@ -135,8 +135,9 @@
             <span class="sb-signal">●●●</span>
           </div>
 
-          <!-- 手机小程序内容区（瀑布流） -->
-          <div class="phone-screen" :key="activePhonePanel">
+          <!-- 手机小程序内容区（瀑布流）：外层裁切 + 内层滚动，避免滚动条超出手机屏幕范围 -->
+          <div class="phone-screen-wrap">
+            <div class="phone-screen" :key="activePhonePanel">
 
             <!-- ========== 根系：生产根基（瀑布流） ========== -->
             <div v-if="activePhonePanel === 'roots'" class="waterfall-panel panel-roots">
@@ -321,7 +322,8 @@
               </div>
             </div>
 
-          </div>
+          </div> <!-- /.phone-screen -->
+          </div> <!-- /.phone-screen-wrap -->
           <!-- 手机底部 Home indicator -->
           <div class="phone-homebar"></div>
         </div>
@@ -1375,23 +1377,23 @@ onMounted(async () => {
   max-width: 440px;
   height: calc(100vh - 60px - 3.2rem);
   max-height: 880px;
-  background: #1a1a1a;
+  background: #F5F0E1;
   border-radius: 44px;
   padding: 12px;
   box-shadow:
-    0 30px 60px rgba(0, 0, 0, 0.35),
-    0 0 0 2px #2a2a2a,
-    inset 0 0 0 1px #000;
+    0 30px 60px rgba(0, 0, 0, 0.25),
+    0 0 0 2px #E8E1CB,
+    inset 0 0 0 1px rgba(255,255,255,0.8);
   position: relative;
   display: flex;
   flex-direction: column;
   transition: all 0.5s ease;
 }
 
-/* 不同面板对应颜色边框发光 */
-.phone-frame.panel-roots   { box-shadow: 0 30px 60px rgba(0,0,0,0.35), 0 0 0 2px #2a2a2a, 0 0 28px rgba(178,143,76,0.35), inset 0 0 0 1px #000; }
-.phone-frame.panel-leaves  { box-shadow: 0 30px 60px rgba(0,0,0,0.35), 0 0 0 2px #2a2a2a, 0 0 28px rgba(92,124,58,0.35),  inset 0 0 0 1px #000; }
-.phone-frame.panel-branches{ box-shadow: 0 30px 60px rgba(0,0,0,0.35), 0 0 0 2px #2a2a2a, 0 0 28px rgba(107,68,35,0.35), inset 0 0 0 1px #000; }
+/* 不同面板对应颜色边框发光（白色版本调整色调） */
+.phone-frame.panel-roots   { box-shadow: 0 30px 60px rgba(178,143,76,0.22), 0 0 0 2px #E8E1CB, 0 0 26px rgba(178,143,76,0.32), inset 0 0 0 1px rgba(255,255,255,0.9); }
+.phone-frame.panel-leaves  { box-shadow: 0 30px 60px rgba(92,124,58,0.22), 0 0 0 2px #E8E1CB, 0 0 26px rgba(92,124,58,0.32),  inset 0 0 0 1px rgba(255,255,255,0.9); }
+.phone-frame.panel-branches{ box-shadow: 0 30px 60px rgba(107,68,35,0.22), 0 0 0 2px #E8E1CB, 0 0 26px rgba(107,68,35,0.32), inset 0 0 0 1px rgba(255,255,255,0.9); }
 
 /* 顶部刘海 */
 .phone-notch {
@@ -1401,22 +1403,23 @@ onMounted(async () => {
   transform: translateX(-50%);
   width: 120px;
   height: 28px;
-  background: #0a0a0a;
+  background: #ECE3CC;
   border-radius: 18px;
   z-index: 20;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.6), 0 1px 2px rgba(0,0,0,0.06);
 }
 .notch-speaker {
   width: 40px; height: 6px;
-  background: #222;
+  background: #C8BFAD;
   border-radius: 4px;
 }
 .notch-cam {
   width: 12px; height: 12px;
-  background: radial-gradient(circle at 35% 35%, #4a5a6a 0%, #0a0a0a 70%);
+  background: radial-gradient(circle at 35% 35%, #7E8793 0%, #2E2E34 70%);
   border-radius: 50%;
 }
 
@@ -1427,7 +1430,7 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  color: #fff;
+  color: #3A3428;
   font-size: 13px;
   font-weight: 600;
   background: transparent;
@@ -1441,28 +1444,40 @@ onMounted(async () => {
 .sb-title {
   font: 600 14px/1 var(--font-huiwen);
   letter-spacing: 0.08em;
-  color: rgba(255,255,255,0.92);
-  text-shadow: 0 0 6px rgba(0,0,0,0.4);
+  color: #3A3428;
+  text-shadow: 0 0 6px rgba(255,255,255,0.4);
 }
-.sb-signal { font-size: 10px; opacity: 0.75; }
+.sb-signal { font-size: 10px; opacity: 0.7; color: #3A3428; }
 
-/* 屏幕内部 */
-.phone-screen {
+/* 屏幕内部：外层裁切，保证滚动条不超出手机屏幕内边缘 */
+.phone-screen-wrap {
   flex: 1;
+  overflow: hidden;
+  border-radius: 32px;
+  position: relative;
+  background: linear-gradient(180deg, #F4F0E3 0%, #EDE8D4 100%);
+}
+.phone-screen {
+  width: 100%;
+  height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
-  background: linear-gradient(180deg, #F4F0E3 0%, #EDE8D4 100%);
-  border-radius: 32px;
   padding: 10px 14px 18px;
-  position: relative;
+  box-sizing: border-box;
   scrollbar-width: thin;
   scrollbar-color: #B8B484 transparent;
+  scrollbar-gutter: stable;
   --serif: var(--font-huiwen);
   --sans: var(--font-huiwen);
 }
 
 .phone-screen::-webkit-scrollbar { width: 4px; }
-.phone-screen::-webkit-scrollbar-thumb { background: #B8B484; border-radius: 2px; }
+.phone-screen::-webkit-scrollbar-track { background: transparent; }
+.phone-screen::-webkit-scrollbar-thumb {
+  background: #B8B484;
+  border-radius: 2px;
+  border: 6px solid transparent; /* 让滚动条缩在内部，不超出 */
+}
 
 /* 底部 home indicator */
 .phone-homebar {
@@ -1476,7 +1491,7 @@ onMounted(async () => {
   content: "";
   width: 120px;
   height: 5px;
-  background: #555;
+  background: #B8B484;
   border-radius: 3px;
 }
 

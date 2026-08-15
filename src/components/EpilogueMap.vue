@@ -27,11 +27,13 @@
       </header>
 
       <div class="ep-body" ref="bodyRef">
-        <p v-for="(p, i) in paragraphs" :key="'p'+i" class="ep-para" :ref="el => paraRefs[i] = el">
-          <span class="ep-quote-qu" v-if="i === 0">『</span>
-          {{ p }}
-          <span class="ep-quote-qu end" v-if="i === paragraphs.length - 1">』</span>
-        </p>
+        <div class="ep-para-box">
+          <p v-for="(p, i) in paragraphs" :key="'p'+i" class="ep-para" :ref="el => paraRefs[i] = el">
+            <span class="ep-quote-qu" v-if="i === 0">『</span>
+            {{ p }}
+            <span class="ep-quote-qu end" v-if="i === paragraphs.length - 1">』</span>
+          </p>
+        </div>
       </div>
 
       <!-- 回到开头按钮 -->
@@ -320,10 +322,19 @@ onBeforeUnmount(() => {
 .ep-body {
   width: 100%;
   max-width: 780px;
-  display: flex;
-  flex-direction: column;
-  gap: 30px;
   margin-bottom: 80px;
+}
+.ep-para-box {
+  background: rgba(20, 24, 18, 0.3);
+  border: 1px solid rgba(197, 166, 106, 0.15);
+  backdrop-filter: blur(4px);
+  border-radius: 16px;
+  padding: 22px 26px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+.ep-para-box .ep-para + .ep-para {
+  margin-top: 18px;
 }
 .ep-para {
   font-family: var(--font-dzji, var(--serif));
@@ -333,13 +344,6 @@ onBeforeUnmount(() => {
   margin: 0;
   text-indent: 2em;
   letter-spacing: 0.05em;
-  background: rgba(20, 24, 18, 0.3);
-  border: 1px solid rgba(197, 166, 106, 0.15);
-  backdrop-filter: blur(4px);
-  border-radius: 16px;
-  padding: 22px 26px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-  position: relative;
 }
 .ep-quote-qu {
   display: inline-block;

@@ -24,7 +24,7 @@
         <p v-for="(p, i) in paragraphs" :key="'p'+i" class="prologue-para" :ref="el => paraRefs[i] = el" :style="{ '--shift': i * 6 + 'px' }">
           <span class="para-mark" v-if="i === 0">「</span>
           {{ p }}
-          <span class="para-mark end" v-if="i === paragraphs.length - 1">」</span>
+          <span class="para-mark end" v-if="i === 0">」</span>
         </p>
       </div>
 

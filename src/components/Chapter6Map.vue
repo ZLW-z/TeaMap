@@ -14,9 +14,11 @@
         <div class="bg-mask"></div>
       </div>
 
-      <!-- 旋转立体地球 -->
+      <!-- 旋转立体地球（地轴整体倾斜23.44°，类似地球真实自转姿态） -->
       <div class="globe-wrap" ref="globeWrap">
-        <svg ref="globeSvg" class="globe-svg" :width="size.w" :height="size.h" :viewBox="`0 0 ${size.w} ${size.h}`"></svg>
+        <div class="globe-axis-tilt">
+          <svg ref="globeSvg" class="globe-svg" :width="size.w" :height="size.h" :viewBox="`0 0 ${size.w} ${size.h}`"></svg>
+        </div>
         <div class="globe-tooltip" ref="tooltipEl" hidden></div>
         <ul class="globe-legend">
           <li><span class="dot origin"></span>茶之原产地</li>
@@ -66,7 +68,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { ref, reactive, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
 import * as d3 from 'd3'
 import { feature } from 'topojson-client'
 import ChapterIntro from './ChapterIntro.vue'
@@ -116,9 +118,10 @@ function onImgErrorBottom(e) {
 
 function measure() {
   const wrap = globeWrap.value
-  if (!wrap) return { w: 800, h: 600 }
+  if (!wrap) return { w: 800, h: 800 }
   const w = Math.max(320, wrap.clientWidth)
-  const h = Math.min(640, Math.max(400, w))
+  // 改为正方形画布：给球体 + 23.44° 倾斜旋转足够的上下空间，避免顶/底被裁切
+  const h = w
   return { w, h }
 }
 
@@ -128,7 +131,7 @@ function onResize() {
   size.w = m.w
   size.h = m.h
   if (projection) {
-    projection.scale(Math.min(m.w, m.h) * 0.46).translate([m.w / 2, m.h / 2])
+    projection.scale(Math.min(m.w, m.h) * 0.52).translate([m.w / 2, m.h / 2])
     gSphere.selectAll('circle').attr('cx', m.w / 2).attr('cy', m.h / 2).attr('r', projection.scale())
     render()
   }
@@ -144,7 +147,7 @@ async function initGlobe() {
 
   // 球体投影 — 初始看向亚洲（茶之原乡）
   projection = d3.geoOrthographic()
-    .scale(Math.min(w, h) * 0.46)
+    .scale(Math.min(w, h) * 0.49)
     .translate([w / 2, h / 2])
     .rotate([-105, -18, 0])
     .clipAngle(90)
@@ -167,6 +170,16 @@ async function initGlobe() {
   glowGrad.append('stop').attr('offset', '78%').attr('stop-color', 'rgba(178,143,76,0)')
   glowGrad.append('stop').attr('offset', '92%').attr('stop-color', 'rgba(178,143,76,0.18)')
   glowGrad.append('stop').attr('offset', '100%').attr('stop-color', 'rgba(178,143,76,0)')
+
+  // === 文化点图片地标：共享圆角裁剪路径（所有徽章尺寸一致） ===
+  const BADGE_W = 48
+  const BADGE_H = 32
+  const BADGE_R = 6
+  const badgeClip = defs.append('clipPath').attr('id', 'ch6-badge-clip')
+  badgeClip.append('rect')
+    .attr('x', 0).attr('y', 0)
+    .attr('width', BADGE_W).attr('height', BADGE_H)
+    .attr('rx', BADGE_R).attr('ry', BADGE_R)
 
   // === 图层 ===
   gSphere = svgSel.append('g')
@@ -240,6 +253,10 @@ async function initGlobe() {
     })
     .on('click', (event, d) => {
       event.stopPropagation()
+      // 清除拖拽 end 可能已设置的恢复计时器（click 在 mouseup 之后才触发）
+      if (resumeTimer) { clearTimeout(resumeTimer); resumeTimer = null }
+      // 点击茶文化点 → 地球立即停止自转（直到关闭信息卡才恢复）
+      autoRotate = false
       selectedPoint.value = d
       hoveredPoint.value = null
       hideTooltip()
@@ -247,6 +264,42 @@ async function initGlobe() {
 
   pts.append('circle').attr('class', 'halo').attr('r', 9)
   pts.append('circle').attr('class', 'core').attr('r', 4)
+
+  // === 悬浮图片地标徽章（圆角矩形 + 图片裁剪填充 + 指针三角） ===
+  // 所有徽章尺寸一致，位于点位正上方
+  const BW = 48, BH = 32, BR = 6
+  pts.each(function (d) {
+    const g = d3.select(this)
+    const badge = g.append('g')
+      .attr('class', 'pt-badge')
+      .attr('transform', `translate(${-BW / 2}, ${-BH - 14})`)
+
+    // 背景 + 边框
+    badge.append('rect')
+      .attr('width', BW).attr('height', BH)
+      .attr('rx', BR).attr('ry', BR)
+      .attr('fill', '#F7F4EB')
+      .attr('stroke', 'rgba(178,143,76,0.45)')
+      .attr('stroke-width', 1)
+
+    // 图片（cover 裁剪填充，xMidYMid slice）
+    if (d.image) {
+      badge.append('image')
+        .attr('href', d.image)
+        .attr('xlink:href', d.image)
+        .attr('width', BW).attr('height', BH)
+        .attr('preserveAspectRatio', 'xMidYMid slice')
+        .attr('clip-path', 'url(#ch6-badge-clip)')
+        .attr('opacity', 0.92)
+    }
+
+    // 指针三角（连接徽章底部和点位）
+    badge.append('polygon')
+      .attr('points', `${BW / 2 - 4},${BH} ${BW / 2 + 4},${BH} ${BW / 2},${BH + 5}`)
+      .attr('fill', '#F7F4EB')
+      .attr('stroke', 'rgba(178,143,76,0.45)')
+      .attr('stroke-width', 1)
+  })
 
   render()
 
@@ -286,6 +339,8 @@ async function initGlobe() {
       .on('end', () => {
         dragStart = null
         if (resumeTimer) clearTimeout(resumeTimer)
+        // 信息卡仍打开时 → 不恢复自转，直到用户关闭信息卡
+        if (selectedPoint.value) return
         resumeTimer = setTimeout(() => { autoRotate = true }, 1800)
       })
   )
@@ -364,6 +419,14 @@ function onIntroDone() {
   setTimeout(() => initGlobe(), 200)
 }
 
+// 关闭信息卡（selectedPoint 从有值→null）时恢复地球自转
+watch(selectedPoint, (nv, ov) => {
+  if (ov && nv === null) {
+    if (resumeTimer) clearTimeout(resumeTimer)
+    resumeTimer = setTimeout(() => { autoRotate = true }, 400)
+  }
+})
+
 onMounted(async () => {
   await nextTick()
   // 真正的初始化在 intro 结束后触发
@@ -395,17 +458,11 @@ onBeforeUnmount(() => {
   bottom: 0;
   opacity: 0;
   transition: opacity 0.8s ease;
-  overflow-y: auto;
-  padding: 1.5rem 2rem 4rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  position: fixed;
+  overflow: hidden;
 }
 .map-fullscreen .bg-layer {
-  position: fixed;
-  top: 60px;
+  position: absolute;
+  top: 0;
   left: 0;
   right: 0;
   bottom: 0;
@@ -427,13 +484,22 @@ onBeforeUnmount(() => {
   inset: 0;
   background: linear-gradient(180deg, rgba(239,233,218,0.45) 0%, rgba(247,244,235,0.65) 60%, rgba(247,244,235,0.8) 100%);
 }
-.map-fullscreen > .globe-wrap,
+.map-fullscreen > .globe-wrap {
+  position: absolute;
+  z-index: 1;
+  /* 球体固定在页面中心：视口(去除顶部60px)的正中央 */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(92vw, 880px);
+  touch-action: none;
+}
 .map-fullscreen > .legend-box,
 .map-fullscreen > .tip-box,
 .map-fullscreen > .rotate-tip,
 .map-fullscreen > .ch-nav {
-  position: relative;
-  z-index: 1;
+  position: absolute;
+  z-index: 2;
 }
 .map-fullscreen.show {
   opacity: 1;
@@ -442,13 +508,19 @@ onBeforeUnmount(() => {
 /* === 旋转地球容器 === */
 .globe-wrap {
   position: relative;
-  width: 100%;
-  max-width: 880px;
   margin: 0 auto;
   touch-action: none;
 }
-
-.globe-svg {
+/* 地轴整体倾斜23.44°，模拟真实地球自转姿态；让SVG在其中居中 */
+.globe-axis-tilt {
+  position: relative;
+  width: 100%;
+  transform: rotate(23.44deg);
+  transform-origin: 50% 50%;
+  padding: 14% 6%;
+  overflow: visible;
+}
+.globe-axis-tilt .globe-svg {
   display: block;
   width: 100%;
   height: auto;
@@ -457,6 +529,15 @@ onBeforeUnmount(() => {
 }
 .globe-svg:active {
   cursor: grabbing;
+}
+
+/* === 文化点图片地标徽章 === */
+:deep(.pt-badge) {
+  filter: drop-shadow(0 2px 4px rgba(50, 42, 38, 0.28));
+  transition: opacity 0.25s ease;
+}
+:deep(.pt:hover .pt-badge) {
+  filter: drop-shadow(0 3px 8px rgba(178, 143, 76, 0.5));
 }
 
 /* === 点位（原产地/进口国） === */
@@ -689,13 +770,14 @@ onBeforeUnmount(() => {
   overflow: hidden;
   border: 1px solid rgba(194, 193, 154, 0.4);
   box-shadow: 0 2px 8px rgba(81, 109, 51, 0.08);
+  background: var(--c-paper-2);
+  /* 不设固定高度 / 比例，高度随图片自然比例撑开 */
 }
 .card-image-bottom img {
+  display: block;
   width: 100%;
   height: auto;
-  max-height: 320px;
-  object-fit: contain;
-  display: block;
+  object-fit: contain; /* 不做裁剪，完整显示整幅照片 */
   background: var(--c-paper-2);
 }
 .card-image-fallback-bottom {
