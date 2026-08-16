@@ -727,6 +727,21 @@ const rootsMapOption = computed(() => {
         return `<b>${p.name}</b><br/>${metricLabel.value}：${fmt(p.value, 2)} ${metricUnit.value}`
       },
     },
+    geo: {
+      map: 'china',
+      roam: true,
+      zoom: currentGeoZoom.value,
+      label: { show: false },
+      itemStyle: {
+        areaColor: '#F7F4EB',
+        borderColor: 'rgba(178,143,76,0.45)',
+        borderWidth: 0.8,
+      },
+      emphasis: {
+        label: { show: true, color: '#3A4D38', fontWeight: 700 },
+        itemStyle: { areaColor: '#EFE9DA', borderColor: '#B28F4C', borderWidth: 1.2 },
+      },
+    },
     visualMap: {
       min: 0,
       max: maxVal || 1,
@@ -740,14 +755,15 @@ const rootsMapOption = computed(() => {
     series: [{
       type: 'map',
       map: 'china',
+      geoIndex: 0,
       roam: true,
       zoom: currentGeoZoom.value,
       label: { show: false },
       emphasis: {
         label: { show: true, color: '#3A4D38', fontWeight: 700 },
-        itemStyle: { areaColor: '#C8A155', borderColor: '#fff', borderWidth: 1.5 },
+        itemStyle: { borderColor: '#fff', borderWidth: 1.5 },
       },
-      itemStyle: { areaColor: '#EDE6D3', borderColor: 'rgba(255,255,255,0.6)', borderWidth: 0.8 },
+      itemStyle: { borderColor: 'rgba(255,255,255,0)', borderWidth: 0 },
       data,
     }],
   }
@@ -1239,9 +1255,11 @@ function onIntroDone() {
 
 onMounted(async () => {
   try {
-    const res = await fetch('https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json')
-    const geo = await res.json()
-    echarts.registerMap('china', geo)
+    // 从本地加载省份 GeoJSON（与第3、4章一致）
+    const provRes = await fetch(assetUrl('data/2/china-provinces.geojson'))
+    const provGeo = await provRes.json()
+    echarts.registerMap('china', provGeo)
+
     mapReady.value = true
   } catch (e) {
     console.warn('China GeoJSON 加载失败:', e)
