@@ -142,6 +142,7 @@ export function estimateProvinceFlows(provinceName, year = DEFAULT_YEAR, topK = 
       to: COUNTRY_CENTER[c.name],
       share: prov.value ? (prov.value * c.value / totalNational / prov.value) : 0,
     }))
+    .filter(f => f.value >= 500000)
     .sort((a, b) => b.value - a.value)
     .slice(0, topK)
 

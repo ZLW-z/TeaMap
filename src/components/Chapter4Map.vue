@@ -212,7 +212,8 @@
               {{ isModernChinaMode ? '🇨🇳 选择省份' : ' ' + (selectedModernProvince || '中国') + ' → 世界' }}
             </span>
             <span class="title-sub" v-if="isModernChinaMode">点击任意省份，查看该省茶叶出口全球流向</span>
-            <span class="title-sub" v-else>{{ modernYear }}年 出口总额 <b class="hl-num">{{ fmtNum(modernProvinceInfo.provinceValue / 1e8) }}</b> 亿元，覆盖 <b class="hl-num">{{ modernProvinceInfo.flows.length }}</b> 个主要国家</span>
+            <span class="title-sub" v-if="!isModernChinaMode && modernProvinceInfo.flows.length">{{ modernYear }}年 出口总额 <b class="hl-num">{{ fmtNum(modernProvinceInfo.provinceValue / 1e8) }}</b> 亿元，覆盖 <b class="hl-num">{{ modernProvinceInfo.flows.length }}</b> 个主要国家</span>
+            <span class="title-sub" v-else-if="!isModernChinaMode">{{ modernYear }}年 出口总额 <b class="hl-num">{{ fmtNum(modernProvinceInfo.provinceValue / 1e8) }}</b> 亿元，暂无主要出口目的地数据</span>
           </div>
           <div class="modern-controls">
             <div class="year-select">
@@ -1248,20 +1249,40 @@ function renderModernFlows(provinceName, info) {
   var stopClick = function(ev) { L.DomEvent.stopPropagation(ev) }
 
   if (modernProvLayer) { modernMap.removeLayer(modernProvLayer); modernProvLayer = null }
+  var _build2 = buildProvinceChoropleth()
+  var colorFor2 = _build2.colorFor
+  var matchProvince2 = _build2.matchProvince
+  var isZeroProvince2 = _build2.isZeroProvince
+
   fetch(assetUrl('data/2/china-provinces.geojson'))
     .then(function(r) { return r.json() })
     .then(function(geo) {
       modernProvLayer = L.geoJSON(geo, {
         style: function(f) {
           var name = f.properties.name || f.properties.NAME || f.properties.NL_NAME_1 || ''
+          var info = matchProvince2(name)
+          var zero = isZeroProvince2(info)
           var pClean = provinceName.replace(/省|市|自治区|壮族|回族|维吾尔|特别行政/g, '')
           var fClean = name.replace(/省|市|自治区|壮族|回族|维吾尔|特别行政/g, '')
           var isSelected = pClean === fClean
-          return {
-            color: isSelected ? '#C8462E' : '#516D33',
-            weight: isSelected ? 2.6 : 0.8,
-            fillColor: isSelected ? '#B28F4C' : '#93B55A',
-            fillOpacity: isSelected ? 0.92 : 0.55,
+          if (isSelected) {
+            // 选中省份：红色边框 + 金棕色填充，突出显示
+            return {
+              color: '#C8462E',
+              weight: 2.6,
+              fillColor: zero ? '#B28F4C' : colorFor2(info.value),
+              fillOpacity: 0.92,
+              dashArray: zero ? '4 4' : null,
+            }
+          } else {
+            // 其他省份：保留分级设色 (choropleth) 风格
+            return {
+              color: zero ? '#B28F4C' : '#7e7866',
+              weight: zero ? 0.4 : 0.6,
+              fillColor: zero ? '#F7F4EB' : colorFor2(info.value),
+              fillOpacity: zero ? 1.0 : 0.88,
+              dashArray: zero ? '4 4' : null,
+            }
           }
         },
         onEachFeature: function(f, layer) {
