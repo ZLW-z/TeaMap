@@ -1,6 +1,6 @@
 // 第三章 · 十大名茶配置
 import { assetUrl } from '../utils/base.js'
-import teasData from '../../data/3/teas.json'
+import teasData from '../../data/3/teas-albers.json'
 
 export const TEAS = teasData.map(t => ({
   ...t,
@@ -37,8 +37,8 @@ export const OTHER_STYLE = {
   fillOpacity: 0.8,
 }
 
-// 省份底图样式
-export const PROV_BG_URL = assetUrl('data/2/china-provinces.geojson')
+// 省份底图样式 (Albers 等积圆锥投影，与第一章/第二章一致)
+export const PROV_BG_URL = assetUrl('data/2/china-provinces-albers.geojson')
 
 export const PROV_STYLE = {
   color: '#A8A28D',
@@ -47,11 +47,21 @@ export const PROV_STYLE = {
   fillOpacity: 0.5,
 }
 
-// 地图初始视图
+// 地图初始视图 — Albers 坐标系 (y_m, x_m)，与第一章 createAlbersCRS 匹配
 export const MAP_INIT = {
-  center: [32, 108],
-  zoom: 4,
-  minZoom: 3,
+  center: [3908108, -132361],
+  zoom: 3.5,
+  minZoom: 3.5,
   maxZoom: 8,
-  maxBounds: [[15, 70], [55, 140]],
+  // 确保完整中国可视 + 南海十段线区域（与第一章一致）
+  // Albers 米: [[south_y, west_x], [north_y, east_x]]
+  fitBounds: [[-800000, -3500000], [7500000, 2500000]],
+}
+
+// 名茶点集中区域
+// 16 个名茶点 Albers 范围: X[-474271, 1518626], Y[2289479, 3451811]
+// 加上 padding 后的中心与缩放
+export const TEA_AREA = {
+  center: [2870645, 522177],
+  zoom: 6.0,
 }

@@ -26,7 +26,7 @@
       <!-- 固定信息面板 -->
       <transition name="panel-slide">
         <div
-          v-if="selectedTea"
+          v-if="selectedTea && !lightboxOpen"
           class="tea-info-panel"
         >
           <div class="panel-header">
@@ -63,21 +63,75 @@
         </div>
       </transition>
 
-      <!-- 全屏图片预览 Lightbox -->
+      <!-- 悬浮预览卡片（鼠标悬浮标签时显示） -->
+      <transition name="preview-fade">
+        <div
+          v-if="hoveredTea && !selectedTea"
+          class="tea-preview-card"
+          :style="{ left: hoveredPos.x + 'px', top: hoveredPos.y + 'px' }"
+        >
+          <div class="preview-header">
+            <span class="preview-badge" :class="{ top10: hoveredTea.isTop10 }">
+              {{ hoveredTea.isTop10 ? '十大名茶' : '名茶' }}
+            </span>
+            <h4 class="preview-title">{{ hoveredTea.name }}</h4>
+          </div>
+          <div class="preview-body">
+            <div class="preview-tags">
+              <span class="preview-type">{{ hoveredTea.type }}</span>
+              <span class="preview-origin">{{ hoveredTea.origin }}</span>
+            </div>
+            <p class="preview-features">{{ hoveredTea.features }}</p>
+          </div>
+        </div>
+      </transition>
+
+      <!-- 全屏图片预览 Lightbox（可缩放+拖拽） -->
       <transition name="fade">
         <div v-if="lightboxOpen" class="lightbox" @click.self="closeLightbox">
-          <button class="lightbox-close" @click="closeLightbox" title="关闭 (Esc)">×</button>
-          <img
-            v-if="selectedTea"
-            :src="selectedTea.image"
-            :alt="selectedTea.name"
-            class="lightbox-image"
-            @click.stop
-          />
-          <div v-if="selectedTea" class="lightbox-caption">
+          <!-- 可拖拽/缩放图片视口 -->
+          <div
+            class="lightbox-viewport"
+            ref="lightboxViewportEl"
+            @wheel.prevent.stop="onLightboxWheel"
+            @dblclick.prevent.stop="onLightboxDblClick"
+          >
+            <div
+              v-if="selectedTea"
+              class="lightbox-img-wrap"
+              :class="{ 'is-transformed': imgTransformed, 'is-dragging': imgDragging }"
+              :style="{
+                transform: imgTransformed
+                  ? `translate(${imgTx}px, ${imgTy}px) scale(${imgScale})`
+                  : 'none',
+                transition: imgDragging || !imgTransformed ? 'none' : 'transform 0.2s ease',
+              }"
+              @pointerdown.prevent="onLightboxPointerDown"
+              @click.stop
+            >
+              <img
+                ref="lightboxImgEl"
+                :src="selectedTea.image"
+                :alt="selectedTea.name"
+                class="lightbox-image"
+                draggable="false"
+              />
+            </div>
+          </div>
+
+          <!-- 关闭按钮：放在蓝色框（图片区域范围）的右上角，避开顶部导航栏 -->
+          <button
+            class="lightbox-close-corner"
+            @click="closeLightbox"
+            title="关闭 (Esc)"
+          >×</button>
+
+          <div v-if="selectedTea" class="lightbox-caption" style="display: none;">
             <span class="lb-name">{{ selectedTea.name }}</span>
             <span class="lb-origin">{{ selectedTea.origin }} · {{ selectedTea.type }}</span>
           </div>
+
+          <div class="lightbox-hint">滚轮缩放 · 拖拽平移 · 双击适应屏幕</div>
         </div>
       </transition>
     </div>
@@ -87,6 +141,7 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import L from 'leaflet'
+import { createAlbersCRS } from '../utils/crs.js'
 import ChapterIntro from './ChapterIntro.vue'
 import {
   TEAS,
@@ -96,6 +151,7 @@ import {
   PROV_BG_URL,
   PROV_STYLE,
   MAP_INIT,
+  TEA_AREA,
 } from '../config/ch3.js'
 
 const props = defineProps({ id: { type: String, required: true } })
@@ -104,11 +160,26 @@ const sectionEl = ref(null)
 const mapEl = ref(null)
 const selectedTea = ref(null)
 const activeMarker = ref(null)
+const hoveredTea = ref(null)
+const hoveredPos = ref({ x: 0, y: 0 })
 const introDone = ref(false)
 const lightboxOpen = ref(false)
+const lightboxViewportEl = ref(null)
+const lightboxImgEl = ref(null)
+// 缩放/拖拽状态
+const imgScale = ref(1)
+const imgTx = ref(0)
+const imgTy = ref(0)
+const imgDragging = ref(false)
+const imgTransformed = ref(false)
+const dragStart = { x: 0, y: 0, tx: 0, ty: 0 }
+let nativeImg = { w: 0, h: 0 }
+// 记录首次 fit 后的 scale/translate，用于 reset
+let fitScale = 1
+let fitTx = 0
+let fitTy = 0
 let map = null
 let markers = []
-let zoomAnimDone = false
 let io = null
 
 function onIntroDone() {
@@ -119,7 +190,7 @@ function onIntroDone() {
       // 初始渲染后做一次标签布局
       requestAnimationFrame(() => layoutLabels())
     }
-    runZoomAnimation()
+    // 已删除放大动画：直接显示名茶点集中区域
   }, 300)
 }
 
@@ -165,14 +236,14 @@ function createTeaLabelIcon(tea) {
 onMounted(async () => {
   await nextTick()
   initMap()
-  // 缩放动画在 intro 结束后由 onIntroDone 触发
 })
 
 function initMap() {
+  const albersCRS = createAlbersCRS()
   map = L.map(mapEl.value, {
-    crs: L.CRS.EPSG4326,
-    center: MAP_INIT.center,
-    zoom: MAP_INIT.zoom,
+    crs: albersCRS,
+    center: TEA_AREA.center,
+    zoom: TEA_AREA.zoom,
     minZoom: MAP_INIT.minZoom,
     maxZoom: MAP_INIT.maxZoom,
     zoomControl: false,
@@ -201,27 +272,44 @@ function initMap() {
     })
     .catch(err => console.warn('省份底图加载失败:', err))
 
-  // 添加名茶点
+  // 添加名茶点（Albers 米坐标: [y_m, x_m]）
   TEAS.forEach(tea => {
-    if (tea.lat == null || tea.lng == null) return
+    if (tea.y_m == null || tea.x_m == null) return
 
     const style = tea.isTop10 ? TOP10_STYLE : OTHER_STYLE
-    const marker = L.marker([tea.lat, tea.lng], {
+    const marker = L.marker([tea.y_m, tea.x_m], {
       icon: createTeaLabelIcon(tea),
       interactive: true,
     })
 
-    marker.on('mouseover', () => {
+    marker.on('mouseover', (e) => {
       if (!selectedTea.value || selectedTea.value.name !== tea.name) {
         const el = marker.getElement()
-        if (el) el.classList.add('tea-marker--hover')
+        if (el) {
+          el.classList.add('tea-marker--hover')
+          el.style.zIndex = 1000
+        }
+        hoveredTea.value = tea
+        updatePreviewPos(marker)
+      }
+    })
+
+    marker.on('mousemove', () => {
+      if (hoveredTea.value && hoveredTea.value.name === tea.name) {
+        updatePreviewPos(marker)
       }
     })
 
     marker.on('mouseout', () => {
       if (!selectedTea.value || selectedTea.value.name !== tea.name) {
         const el = marker.getElement()
-        if (el) el.classList.remove('tea-marker--hover')
+        if (el) {
+          el.classList.remove('tea-marker--hover')
+          el.style.zIndex = ''
+        }
+      }
+      if (!selectedTea.value) {
+        hoveredTea.value = null
       }
     })
 
@@ -234,17 +322,32 @@ function initMap() {
     markers.push(marker)
   })
 
-  // 点击地图空白处关闭面板
+  // 点击地图空白处关闭面板 + 清除悬浮预览
   map.on('click', () => {
+    hoveredTea.value = null
     closePanel()
   })
 
   // 标签布局：避免标签相互遮挡
   map.on('zoomend', () => {
     scheduleLayout()
+    if (hoveredTea.value) {
+      const m = markers.find(m => {
+        const el = m.getElement()
+        return el && el.classList.contains('tea-marker--hover')
+      })
+      if (m) updatePreviewPos(m)
+    }
   })
   map.on('moveend', () => {
     scheduleLayout()
+    if (hoveredTea.value) {
+      const m = markers.find(m => {
+        const el = m.getElement()
+        return el && el.classList.contains('tea-marker--hover')
+      })
+      if (m) updatePreviewPos(m)
+    }
   })
   map.on('resize', () => {
     scheduleLayout()
@@ -466,78 +569,235 @@ function layoutLabels() {
   })
 }
 
-function runZoomAnimation() {
-  if (!map || markers.length === 0) return
-
-  // 阶段1：确保展示完整中国地图（初始视图）
-  map.setView(MAP_INIT.center, MAP_INIT.zoom, { animate: false })
-
-  // 阶段2：等待2秒后，放大到所有名茶点的最小地理范围
-  setTimeout(() => {
-    if (!map) return
-
-    // 计算所有标记的边界
-    const bounds = L.latLngBounds(markers.map(m => m.getLatLng()))
-
-    // 使用 flyTo 平滑过渡到包含所有标记的范围
-    // padding 让标记不贴边
-    map.flyToBounds(bounds, {
-      padding: [60, 60],
-      maxZoom: 6,
-      duration: 2.5,
-      easeLinearity: 0.25,
-    })
-
-    // flyTo 结束后做一次布局（moveend 已经触发 scheduleLayout）
-  }, 2000)
-}
-
 function selectTea(tea, marker, style) {
   // 恢复之前激活的标记
   if (activeMarker.value && activeMarker.value !== marker) {
     const prevEl = activeMarker.value.getElement()
-    if (prevEl) prevEl.classList.remove('tea-marker--active')
+    if (prevEl) {
+      prevEl.classList.remove('tea-marker--active')
+      prevEl.style.zIndex = ''
+    }
   }
 
   selectedTea.value = tea
   activeMarker.value = marker
+  hoveredTea.value = null
 
   const el = marker.getElement()
-  if (el) el.classList.add('tea-marker--active')
+  if (el) {
+    el.classList.add('tea-marker--active')
+    el.style.zIndex = 1000
+  }
 
   // 平移地图使标记可见
-  map.panTo([tea.lat, tea.lng], { animate: true, duration: 0.4 })
+  map.panTo([tea.y_m, tea.x_m], { animate: true, duration: 0.4 })
 }
 
 function closePanel() {
   if (activeMarker.value) {
     const el = activeMarker.value.getElement()
-    if (el) el.classList.remove('tea-marker--active')
+    if (el) {
+      el.classList.remove('tea-marker--active')
+      el.style.zIndex = ''
+    }
   }
   selectedTea.value = null
   activeMarker.value = null
   lightboxOpen.value = false
 }
 
+function updatePreviewPos(marker) {
+  if (!map || !mapEl.value) return
+  const latlng = marker.getLatLng()
+  const point = map.latLngToContainerPoint(latlng)
+  const mapRect = mapEl.value.getBoundingClientRect()
+  const x = point.x + 28
+  const y = point.y - 20
+  hoveredPos.value = {
+    x: Math.min(x, mapRect.width - 280),
+    y: Math.max(y, 10),
+  }
+}
+
 function openLightbox() {
   if (!selectedTea.value) return
+  // 重置缩放状态
+  imgScale.value = 1
+  imgTx.value = 0
+  imgTy.value = 0
+  imgDragging.value = false
+  imgTransformed.value = false
+  nativeImg = { w: 0, h: 0 }
+  fitScale = 1
+  fitTx = 0
+  fitTy = 0
+
   lightboxOpen.value = true
-  window.addEventListener('keydown', onLightboxKeydown, { once: true })
+  window.addEventListener('keydown', onLightboxKeydown)
+  window.addEventListener('pointermove', onLightboxPointerMove)
+  window.addEventListener('pointerup', onLightboxPointerUp)
+
+  // 图片加载完成后，测量原生尺寸，记录 fit 参数
+  nextTick(() => {
+    const el = lightboxImgEl.value
+    if (!el) return
+    const doMeasure = () => {
+      nativeImg.w = el.naturalWidth
+      nativeImg.h = el.naturalHeight
+      // 测量当前 viewport 尺寸，计算 fit 参数
+      const viewport = lightboxViewportEl.value
+      if (!viewport) return
+      const rect = viewport.getBoundingClientRect()
+      const padding = 60
+      const availW = rect.width - padding
+      const availH = rect.height - padding
+      const fit = Math.min(availW / nativeImg.w, availH / nativeImg.h, 1)
+      fitScale = fit > 0 ? fit : 1
+      fitTx = (rect.width - nativeImg.w * fitScale) / 2
+      fitTy = (rect.height - nativeImg.h * fitScale) / 2
+    }
+    if (el.complete && el.naturalWidth) {
+      doMeasure()
+    } else {
+      el.addEventListener('load', doMeasure, { once: true })
+    }
+  })
 }
 
 function closeLightbox() {
   lightboxOpen.value = false
   window.removeEventListener('keydown', onLightboxKeydown)
+  window.removeEventListener('pointermove', onLightboxPointerMove)
+  window.removeEventListener('pointerup', onLightboxPointerUp)
 }
 
 function onLightboxKeydown(e) {
   if (e.key === 'Escape') closeLightbox()
+  else if (e.key === '+' || e.key === '=') zoomBy(1.25)
+  else if (e.key === '-' || e.key === '_') zoomBy(1 / 1.25)
+  else if (e.key === '1') resetZoom()
+  else if (e.key.toLowerCase() === 'f') fitToScreen()
+  else if (e.key === '0') resetZoom()
+}
+
+// === 缩放 / 平移 ===
+const MIN_SCALE = 0.1
+const MAX_SCALE = 8
+
+function clampScale(s) {
+  return Math.min(MAX_SCALE, Math.max(MIN_SCALE, s))
+}
+
+function zoomBy(factor, cx, cy) {
+  const viewport = lightboxViewportEl.value
+  if (!viewport) return
+  const rect = viewport.getBoundingClientRect()
+  const pivotX = cx != null ? cx : rect.width / 2
+  const pivotY = cy != null ? cy : rect.height / 2
+
+  const oldImgScale = imgScale.value
+  const newImgScale = clampScale(oldImgScale * factor)
+  if (newImgScale === oldImgScale) return
+
+  const effTxOld = fitTx + (imgTransformed.value ? imgTx.value : 0)
+  const effTyOld = fitTy + (imgTransformed.value ? imgTy.value : 0)
+  const effScaleOld = fitScale * oldImgScale
+  const effScaleNew = fitScale * newImgScale
+  const r = effScaleNew / effScaleOld
+
+  const newEffTx = pivotX - (pivotX - effTxOld) * r
+  const newEffTy = pivotY - (pivotY - effTyOld) * r
+  imgTx.value = newEffTx - fitTx
+  imgTy.value = newEffTy - fitTy
+  imgScale.value = newImgScale
+  imgTransformed.value = true
+}
+
+function resetZoom() {
+  // 重置为适应屏幕（即 imgScale=1, imgTx=0, imgTy=0, imgTransformed=false）
+  imgScale.value = 1
+  imgTx.value = 0
+  imgTy.value = 0
+  imgTransformed.value = false
+}
+
+function fitToScreen() {
+  // 重置为适应屏幕状态
+  imgScale.value = 1
+  imgTx.value = 0
+  imgTy.value = 0
+  imgTransformed.value = false
+}
+
+function onLightboxWheel(e) {
+  const viewport = lightboxViewportEl.value
+  if (!viewport) return
+  const rect = viewport.getBoundingClientRect()
+  const cx = e.clientX - rect.left
+  const cy = e.clientY - rect.top
+  const factor = e.deltaY < 0 ? 1.15 : 1 / 1.15
+  zoomBy(factor, cx, cy)
+}
+
+function onLightboxDblClick(e) {
+  const viewport = lightboxViewportEl.value
+  if (!viewport) return
+  const rect = viewport.getBoundingClientRect()
+  const cx = e.clientX - rect.left
+  const cy = e.clientY - rect.top
+
+  // 如果当前是 fit 状态 → 1:1 以光标为中心
+  if (!imgTransformed.value) {
+    // 1:1 scale = fitScale（保持与屏幕一致的像素密度）
+    // 真实显示 scale 变为 1，即 imgScale = 1/fitScale？不，让我重新想
+    // 1:1 意味着图片以原始像素显示，即 effectiveScale = 1
+    // effectiveScale = fitScale * imgScale_target => imgScale_target = 1 / fitScale
+    const targetImgScale = clampScale(1 / fitScale)
+    const newEffScale = fitScale * targetImgScale
+    // 当前 effectiveScale = fitScale (因为 imgScale=1)
+    const r = newEffScale / fitScale
+    const newEffTx = cx - (cx - fitTx) * r
+    const newEffTy = cy - (cy - fitTy) * r
+    imgTx.value = newEffTx - fitTx
+    imgTy.value = newEffTy - fitTy
+    imgScale.value = targetImgScale
+    imgTransformed.value = true
+  } else {
+    // 已缩放 → 回到 fit
+    imgScale.value = 1
+    imgTx.value = 0
+    imgTy.value = 0
+    imgTransformed.value = false
+  }
+}
+
+function onLightboxPointerDown(e) {
+  // 只有 transformed 状态允许拖拽
+  if (!imgTransformed.value) return
+  imgDragging.value = true
+  dragStart.x = e.clientX
+  dragStart.y = e.clientY
+  dragStart.tx = imgTx.value
+  dragStart.ty = imgTy.value
+}
+
+function onLightboxPointerMove(e) {
+  if (!imgDragging.value) return
+  imgTx.value = dragStart.tx + (e.clientX - dragStart.x)
+  imgTy.value = dragStart.ty + (e.clientY - dragStart.y)
+}
+
+function onLightboxPointerUp(e) {
+  if (!imgDragging.value) return
+  imgDragging.value = false
 }
 
 onBeforeUnmount(() => {
   if (io) { io.disconnect(); io = null }
   if (map) { map.remove(); map = null }
   window.removeEventListener('keydown', onLightboxKeydown)
+  window.removeEventListener('pointermove', onLightboxPointerMove)
+  window.removeEventListener('pointerup', onLightboxPointerUp)
 })
 </script>
 
@@ -974,49 +1234,102 @@ onBeforeUnmount(() => {
   background: rgba(20, 18, 12, 0.92);
   backdrop-filter: blur(6px);
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 40px;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
 }
 
-.lightbox-close {
+/* 视口：占满整个 lightbox，居中显示图片 */
+.lightbox-viewport {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 100px 120px;
+  box-sizing: border-box;
+}
+.lightbox-viewport:active {
+  cursor: grabbing;
+}
+
+/* 图片包装：fit 状态下用 CSS object-fit 居中；transform 状态用 translate+scale */
+.lightbox-img-wrap {
+  position: relative;
+  max-width: 100%;
+  max-height: 100%;
+  transition: transform 0.2s ease;
+  transform-origin: center center;
+  display: block;
+  margin: 0 auto;
+}
+.lightbox-img-wrap.is-transformed {
+  transition: transform 0.2s ease;
+}
+.lightbox-img-wrap.is-dragging {
+  transition: none;
+  cursor: grabbing;
+}
+
+/* 关闭按钮：放在蓝色框（图片区域范围）的右上角，避开顶部导航栏 */
+.lightbox-close-corner {
   position: absolute;
-  top: 24px;
+  top: 72px;
   right: 28px;
   width: 44px;
   height: 44px;
   border: none;
-  background: rgba(255, 255, 255, 0.12);
-  color: #fff;
-  font-size: 24px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #555;
+  font-size: 34px;
+  font-weight: 300;
+  line-height: 1;
   border-radius: 50%;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.25s;
-  line-height: 1;
+  transition: all 0.25s ease;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  font-family: system-ui, -apple-system, sans-serif;
 }
-.lightbox-close:hover {
-  background: var(--c-gold);
+.lightbox-close-corner:hover {
+  color: #b94949;
   transform: rotate(90deg) scale(1.08);
-  color: #fff;
 }
+
+/* 缩放控制条：已删除，保留占位样式避免后续引用警告 */
+
+.zoom-btn { display: none; }
+.zoom-level { display: none; }
+.lightbox-zoom-controls { display: none; }
 
 .lightbox-image {
   max-width: 100%;
-  max-height: calc(100vh - 140px);
+  max-height: calc(100vh - 180px);
+  width: auto;
+  height: auto;
   object-fit: contain;
   border-radius: 8px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);
   user-select: none;
   -webkit-user-drag: none;
+  display: block;
+  will-change: transform;
+}
+.lightbox-img-wrap.is-transformed .lightbox-image {
+  max-width: none;
+  max-height: none;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.15);
 }
 
 .lightbox-caption {
   position: absolute;
   left: 50%;
-  bottom: 28px;
+  bottom: 60px;
   transform: translateX(-50%);
   display: flex;
   flex-direction: column;
@@ -1024,10 +1337,12 @@ onBeforeUnmount(() => {
   gap: 4px;
   color: #F2EFE3;
   padding: 10px 22px;
-  background: rgba(81, 109, 51, 0.65);
+  background: rgba(81, 109, 51, 0.7);
   border-radius: 24px;
   backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.15);
+  z-index: 100;
+  pointer-events: none;
 }
 .lb-name {
   font-weight: 700;
@@ -1041,11 +1356,120 @@ onBeforeUnmount(() => {
   letter-spacing: 0.05em;
 }
 
+.lightbox-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 20px;
+  transform: translateX(-50%);
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  z-index: 100;
+  pointer-events: none;
+}
+
 /* fade transition */
 .fade-enter-active, .fade-leave-active {
   transition: opacity 0.35s ease;
 }
 .fade-enter-from, .fade-leave-to {
   opacity: 0;
+}
+
+/* ===== 悬浮预览卡片 ===== */
+.tea-preview-card {
+  position: absolute;
+  z-index: 850;
+  width: 260px;
+  background: rgba(247, 244, 235, 0.97);
+  backdrop-filter: blur(12px);
+  border-radius: 10px;
+  border: 1px solid rgba(178, 143, 76, 0.25);
+  box-shadow: 0 8px 28px rgba(81, 109, 51, 0.2);
+  padding: 12px 14px;
+  pointer-events: none;
+  transform: translateY(-4px);
+}
+
+.preview-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(178, 143, 76, 0.15);
+}
+
+.preview-badge {
+  display: inline-block;
+  background: var(--c-olive-mid);
+  color: #fff;
+  font-size: 0.62rem;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+}
+
+.preview-badge.top10 {
+  background: var(--c-gold);
+}
+
+.preview-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--c-olive);
+  margin: 0;
+  letter-spacing: 0.03em;
+  font-family: var(--font-dzji, var(--serif));
+}
+
+.preview-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.preview-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.preview-type {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--c-gold-deep);
+  background: rgba(178, 143, 76, 0.12);
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.preview-origin {
+  font-size: 0.68rem;
+  color: var(--c-beige-dark);
+}
+
+.preview-features {
+  font-size: 0.75rem;
+  line-height: 1.55;
+  color: #555;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.preview-fade-enter-active,
+.preview-fade-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.preview-fade-enter-from,
+.preview-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
 }
 </style>
