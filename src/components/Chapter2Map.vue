@@ -218,6 +218,7 @@ import {
   OUTLINE_STYLE, TENDASH_STYLE,
   FULL_CHINA_BOUNDS, THUMBNAIL_DISPLAY_BOUNDS, TOOL_GROUP_SAFE_WIDTH,
   loadFactorBounds,
+  BG_IMAGE_FILES,
 } from '../config/ch2.js'
 import { getMapOptions } from '../utils/crs.js'
 
@@ -318,6 +319,204 @@ const centerText = computed(() => {
   if (drawPhase.value === 'complete') return '综合分析'
   if (drawOrder.value.length === 0) return '开始'
   return '继续抽取'
+})
+
+/* =========================================================
+ * 主图背景图（淡入淡出切换）+ 浅米色蒙版
+ *   - 位置: .leaflet-container 内部, 在 leaflet-map-pane / leaflet-control-container 之前
+ *           z-index 低于 Leaflet 各 pane, 背景真正位于行政区填充、边界、因子数据之下
+ *           只出现在地图矩形区域内部，被 .map-stage overflow 裁切
+ *   - 背景图 opacity 0.18, 再覆盖浅米色蒙版 rgba(239,233,218,0.48), 保持淡雅青绿米白风格
+ *   - object-fit: cover (不变形，可裁切边缘)
+ *   - 双固定 DOM 节点 ch2-bgimg-A/B, 交叉淡入淡出 750ms
+ *   - 运行时用 resolveBgUrl 根据 BASE_URL 拼绝对路径, 兼容 vite base='./' / Vercel / 本地
+ *   - operationId 处理快速点击（连续点击缩略图时旧回调不得覆盖新状态）
+ *   - 空闲预加载 6 张背景图，避免首次切换闪烁
+ * ========================================================= */
+const _bgImgs = { A: null, B: null }        // HTMLImageElement
+const _bgKeyOf = { A: null, B: null }       // 每个槽位对应因子 key
+const bgActiveSlot = ref(null)              // 'A' | 'B' | null
+const BG_TARGET_OPACITY = 0.18              // 只作用于背景图层，不影响真实地图图层
+const BG_TRANSITION_MS = 750
+let _bgSwitchTimers = []
+let _bgOpSeq = 0                            // 每次切换 +1，过期回调被直接忽略
+
+// 文件名 -> 浏览器绝对 URL（public/data/2/images 下）
+function resolveBgUrl(fileName) {
+  const base = (import.meta.env && import.meta.env.BASE_URL) || '/'
+  const normalized = base.endsWith('/') ? base : base + '/'
+  const suffix = 'data/2/images/' + encodeURIComponent(fileName)
+  try {
+    return new URL(normalized + suffix, window.location.href).href
+  } catch(e) {
+    return normalized + suffix
+  }
+}
+
+// 在 .leaflet-container 内部插入两张背景图 + 一层蒙版，均在各 Leaflet pane 之前
+function initBgLayer(m) {
+  const lc = m && typeof m.getContainer === 'function' ? m.getContainer() : null
+  if (!lc) return
+  // 浅米色蒙版（在两张背景之上、leaflet pane 之下）
+  let mask = lc.querySelector('div.ch2-bg-mask')
+  if (!mask) {
+    mask = document.createElement('div')
+    mask.className = 'ch2-bg-mask'
+    const first = lc.firstChild
+    if (first) lc.insertBefore(mask, first)
+    else lc.appendChild(mask)
+  }
+  for (const slot of ['A', 'B']) {
+    let img = lc.querySelector('img.ch2-bgimg-' + slot)
+    if (!img) {
+      img = document.createElement('img')
+      img.className = 'ch2-bgimg ch2-bgimg-' + slot
+      img.setAttribute('data-slot', slot)
+      img.alt = ''
+      if (lc.contains(mask)) lc.insertBefore(img, mask)
+      else { const first = lc.firstChild; lc.insertBefore(img, first) }
+    }
+    _bgImgs[slot] = img
+    _bgKeyOf[slot] = null
+    img.style.opacity = '0'
+    if (img._onloadFn) img.removeEventListener('load', img._onloadFn)
+    if (img._onerrFn)  img.removeEventListener('error', img._onerrFn)
+    const opSeedRef = { seq: 0 }
+    img._opSeed = opSeedRef
+    img._onloadFn = () => onBgLoad(slot, opSeedRef)
+    img._onerrFn  = () => onBgError(slot, opSeedRef)
+    img.addEventListener('load', img._onloadFn)
+    img.addEventListener('error', img._onerrFn)
+  }
+}
+
+// 背景 key = activeFactorId / viewMode 的派生状态，不单独维护业务变量
+const currentBgKey = computed(() => {
+  if (viewMode.value === 'composite') return 'composite'
+  if (activeFactorId.value && FACTORS[activeFactorId.value]) return activeFactorId.value
+  return null
+})
+
+const _bgPreloadDone = { v: false }
+function preloadAllBgImages() {
+  if (_bgPreloadDone.v) return
+  _bgPreloadDone.v = true
+  const keys = ['precip','temp','accum','rad','ph','composite']
+  const run = () => keys.forEach(k => {
+    const file = BG_IMAGE_FILES[k]
+    if (!file) return
+    try {
+      const img = new Image()
+      img.onerror = () => console.warn('[ch2-bg] preload failed:', k, file)
+      img.src = resolveBgUrl(file)
+    } catch(e) {}
+  })
+  if (typeof requestIdleCallback === 'function') {
+    try { requestIdleCallback(run, { timeout: 3000 }) } catch(e) { setTimeout(run, 1500) }
+  } else {
+    setTimeout(run, 1500)
+  }
+}
+
+// 切换背景，带 operationId；快速点击只保留最后一次
+function applyBgForKey(key, forceReload = false) {
+  _bgSwitchTimers.forEach(h => clearTimeout(h))
+  _bgSwitchTimers = []
+
+  if (!key || !BG_IMAGE_FILES[key]) {
+    for (const s of ['A', 'B']) {
+      if (_bgImgs[s]) _bgImgs[s].style.opacity = '0'
+      _bgKeyOf[s] = null
+    }
+    bgActiveSlot.value = null
+    return
+  }
+
+  const opId = ++_bgOpSeq
+  const url = resolveBgUrl(BG_IMAGE_FILES[key])
+  const curKey = bgActiveSlot.value ? _bgKeyOf[bgActiveSlot.value] : null
+
+  // 已经是正确 key → 仅保证 src / opacity 即可，不做动画重启
+  if (!forceReload && curKey === key) {
+    const img = bgActiveSlot.value ? _bgImgs[bgActiveSlot.value] : null
+    if (img && img.src !== url) img.src = url
+    if (img) img.style.opacity = String(BG_TARGET_OPACITY)
+    return
+  }
+
+  const target = (!bgActiveSlot.value ? 'A' : (bgActiveSlot.value === 'A' ? 'B' : 'A'))
+  const img = _bgImgs[target]
+  if (!img) return
+
+  _bgKeyOf[target] = key
+  if (img._opSeed) img._opSeed.seq = opId
+  img.style.opacity = '0'
+  img.src = url
+
+  const commit = () => {
+    if (opId !== _bgOpSeq) return
+    if (_bgKeyOf[target] !== key) return
+    _swapActive(target)
+  }
+
+  if (img.complete && img.naturalWidth > 0) {
+    commit()
+  } else {
+    const h = setTimeout(commit, 3500)
+    _bgSwitchTimers.push(h)
+  }
+}
+
+function _swapActive(slot) {
+  bgActiveSlot.value = slot
+  const img = _bgImgs[slot]
+  const other = (slot === 'A' ? 'B' : 'A')
+  const oImg = _bgImgs[other]
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      if (img)  img.style.opacity  = String(BG_TARGET_OPACITY)
+      if (oImg) oImg.style.opacity = '0'
+    })
+  })
+  const h = setTimeout(() => {
+    if (bgActiveSlot.value !== slot) return
+    // 旧槽位不清 src，保留在内存里便于快速切回
+  }, BG_TRANSITION_MS + 80)
+  _bgSwitchTimers.push(h)
+}
+
+function onBgLoad(slot, opSeedRef) {
+  if (!opSeedRef || opSeedRef.seq !== _bgOpSeq) return
+  const slotKey = _bgKeyOf[slot]
+  const expected = currentBgKey.value
+  const img = _bgImgs[slot]
+  if (!img || !slotKey || slotKey !== expected) return
+  if (bgActiveSlot.value !== slot) _swapActive(slot)
+  else img.style.opacity = String(BG_TARGET_OPACITY)
+}
+function onBgError(slot, opSeedRef) {
+  const slotKey = _bgKeyOf[slot]
+  if (opSeedRef && opSeedRef.seq === _bgOpSeq && slotKey) {
+    console.warn('[ch2-bg] load failed slot=' + slot + ' key=' + slotKey + ' file=' + (BG_IMAGE_FILES[slotKey] || ''))
+  }
+  const img = _bgImgs[slot]
+  if (img) img.style.opacity = '0'
+}
+
+watch(mapReady, (ready) => {
+  if (ready && map) {
+    try { initBgLayer(map) } catch(e) { console.warn('[ch2-bg] initBgLayer error', e) }
+    nextTick(() => {
+      preloadAllBgImages()
+      const key = currentBgKey.value
+      if (key) applyBgForKey(key)
+    })
+  }
+}, { immediate: true })
+
+watch([activeFactorId, viewMode], () => {
+  if (!mapReady.value) return
+  applyBgForKey(currentBgKey.value)
 })
 
 /* =========================================================
@@ -1422,6 +1621,8 @@ onBeforeUnmount(() => {
   clearSpinTimers(); clearHardKill()
   _flipCleanupTimers.forEach(h => clearTimeout(h))
   _flipCleanupTimers = []
+  _bgSwitchTimers.forEach(h => clearTimeout(h))
+  _bgSwitchTimers = []
   if (_resizeTimer) { clearTimeout(_resizeTimer); _resizeTimer = null }
   window.removeEventListener('resize', _onResize)
   // 清理离屏缩略图渲染器
@@ -1613,8 +1814,10 @@ onBeforeUnmount(() => {
   flex-direction: column;
   min-width: 0;
   min-height: 0;
-  background: transparent;
+  /* 还原为整体米色底, 主题图只出现在 Leaflet 内部 (pane z-index 150) */
+  background: #F7F4EB;
 }
+
 .map-title-bar {
   padding: 2px 0 8px;
   text-align: center;
@@ -1645,23 +1848,61 @@ onBeforeUnmount(() => {
 .map-stage.map-fade-in { opacity: 1; }
 
 .map {
+  position: relative;
   width: 100%;
   height: 100%;
   background: transparent;
 }
+
+/* ---- 背景图: 插入在 .leaflet-container 内部，位于所有 Leaflet pane / control 之前（DOM 顺序）----
+ * 配合 :deep(.leaflet-container { background: transparent })，才能看到这些层
+ * object-fit: cover 保证不变形；750ms ease-in-out 交叉淡入淡出
+ * 目标透明度 0.18，再叠加浅米色蒙版使色彩统一
+ */
+.map :deep(img.ch2-bgimg) {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+  opacity: 0;
+  transition: opacity 750ms ease-in-out;
+  pointer-events: none;
+  will-change: opacity;
+  z-index: 0;
+}
+/* 浅米色蒙版 (位于背景 A/B 之上、真实地图 pane 之下) —— 统一不同图片明暗，保持淡雅 */
+.map :deep(div.ch2-bg-mask) {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: rgba(239, 233, 218, 0.48);
+  z-index: 1;
+  user-select: none;
+}
 .map :deep(.leaflet-container) {
   background: transparent !important;
   outline: none !important;
+}
+.map :deep(.leaflet-container .leaflet-map-pane),
+.map :deep(.leaflet-container .leaflet-control-container) {
+  /* 让行政区/因子/边界/控件天然盖在背景和蒙版之上（DOM 顺序 + z-index 默认） */
+  position: relative;
+  z-index: 2;
 }
 
 .factor-fade-mask {
   position: absolute;
   inset: 0;
   pointer-events: none;
+  z-index: 10;        /* 叠在 map 之上 */
   background: #EFE9DA;
   opacity: 0;
   transition: opacity 420ms ease-out;
-  z-index: 10;
 }
 .factor-fade-mask.show { opacity: 0.30; }
 

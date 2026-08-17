@@ -180,6 +180,18 @@ const WHEEL_COLORS = [
   '#516D33', // ph - deep olive
 ]
 
+// 因子/综合评价 对应的主图区域背景图文件名 (位于 public/data/2/images/*.jpg)
+// 注意: 不直接用 assetUrl (因为 vite base='./' 会在 hash route 下解析错误)
+//      在 Chapter2Map.vue 中运行时通过 resolveBgUrl 拼接成绝对 URL。
+const BG_IMAGE_FILES = {
+  precip:    '降水.jpg',
+  temp:      '气温.jpg',
+  accum:     '积温.jpg',
+  rad:       '光照.jpg',
+  ph:        '酸碱度.jpg',
+  composite: '综合评价.jpg',
+}
+
 export {
   FACTORS,
   COMPOSITE,
@@ -197,6 +209,7 @@ export {
   THUMBNAIL_DISPLAY_BOUNDS,
   TOOL_GROUP_SAFE_WIDTH,
   WHEEL_COLORS,
+  BG_IMAGE_FILES,
 }
 
 export async function loadFactorBounds(factorId) {
