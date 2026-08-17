@@ -104,12 +104,73 @@ const MAP_BOUNDS = [
 
 const PROV_BG_URL = assetUrl('data/2/china-provinces-albers.geojson')
 
+// 国界轮廓 + 九段线（与 ch1 共享同一 Albers 投影坐标系）
+const OUTLINE_URL = assetUrl('data/1/china_outline.geojson')
+const TENDASH_URL = assetUrl('data/1/china_tendash.geojson')
+
+// 原始合并样式（保留用于兼容）
 const PROV_STYLE = {
   color: '#A8A28D',
   weight: 0.6,
   fillColor: '#F0EBD9',
   fillOpacity: 0.5,
 }
+
+// 分割样式：fill 在因子图层下方，stroke 在因子图层上方
+const PROV_FILL_STYLE = {
+  fillColor: '#F0EBD9',
+  fillOpacity: 0.5,
+  color: 'transparent',
+  weight: 0,
+}
+const PROV_STROKE_STYLE = {
+  color: '#A8A28D',
+  weight: 0.6,
+  fill: false,
+  opacity: 0.7,
+}
+
+// 国界样式
+const OUTLINE_STYLE = {
+  color: '#516D33',
+  weight: 1.0,
+  fill: false,
+  opacity: 0.65,
+}
+
+// 九段线样式
+const TENDASH_STYLE = {
+  color: '#516D33',
+  weight: 0.8,
+  dashArray: '4,3',
+  fill: false,
+  opacity: 0.6,
+}
+
+// 统一全国显示范围（控制相机/fitBounds 显示范围, 非数据图层范围）
+// 基于 china-provinces-albers.geojson 真实 bbox 计算:
+//   china-provinces bbox: west=-2625498, east=2207630, south=361479, north=5921843
+//   china_outline      bbox: west=-2625769, east=2207315, south=362652, north=5921486
+// 在真实中国范围外预留约 ~170km 横向 / ~60km 纵向 padding, 保证完整可见。
+// 注意: 这只是相机显示范围, 因子 ImageOverlay 必须使用各自 *_bounds.json 中的完整 PNG 范围
+//       (全球 Albers 范围), 这样 PNG 中央的中国适宜区像素才会落在正确地理位置。
+// Albers 米制坐标: [[southY, westX], [northY, eastX]]
+const FULL_CHINA_BOUNDS = [
+  [300000,   -2800000], // [southY, westX]
+  [6000000,   2400000], // [northY, eastX]
+]
+
+// 缩略图相机视野（独立于主图, 比 FULL_CHINA_BOUNDS 多预留 ~10% 边距）
+// 仅控制离屏地图 fitBounds 视野, 不参与数据图层地理定位。
+// 用于: 离屏缩略图渲染器、主图收缩动画快照。
+// 包含: 完整中国陆地 + 沿海岛屿 + 南部海域九段线 + 四周安全留白。
+const THUMBNAIL_DISPLAY_BOUNDS = [
+  [200000,   -2900000], // [southY, westX]
+  [6100000,   2500000], // [northY, eastX]
+]
+
+// 右侧工具组安全宽度（说明框 + 转盘）
+const TOOL_GROUP_SAFE_WIDTH = 360
 
 const WHEEL_COLORS = [
   '#2F6B2F', // precip - deep green-blue
@@ -126,6 +187,15 @@ export {
   MAP_BOUNDS,
   PROV_BG_URL,
   PROV_STYLE,
+  PROV_FILL_STYLE,
+  PROV_STROKE_STYLE,
+  OUTLINE_URL,
+  TENDASH_URL,
+  OUTLINE_STYLE,
+  TENDASH_STYLE,
+  FULL_CHINA_BOUNDS,
+  THUMBNAIL_DISPLAY_BOUNDS,
+  TOOL_GROUP_SAFE_WIDTH,
   WHEEL_COLORS,
 }
 
