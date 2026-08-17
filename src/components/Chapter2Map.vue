@@ -21,6 +21,8 @@
         :class="{ active: displayMode === 'single' || displayMode === 'composite' || displayMode === 'empty' }"
       >
         <div ref="mapRef" class="map"></div>
+        <!-- 因子图层淡入过渡包装 -->
+        <div class="factor-fade-mask" :class="{ show: layerFading }"></div>
         <!-- 地图标题 (大图模式下显示) -->
         <div v-if="displayMode !== 'grid'" class="map-title-bar">
           <div v-if="isComposite" key="composite-title" class="map-title">
@@ -42,7 +44,6 @@
              @click="openThumbAsMain(fid)"
         >
           <div class="thumb-tag">
-            <span class="thumb-tag-icon">{{ FACTORS[fid].icon }}</span>
             <span class="thumb-tag-name">{{ FACTORS[fid].name }}</span>
           </div>
           <div class="thumb-img-wrap">
@@ -66,7 +67,6 @@
             <img class="strip-img" :src="FACTORS[fid].png" :alt="FACTORS[fid].name" />
           </div>
           <div class="strip-meta">
-            <span class="strip-meta-icon">{{ FACTORS[fid].icon }}</span>
             <span class="strip-meta-name">{{ FACTORS[fid].name }}</span>
           </div>
         </div>
@@ -103,7 +103,6 @@
           <div v-if="expandedFactor && (displayMode==='single' || displayMode==='composite')"
                class="factor-card" @click="collapseCard">
             <div class="card-header">
-              <span class="card-icon">{{ expandedConfig.icon }}</span>
               <span class="card-title">{{ expandedConfig.name }}适宜性</span>
               <span class="card-close">×</span>
             </div>
@@ -120,69 +119,96 @@
         <div
           class="wheel-wrap"
           ref="wheelRef"
-          @click="onWheelClick"
         >
           <div class="wheel">
+            <!-- 转盘 SVG: 5 独立扇区 (WHEEL_ORDER = [ph, precip, temp, accum, rad]) -->
             <svg viewBox="-110 -110 220 220" class="wheel-svg">
               <defs>
-                <filter id="glow-filter" x="-50%" y="-50%" width="200%" height="200%">
-                  <feGaussianBlur stdDeviation="4" result="blur" />
+                <!-- 暖黄色外发光 -->
+                <filter id="ch2-sector-glow" x="-60%" y="-60%" width="220%" height="220%">
+                  <feGaussianBlur stdDeviation="3.5" result="b1" />
                   <feMerge>
-                    <feMergeNode in="blur" />
+                    <feMergeNode in="b1" />
                     <feMergeNode in="SourceGraphic" />
                   </feMerge>
                 </filter>
+                <!-- 内层提亮 (径向渐变) -->
+                <radialGradient id="ch2-lock-highlight" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%"   stop-color="rgba(255,255,255,0.45)" />
+                  <stop offset="60%"  stop-color="rgba(255,245,200,0.12)" />
+                  <stop offset="100%" stop-color="rgba(255,245,200,0)" />
+                </radialGradient>
               </defs>
 
-              <template v-for="(fid, i) in FACTOR_ORDER" :key="fid">
-                <path
-                  :d="sectorPath(i, 8, 88)"
-                  :fill="WHEEL_COLORS[i]"
-                  class="sector"
-                  :class="{ active: currentFactor === fid, picked: isPicked(fid) }"
-                  :data-fid="fid"
-                />
-              </template>
+              <!-- 外圈描边 -->
+              <circle cx="0" cy="0" r="92" fill="none" stroke="#B2A67D" stroke-width="0.8" opacity="0.7"/>
+              <circle cx="0" cy="0" r="60" fill="none" stroke="#B2A67D" stroke-width="0.4" stroke-dasharray="2 3" opacity="0.5"/>
 
+              <!-- 5 独立扇区（面积相等 72° 每个，顺时针排列：ph 降水 气温 积温 光照） -->
+              <g v-for="(fid, i) in WHEEL_ORDER" :key="'sec-'+fid">
+                <path
+                  :d="sectorPath(i, 10, 88)"
+                  :fill="SectorFillColor(fid)"
+                  class="sector"
+                  :class="SectorClass(fid, i)"
+                  :style="SectorStyle(fid, i)"
+                />
+                <!-- 锁定高亮扇区上方叠加一层内层提亮 + 描边 -->
+                <path
+                  v-if="lockedFactor === fid"
+                  :d="sectorPath(i, 10, 90)"
+                  fill="url(#ch2-lock-highlight)"
+                  stroke="#EACF78"
+                  stroke-width="1.8"
+                  class="sector-lock-stroke"
+                  filter="url(#ch2-sector-glow)"
+                  :style="LockedSectorStyle(i)"
+                  pointer-events="none"
+                />
+              </g>
+
+              <!-- 扇区分隔线（浅色，不阻挡视觉） -->
               <line
                 v-for="i in 5"
-                :key="'line'+i"
-                :x1="0" :y1="0"
-                :x2="Math.cos((i*72-90)*Math.PI/180)*88"
-                :y2="Math.sin((i*72-90)*Math.PI/180)*88"
-                stroke="#8B7D5A" stroke-width="0.5"
-              />
-              <circle cx="0" cy="0" r="88" fill="none" stroke="#8B7D5A" stroke-width="1.2" />
-              <circle cx="0" cy="0" r="60" fill="none" stroke="#B2A67D" stroke-width="0.6" stroke-dasharray="2 3" />
-
-              <path
-                class="glow-sector"
-                :d="sectorPath(0, 4, 95)"
-                fill="rgba(255,250,215,0.58)"
-                stroke="rgba(255,235,160,0.95)"
-                stroke-width="0.8"
-                filter="url(#glow-filter)"
-                :style="{ transform: `rotate(${pointerAngle}deg)`, transformOrigin: '0 0', transition: 'transform 3.8s cubic-bezier(0.17, 0.67, 0.12, 0.99)' }"
+                :key="'sep'+i"
+                :x1="Math.cos((i*72 - 90) * Math.PI/180) * 10"
+                :y1="Math.sin((i*72 - 90) * Math.PI/180) * 10"
+                :x2="Math.cos((i*72 - 90) * Math.PI/180) * 88"
+                :y2="Math.sin((i*72 - 90) * Math.PI/180) * 88"
+                stroke="rgba(139,125,90,0.5)"
+                stroke-width="0.6"
               />
             </svg>
 
+            <!-- 因子文字标签：保持正向（不随旋转倒置） -->
             <div
-              v-for="(fid, i) in FACTOR_ORDER"
-              :key="'label'+fid"
+              v-for="(fid, i) in WHEEL_ORDER"
+              :key="'lbl-'+fid"
               class="factor-label"
               :style="labelStyle(i)"
-              :class="{ active: currentFactor === fid, picked: isPicked(fid) }"
-              :data-fid="fid"
+              :class="{
+                'lbl-scan':   scanIndex === i && spinState === 'spinning',
+                'lbl-locked': lockedFactor === fid,
+                'lbl-picked': pickedFactors.has(fid) && lockedFactor !== fid,
+              }"
             >
-              <span class="label-icon">{{ FACTORS[fid].icon }}</span>
               <span class="label-name">{{ FACTORS[fid].name }}</span>
+              <!-- 已抽取：克制的小圆点标记 -->
+              <span v-if="pickedFactors.has(fid) && lockedFactor !== fid" class="picked-dot"></span>
             </div>
           </div>
 
-          <button class="center-btn"
-                  :class="{ composite: isComposite, ready: allPicked && !isComposite }"
-                  @click.stop="onCenterClick">
-            <div class="center-icon">{{ centerIcon }}</div>
+          <!-- 中心按钮 -->
+          <button
+            class="center-btn"
+            :class="{
+              'composite':  spinState === 'completed' || isComposite,
+              'ready-hl':   spinState === 'completed' && !isComposite,
+              'busy':       spinState === 'spinning',
+            }"
+            :disabled="spinState === 'spinning'"
+            @click.stop="onCenterClick"
+          >
             <div class="center-text">{{ centerText }}</div>
           </button>
         </div>
@@ -196,11 +222,26 @@ import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
 import L from 'leaflet'
 import ChapterIntro from './ChapterIntro.vue'
 import {
-  FACTORS, COMPOSITE, FACTOR_ORDER, WHEEL_COLORS,
+  FACTORS, COMPOSITE, FACTOR_ORDER,
   PROV_BG_URL, PROV_STYLE,
   loadFactorBounds,
 } from '../config/ch2.js'
-import { createAlbersCRS, getMapOptions } from '../utils/crs.js'
+import { getMapOptions } from '../utils/crs.js'
+
+// ============================================================
+//  因子映射
+// ============================================================
+// 转盘扇区顺时针顺序：酸碱度 → 降水 → 气温 → 积温 → 光照
+const WHEEL_ORDER = ['ph', 'precip', 'temp', 'accum', 'rad']
+
+// 每个扇区的基础配色（与设计色板协调：茶绿、浅金系）
+const WHEEL_SECTOR_COLORS = {
+  ph:     '#516D33', // 酸碱度：深橄榄绿
+  precip: '#5C7C3A', // 降水：茶绿
+  temp:   '#5C9EAF', // 气温：柔和青蓝（保持原等级色一致）
+  accum:  '#B28F4C', // 积温：浅金色
+  rad:    '#C3C19A', // 光照：米杏
+}
 
 const mapRef = ref(null)
 const wheelRef = ref(null)
@@ -208,64 +249,73 @@ const introDone = ref(false)
 
 function onIntroDone() {
   introDone.value = true
-  setTimeout(() => {
-    if (map) map.invalidateSize()
-  }, 300)
+  setTimeout(() => { if (map) map.invalidateSize() }, 300)
 }
 
-const currentFactor = ref(null)
-const pointerAngle = ref(0)
+// ============================================================
+//  核心状态
+// ============================================================
+const currentFactor = ref(null)      // 地图当前展示的因子
 const expandedFactor = ref(null)
 
-// 已抽取过的因子记录 (保证不重复)
-const pickedFactors = ref(new Set())
-// 按抽取顺序记录的因子ID列表 (用于缩略图排序)
-const pickedFactorHistory = ref([])
-const allPicked = computed(() => pickedFactors.value.size >= FACTOR_ORDER.length)
+// 抽取记录
+const pickedFactors = ref(new Set())        // 已抽过（不重复）
+const pickedFactorHistory = ref([])         // 按顺序
+const allPicked = computed(() => pickedFactors.value.size >= 5)
 
-// 是否展示grid视图 (5因子集齐后, 需要用户点击中心按钮才切换)
+// 转盘状态机：idle → spinning → locked → completed
+// 注：综合图进入后仍算 completed
+const spinState = ref('idle') // idle | spinning | locked | completed
+
+// 动画过程变量
+const scanIndex   = ref(-1)   // 当前扫描扇区（-1 = 无）
+const lockedFactor = ref(null)// 最终锁定的因子
+const lockedIndex  = ref(-1)  // 锁定扇区索引
+const tailIndex   = ref(-1)   // 短暂尾光
+const layerFading = ref(false)// 地图图层淡入过渡
+let _spinTimers   = []        // 所有 setTimeout 句柄（组件卸载时清理）
+
+// 布局模式
 const showGrid = ref(false)
-
-// 布局模式: empty → single → grid → composite
 const displayMode = computed(() => {
   if (isComposite.value) return 'composite'
   if (pickedFactorHistory.value.length === 0) return 'empty'
   if (allPicked.value && showGrid.value) return 'grid'
   return 'single'
 })
-
-// single模式下左上缩略条显示的因子 (排除当前主图因子)
-const thumbnailsShown = computed(() => {
-  return pickedFactorHistory.value.filter(fid => fid !== currentFactor.value)
-})
+const thumbnailsShown = computed(() =>
+  pickedFactorHistory.value.filter(fid => fid !== currentFactor.value)
+)
 
 const isComposite = computed(() => currentFactor.value === 'composite')
 const currentConfig = computed(() => {
   if (isComposite.value) return COMPOSITE
-  if (!currentFactor.value) return FACTORS[FACTOR_ORDER[0]]
+  if (!currentFactor.value) return FACTORS[WHEEL_ORDER[0]]
   return FACTORS[currentFactor.value] || COMPOSITE
 })
-const expandedConfig = computed(() => expandedFactor.value === 'composite' ? COMPOSITE : FACTORS[expandedFactor.value || ''] || COMPOSITE)
+const expandedConfig = computed(() =>
+  expandedFactor.value === 'composite'
+    ? COMPOSITE
+    : (FACTORS[expandedFactor.value || ''] || COMPOSITE)
+)
 
-// 中心按钮文案/图标
-const centerIcon = computed(() => {
-  if (isComposite.value) return COMPOSITE.icon
-  if (allPicked.value && showGrid.value) return COMPOSITE.icon
-  if (allPicked.value && !showGrid.value) return '📊'
-  return wheelBusy ? '🎯' : '▶'
-})
+// ============================================================
+//  中心按钮文案
+// ============================================================
 const centerText = computed(() => {
-  if (isComposite.value) return '重抽'
-  if (allPicked.value && showGrid.value) return '综合'
-  if (allPicked.value && !showGrid.value) return '汇总'
-  if (pickedFactors.value.size === 0) return '开始'
-  return '下一个'
+  if (spinState.value === 'spinning')           return '抽取中'
+  if (isComposite.value)                        return '重抽'
+  if (spinState.value === 'completed')          return '综合分析'
+  if (pickedFactorHistory.value.length === 0)   return '开始'
+  return '继续抽取'
 })
 
-// 中国在 Albers 投影下的实际边界 (lon[73,135] × lat[18,53] + 500km padding)
+// ============================================================
+//  Leaflet 地图初始化 & 图层切换
+// ============================================================
 const CHINA_ALBERS_BOUNDS = [
-  [1836948, -3917344],  // [southY, westX]
-  [6597902,  3710529],  // [northY, eastX]
+  [1836948, -3917344],
+  [6597902,  3710529],
 ]
 
 let map = null
@@ -290,231 +340,330 @@ async function initMap() {
         return new L.LatLng(coords[1], coords[0], true)
       },
     }).addTo(map)
-    // 让地图聚焦中国而不是全画布
     map.fitBounds(CHINA_ALBERS_BOUNDS, { padding: [20, 20] })
   } catch (e) { console.warn('[ch2] provinces failed:', e) }
 
   await updateFactorLayer()
-
   setTimeout(() => map && map.invalidateSize(), 300)
 }
 
+// 图层切换：仅在锁定后调用；保留当前 zoom/center；300-400ms 淡入过渡
 async function updateFactorLayer() {
   if (!map) return
   if (factorLayer) { map.removeLayer(factorLayer); factorLayer = null }
   if (!currentFactor.value) return
+
+  // 淡入过渡：先遮罩一层（30ms 让遮罩出现）→ 更新图层 → 400ms 后移除遮罩
+  layerFading.value = true
+  await new Promise(r => setTimeout(r, 30))
+
   const cfg = currentConfig.value
-  const bounds = await loadFactorBounds(currentFactor.value)
-  factorLayer = L.imageOverlay(cfg.png, bounds, {
-    opacity: 1,
-    interactive: false,
-    crossOrigin: true,
-  }).addTo(map)
-  // 聚焦中国范围, 不使用 bounds (bounds 是全画布太大)
-  map.fitBounds(CHINA_ALBERS_BOUNDS, { padding: [30, 30] })
+  try {
+    const bounds = await loadFactorBounds(currentFactor.value)
+    factorLayer = L.imageOverlay(cfg.png, bounds, {
+      opacity: 0,
+      interactive: false,
+      crossOrigin: true,
+    }).addTo(map)
+
+    // 逐帧 opacity 到 1（400ms）
+    const t0 = performance.now()
+    const dur = 400
+    const step = () => {
+      if (!factorLayer) return
+      const p = Math.min(1, (performance.now() - t0) / dur)
+      factorLayer.setOpacity(p)
+      if (p < 1) requestAnimationFrame(step)
+      else layerFading.value = false
+    }
+    requestAnimationFrame(step)
+  } catch (e) {
+    console.warn('[ch2] factor overlay failed:', e)
+    layerFading.value = false
+  }
 }
 
+// 不改变 zoom/center，只切图层（watch 自动触发）
 watch(currentFactor, () => { nextTick(updateFactorLayer) })
 
-// ==================== 转盘: 发光指针 + 不重复随机抽取 ====================
-const SPIN_DURATION_MS = 3800          // 与模板内 transition-duration 保持严格一致
-const SPIN_EASING = 'cubic-bezier(0.17, 0.67, 0.12, 0.99)' // 平滑起-缓落
-const wheelBusy = ref(false)
-
-function isPicked(fid) {
-  return pickedFactors.value.has(fid)
+// ============================================================
+//  转盘 SVG 几何
+// ============================================================
+function sectorPath(index, innerR, outerR) {
+  // 每个扇区 72°，第一个(index=0) 从 -90° 开始（即顶部起点）
+  const startAngle = index * 72 - 90 + 1.2
+  const endAngle   = startAngle + 72 - 2.4
+  const toRad = d => d * Math.PI / 180
+  const s1 = { x: Math.cos(toRad(startAngle)) * outerR, y: Math.sin(toRad(startAngle)) * outerR }
+  const e1 = { x: Math.cos(toRad(endAngle))   * outerR, y: Math.sin(toRad(endAngle))   * outerR }
+  const e2 = { x: Math.cos(toRad(endAngle))   * innerR, y: Math.sin(toRad(endAngle))   * innerR }
+  const s2 = { x: Math.cos(toRad(startAngle)) * innerR, y: Math.sin(toRad(startAngle)) * innerR }
+  return `M ${s1.x} ${s1.y} A ${outerR} ${outerR} 0 0 1 ${e1.x} ${e1.y} L ${e2.x} ${e2.y} A ${innerR} ${innerR} 0 0 0 ${s2.x} ${s2.y} Z`
 }
 
-function getNextUnpickedIndex() {
-  const available = []
-  for (let i = 0; i < FACTOR_ORDER.length; i++) {
-    if (!pickedFactors.value.has(FACTOR_ORDER[i])) available.push(i)
+function SectorFillColor(fid) {
+  return WHEEL_SECTOR_COLORS[fid] || '#8BA667'
+}
+
+// 扇区中心点角度（-90°起始 + 36° = 扇区中线）
+function sectorCenterAngle(index) {
+  return (index * 72 - 90 + 36) * Math.PI / 180
+}
+
+function SectorClass(fid) {
+  const isScan = spinState.value === 'spinning' && WHEEL_ORDER[scanIndex.value] === fid
+  const isTail = spinState.value === 'spinning' && WHEEL_ORDER[tailIndex.value] === fid
+  const isPicked = pickedFactors.value.has(fid)
+  return {
+    'sec-scan':   isScan,
+    'sec-tail':   isTail,
+    'sec-picked': isPicked && lockedFactor.value !== fid,
   }
-  if (available.length === 0) return -1
-  return available[Math.floor(Math.random() * available.length)]
 }
 
-// 发光扇形本身中心位于 -54° (sectorPath(0) 中心角), CSS rotate(angle) 后指向 -54° + angle
-// 要指向扇区 i 的中心 (i*72 - 54), 需要 angle = i*72
-function indexToPointerAngle(index) {
-  return index * 72
+function SectorStyle(fid, i) {
+  const isLocked = lockedFactor.value === fid
+  if (!isLocked) return {}
+  // 锁定：沿半径方向向外突出约 8px，轻微放大 1.03x
+  // 突出方向 = 沿扇区中心角平移
+  const ang = sectorCenterAngle(i)
+  const tx = Math.cos(ang) * 8
+  const ty = Math.sin(ang) * 8
+  return {
+    transform: `translate(${tx.toFixed(2)}px, ${ty.toFixed(2)}px) scale(1.03)`,
+    transformOrigin: '0 0',
+  }
 }
 
-// 仅顺时针单向旋转: 计算从 current 出发, 转到 targetIndex 的"绝对目标角度".
-// 保证: targetAngle > current 且 targetAngle - current ∈ [360 + 0°, 360 + ~340°] ≈ 正正好好一圈直达.
-function computeTargetAngle(current, targetIndex) {
-  const now = current || 0
-  const base = indexToPointerAngle(targetIndex)
-
-  // 把 base 抬到"刚好大于 now 的等效位置"
-  // round = 已转过的完整圈数 (向下取整)
-  const rounds = Math.floor(now / 360)
-  let equiv = rounds * 360 + base
-  if (equiv <= now) equiv += 360 // 保证在当前角度前方
-  // 强制至少再前进一整圈 (满足"转一圈直达")
-  const minFinal = now + 360
-  if (equiv < minFinal) equiv += Math.ceil((minFinal - equiv) / 360) * 360
-  // + 扇区内 ±24° 随机微调 (不越过 ±36°, 仍落在目标扇区内), 自然感
-  equiv += (Math.random() * 2 - 1) * 24
-  return equiv
+// 锁定叠加层样式（含弹性回落动画 class 已处理）
+function LockedSectorStyle(i) {
+  const ang = sectorCenterAngle(i)
+  const tx = Math.cos(ang) * 8
+  const ty = Math.sin(ang) * 8
+  return {
+    transform: `translate(${tx.toFixed(2)}px, ${ty.toFixed(2)}px) scale(1.03)`,
+    transformOrigin: '0 0',
+    animation: 'sector-lock-bounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both',
+  }
 }
 
-function spinToIndex(targetIndex, onComplete) {
-  const current = pointerAngle.value || 0
-  const targetAngle = computeTargetAngle(current, targetIndex)
-  wheelBusy.value = true
-  pointerAngle.value = targetAngle
-
-  setTimeout(() => {
-    wheelBusy.value = false
-    if (onComplete) onComplete()
-  }, SPIN_DURATION_MS)
+// 标签：固定方向（永不倒置）
+function labelStyle(index) {
+  const ang = sectorCenterAngle(index)
+  const r = 70
+  const x = Math.cos(ang) * r
+  const y = Math.sin(ang) * r
+  const pctX = 50 + (x / 110) * 50
+  const pctY = 50 + (y / 110) * 50
+  return { left: `${pctX}%`, top: `${pctY}%`, transform: 'translate(-50%, -50%)' }
 }
 
-function startSpinThenSnap() {
-  if (wheelBusy.value) return
-  if (allPicked.value) return  // 5因子已集齐, 不再触发自动选择
-  const nextIndex = getNextUnpickedIndex()
-  if (nextIndex < 0) return
+// ============================================================
+//  抽取逻辑：三阶段定时序列 + 先选目标
+// ============================================================
+function clearSpinTimers() {
+  _spinTimers.forEach(t => clearTimeout(t))
+  _spinTimers = []
+}
+function addTimer(fn, ms) {
+  const h = setTimeout(fn, ms)
+  _spinTimers.push(h)
+  return h
+}
 
-  const fid = FACTOR_ORDER[nextIndex]
+// 从剩余未抽中随机选 1 个；返回 targetIndex (WHEEL_ORDER 下标) 或 -1
+function pickRandomTargetIndex() {
+  const remain = []
+  for (let i = 0; i < WHEEL_ORDER.length; i++) {
+    if (!pickedFactors.value.has(WHEEL_ORDER[i])) remain.push(i)
+  }
+  if (remain.length === 0) return -1
+  return remain[Math.floor(Math.random() * remain.length)]
+}
 
-  spinToIndex(nextIndex, () => {
-    // 指针到达瞬间与因子/地图切换完全同步
+/**
+ * 三阶段定时扫描序列：
+ *   阶段1 快速:   80ms/step × 14 步 ≈ 1.12s
+ *   阶段2 中速:  135ms/step × 6  步 ≈ 0.81s
+ *   阶段3 减速:  180,240,320,420,520 × (N 步, 直到 target)  ≈ 1.0-1.7s
+ *   总时长约 3.0-3.6s
+ */
+function runSpinAnimation() {
+  if (spinState.value === 'spinning') return
+  const targetIndex = pickRandomTargetIndex()
+  if (targetIndex < 0) return
+
+  spinState.value = 'spinning'
+  scanIndex.value = -1
+  tailIndex.value = -1
+  lockedFactor.value = null
+  lockedIndex.value  = -1
+
+  // 生成整段步进序列（先确定全部 steps → 最后一步必定等于 targetIndex）
+  const steps = []
+
+  // 阶段1：快速 ~14 步（至少完整 2 圈 = 10 步 + 余量）
+  let cur = 0
+  for (let i = 0; i < 14; i++) {
+    steps.push({ idx: cur, delay: 80 })
+    cur = (cur + 1) % 5
+  }
+  // 阶段2：中速 6 步
+  for (let i = 0; i < 6; i++) {
+    steps.push({ idx: cur, delay: 135 })
+    cur = (cur + 1) % 5
+  }
+  // 阶段3：减速。从当前位置顺时针走到 targetIndex
+  // 先计算还要多少步
+  const phase3Delays = [180, 240, 320, 420, 520]
+  let remainingSteps = (targetIndex - cur + 5) % 5
+  // 保证至少走 3 步（通过加整圈），自然感
+  if (remainingSteps < 3) remainingSteps += 5
+  let p3i = 0
+  for (let i = 0; i < remainingSteps; i++) {
+    const d = phase3Delays[Math.min(p3i, phase3Delays.length - 1)]
+    steps.push({ idx: cur, delay: d })
+    cur = (cur + 1) % 5
+    p3i++
+  }
+  // 最后补锁定（target 高亮但还保持 scan 态一会）
+  // —— 上面循环中 cur 走完后 cur 其实已经 == (targetIndex+1)%5，
+  //    最后一个扫描帧应该是 targetIndex。修正：steps 追加 targetIndex。
+  //    为避免错误，直接把最后一步设置为 targetIndex，并确保最后位置正确。
+  if (steps.length) {
+    steps[steps.length - 1].idx = targetIndex
+  }
+
+  // 依次调度
+  let acc = 0
+  for (let s = 0; s < steps.length; s++) {
+    acc += steps[s].delay
+    addTimer(() => {
+      if (spinState.value !== 'spinning') return
+      const prev = scanIndex.value
+      scanIndex.value = steps[s].idx
+      // 尾光：保留上一步（低透明度）
+      if (prev >= 0 && prev !== steps[s].idx) {
+        tailIndex.value = prev
+        addTimer(() => { if (tailIndex.value === prev) tailIndex.value = -1 }, 80)
+      }
+    }, acc)
+  }
+
+  // 动画结束后，锁定结果
+  acc += 80
+  addTimer(() => {
+    const fid = WHEEL_ORDER[targetIndex]
+    // 标记抽取
     pickedFactors.value.add(fid)
     if (!pickedFactorHistory.value.includes(fid)) {
       pickedFactorHistory.value.push(fid)
     }
-    currentFactor.value = fid
-    expandedFactor.value = fid
-  })
+    // 视觉锁定
+    lockedIndex.value  = targetIndex
+    lockedFactor.value = fid
+    scanIndex.value = -1
+    tailIndex.value = -1
+    spinState.value = allPicked.value ? 'completed' : 'locked'
+
+    // 锁定后再切换地图（扫描期间地图不切换）
+    nextTick(() => {
+      currentFactor.value = fid
+      expandedFactor.value = fid
+    })
+  }, acc)
 }
 
+// ============================================================
+//  中心按钮 & 综合分析
+// ============================================================
 function onCenterClick() {
-  if (wheelBusy.value) return
+  if (spinState.value === 'spinning') return
+
   if (isComposite.value) {
+    // 重抽：重置所有状态
     resetWheel()
     return
   }
-  if (allPicked.value && showGrid.value) {
-    // grid视图下点击中心 → 切换到综合评价
+
+  if (spinState.value === 'completed') {
+    // 已解锁 → 综合分析
     selectComposite()
     return
   }
-  if (allPicked.value && !showGrid.value) {
-    // 5因子集齐但仍在single模式 → 切换到grid视图
-    showGrid.value = true
-    return
+
+  // 第一次 / 继续抽取
+  if (!allPicked.value) {
+    runSpinAnimation()
   }
-  startSpinThenSnap()
 }
 
 function resetWheel() {
+  clearSpinTimers()
   pickedFactors.value = new Set()
   pickedFactorHistory.value = []
   showGrid.value = false
   currentFactor.value = null
   expandedFactor.value = null
-  pointerAngle.value = 0
-  wheelBusy.value = false
+  spinState.value = 'idle'
+  scanIndex.value = -1
+  tailIndex.value = -1
+  lockedFactor.value = null
+  lockedIndex.value  = -1
+  layerFading.value = false
   nextTick(updateFactorLayer)
 }
 
-function onWheelClick(e) {
-  if (wheelBusy.value) return
-  const target = e.target
-  if (!target || !target.closest) return
-  const el = target.closest('[data-fid]')
-  if (el) {
-    const fid = el.dataset.fid
-    if (!fid) return
-    if (!FACTOR_ORDER.includes(fid)) return
-    if (isComposite.value) return
-    const idx = FACTOR_ORDER.indexOf(fid)
-    const now = pointerAngle.value || 0
-    const rounds = Math.round(now / 360)
-    pointerAngle.value = rounds * 360 + indexToPointerAngle(idx)
-    pickedFactors.value.add(fid)
-    if (!pickedFactorHistory.value.includes(fid)) {
-      pickedFactorHistory.value.push(fid)
-    }
-    currentFactor.value = fid
-    expandedFactor.value = fid
-  }
-}
-
-function selectFactor(fid) {
-  const idx = FACTOR_ORDER.indexOf(fid)
-  if (idx >= 0) {
-    const now = pointerAngle.value || 0
-    const rounds = Math.round(now / 360)
-    pointerAngle.value = rounds * 360 + indexToPointerAngle(idx)
-    pickedFactors.value.add(fid)
-    if (!pickedFactorHistory.value.includes(fid)) {
-      pickedFactorHistory.value.push(fid)
-    }
-  }
-  currentFactor.value = fid
-  expandedFactor.value = fid
-}
-
-// 点击缩略图切换为主地图 (single模式)
-function openThumbAsMain(fid) {
-  if (!FACTOR_ORDER.includes(fid)) return
-  const idx = FACTOR_ORDER.indexOf(fid)
-  const now = pointerAngle.value || 0
-  const rounds = Math.round(now / 360)
-  pointerAngle.value = rounds * 360 + indexToPointerAngle(idx)
-  currentFactor.value = fid
-  expandedFactor.value = fid
-}
-
 function selectComposite() {
+  // 切换到综合评价（现有图层：composite_suitability.png + bounds）
   currentFactor.value = 'composite'
   expandedFactor.value = 'composite'
+}
+
+// 缩略条/缩略图点击切主图（不改抽取状态、不重复触发抽取）
+function openThumbAsMain(fid) {
+  if (isComposite.value) {
+    currentFactor.value = fid
+    expandedFactor.value = fid
+    return
+  }
+  if (!pickedFactors.value.has(fid)) return // 未抽取的不能切
+  const idx = WHEEL_ORDER.indexOf(fid)
+  if (idx >= 0) {
+    lockedFactor.value = fid
+    lockedIndex.value  = idx
+  }
+  currentFactor.value = fid
+  expandedFactor.value = fid
+  showGrid.value = false
 }
 
 function collapseCard() {
   expandedFactor.value = null
 }
 
-function sectorPath(index, innerR, outerR) {
-  const startAngle = index * 72 - 90 + 1   // +1/-1 留 2° 缝
-  const endAngle = startAngle + 70
-  const start = { x: Math.cos(startAngle * Math.PI / 180) * outerR, y: Math.sin(startAngle * Math.PI / 180) * outerR }
-  const end = { x: Math.cos(endAngle * Math.PI / 180) * outerR, y: Math.sin(endAngle * Math.PI / 180) * outerR }
-  const innerEnd = { x: Math.cos(endAngle * Math.PI / 180) * innerR, y: Math.sin(endAngle * Math.PI / 180) * innerR }
-  const innerStart = { x: Math.cos(startAngle * Math.PI / 180) * innerR, y: Math.sin(startAngle * Math.PI / 180) * innerR }
-  return `M ${start.x} ${start.y} A ${outerR} ${outerR} 0 0 1 ${end.x} ${end.y} L ${innerEnd.x} ${innerEnd.y} A ${innerR} ${innerR} 0 0 0 ${innerStart.x} ${innerStart.y} Z`
-}
-
-function labelStyle(index) {
-  const angle = index * 72 - 54  // 扇区中心角 -90+36 = -54
-  const rad = angle * Math.PI / 180
-  const r = 75
-  const x = Math.cos(rad) * r
-  const y = Math.sin(rad) * r
-  const pctX = 50 + (x / 100) * 50
-  const pctY = 50 + (y / 100) * 50
-  return { left: `${pctX}%`, top: `${pctY}%`, transform: `translate(-50%, -50%)` }
-}
-
+// ============================================================
+//  生命周期
+// ============================================================
 onMounted(async () => {
   await nextTick()
   initMap()
 })
 
 onBeforeUnmount(() => {
+  clearSpinTimers()
   if (map) { map.remove(); map = null }
 })
 </script>
 
 <style scoped>
+/* ============================================================
+   基础布局
+   ============================================================ */
 .chapter-2 {
   position: relative;
   background: var(--c-paper);
 }
-
 .map-fullscreen {
   position: fixed;
   top: 60px;
@@ -524,15 +673,24 @@ onBeforeUnmount(() => {
   opacity: 0;
   transition: opacity 0.8s ease;
 }
-.map-fullscreen.show {
-  opacity: 1;
-}
-
+.map-fullscreen.show { opacity: 1; }
 .map {
   width: 100%;
   height: 100%;
   background: var(--c-paper-2);
 }
+
+/* 地图淡入遮罩 */
+.factor-fade-mask {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: var(--c-paper-2);
+  opacity: 0;
+  transition: opacity 0.35s ease-out;
+  z-index: 10;
+}
+.factor-fade-mask.show { opacity: 0.55; }
 
 /* 地图标题 */
 .map-title-bar {
@@ -557,12 +715,11 @@ onBeforeUnmount(() => {
 }
 .map-title strong { font-weight: 700; color: #3D5428; }
 
-/* 模式下地图舞台大小 (grid模式地图隐藏 / composite与single全屏) */
 .map-stage { position: absolute; inset: 0; }
 .map-stage.active { display: block; }
 .map-fullscreen.mode-grid .map-stage { display: none; }
 
-/* 图例 - 左侧垂直居中 (single/composite/empty 模式显示, grid 模式隐藏) */
+/* 图例 - 左侧垂直居中 */
 .map-legend {
   position: absolute;
   top: 50%;
@@ -583,9 +740,9 @@ onBeforeUnmount(() => {
 .legend-row { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #5a4f38; margin-bottom: 3px; }
 .legend-row .sw { width: 16px; height: 12px; border-radius: 2px; border: 0.5px solid rgba(0,0,0,0.08); }
 
-/* 南海九段线插图已移除 */
-
-/* ===== 转盘停靠区 ===== */
+/* ============================================================
+   转盘停靠区
+   ============================================================ */
 .wheel-dock {
   position: absolute;
   right: 16px;
@@ -614,15 +771,12 @@ onBeforeUnmount(() => {
   gap: 8px;
   margin-bottom: 6px;
 }
-.card-icon { font-size: 18px; }
 .card-title { font: 600 14px var(--serif); color: var(--c-olive); flex: 1; }
 .card-close { font-size: 16px; color: var(--muted); }
 .card-desc { font-size: 11px; line-height: 1.6; color: #6B5F45; margin-bottom: 8px; }
 .card-legend { display: flex; flex-wrap: wrap; gap: 4px 10px; }
 .legend-item { display: flex; align-items: center; gap: 4px; font-size: 10px; color: #5a4f38; }
 .legend-item .swatch { width: 10px; height: 10px; border-radius: 2px; border: 0.5px solid rgba(0,0,0,0.1); }
-
-/* 卡片展开/收起动画 */
 .card-expand-enter-active, .card-expand-leave-active {
   transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
@@ -631,7 +785,9 @@ onBeforeUnmount(() => {
   transform: scale(0.8) translateY(20px);
 }
 
-/* ===== 转盘 (放大至约1.6倍) ===== */
+/* ============================================================
+   转盘本体
+   ============================================================ */
 .wheel-wrap {
   position: relative;
   width: 288px;
@@ -643,87 +799,195 @@ onBeforeUnmount(() => {
   position: absolute;
   inset: 0;
 }
-.wheel-svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.wheel-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+
+/* ---- 扇区基础样式 ---- */
 .sector {
-  opacity: 0.8;
-  transition: opacity 0.2s, transform 0.3s;
-  transform-origin: center;
-}
-.sector:hover { opacity: 1; }
-.sector.active { opacity: 1; filter: brightness(1.18) drop-shadow(0 0 6px rgba(255,240,180,0.8)); }
-.sector.picked { opacity: 1; }
-
-/* 浅色发光扇形指针 */
-.glow-sector {
-  pointer-events: none;
-  mix-blend-mode: screen;
+  opacity: 0.82;
+  stroke: rgba(139, 125, 90, 0.55);
+  stroke-width: 0.6;
+  transition: opacity 0.15s ease, filter 0.15s ease, transform 0.25s ease;
+  transform-origin: 0 0;
+  transform-box: fill-box;
 }
 
+/* 已抽取过的：轻微提亮、浅色细描边（克制标记） */
+.sector.sec-picked {
+  opacity: 0.92;
+  stroke: rgba(212, 180, 76, 0.55);
+  stroke-width: 0.9;
+}
+
+/* 扫描中：暖黄高亮 + 描边 + 柔和光晕 */
+.sector.sec-scan {
+  opacity: 1;
+  filter:
+    brightness(1.25)
+    saturate(1.35)
+    drop-shadow(0 0 5px rgba(255, 228, 140, 0.75))
+    drop-shadow(0 0 9px rgba(255, 210, 120, 0.45));
+  stroke: rgba(255, 230, 160, 0.95);
+  stroke-width: 1.3;
+}
+
+/* 尾光：短暂、低透明度 */
+.sector.sec-tail {
+  opacity: 0.92;
+  filter:
+    brightness(1.1)
+    saturate(1.15)
+    drop-shadow(0 0 3px rgba(255, 228, 140, 0.38));
+}
+
+/* 锁定扇区的描边/光晕层：弹性回落动画 */
+.sector-lock-stroke {
+  transform-origin: 0 0;
+}
+@keyframes sector-lock-bounce {
+  0%   { transform: translate(var(--_tx0,0px), var(--_ty0,0px)) scale(1);        opacity: 0; }
+  35%  { transform: translate(var(--_tx0,0px), var(--_ty0,0px)) scale(1.09);     opacity: 1; }
+  60%  { transform: translate(var(--_tx0,0px), var(--_ty0,0px)) scale(0.985);    opacity: 1; }
+  100% { transform: translate(var(--_tx0,0px), var(--_ty0,0px)) scale(1.03);     opacity: 1; }
+}
+
+/* ============================================================
+   因子标签（保持正向，永不倒置）
+   ============================================================ */
 .factor-label {
   position: absolute;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 1px;
-  pointer-events: auto;
-  cursor: pointer;
-  padding: 2px 5px;
+  gap: 5px;
+  pointer-events: none;
+  padding: 3px 7px;
   border-radius: 6px;
-  transition: background 0.3s, box-shadow 0.3s, transform 0.3s;
+  transition: background 0.2s, transform 0.2s, filter 0.2s, box-shadow 0.2s;
 }
-.factor-label.active {
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: 0 2px 8px rgba(81, 109, 51, 0.3);
-  transform: translate(-50%, -50%) scale(1.08);
+.label-name {
+  font-size: 12px;
+  color: #FBF8EF;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-shadow: 0 1px 2px rgba(30,40,20,0.55);
+  white-space: nowrap;
 }
-.factor-label.picked {
-  filter: drop-shadow(0 0 3px rgba(255,220,130,0.6));
+.picked-dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: #EACF78;
+  box-shadow: 0 0 3px rgba(234, 207, 120, 0.7);
 }
-.label-icon { font-size: 16px; }
-.label-name { font-size: 11px; color: var(--c-olive); font-weight: 500; white-space: nowrap; }
-.factor-label.active .label-name { font-weight: 700; }
+/* 扫描中：标签加深、提亮、白底 */
+.factor-label.lbl-scan {
+  background: rgba(255, 248, 225, 0.96);
+  box-shadow: 0 2px 8px rgba(212, 180, 76, 0.45);
+  transform: translate(-50%, -50%) scale(1.1);
+}
+.factor-label.lbl-scan .label-name {
+  color: #5A4A15;
+  text-shadow: none;
+  font-weight: 700;
+}
+/* 锁定：标签 + 粗描边、浅金 */
+.factor-label.lbl-locked {
+  background: rgba(255, 252, 238, 0.98);
+  box-shadow: 0 2px 10px rgba(212, 180, 76, 0.55), 0 0 0 1.5px rgba(234, 207, 120, 0.75);
+  transform: translate(-50%, -50%) scale(1.15);
+}
+.factor-label.lbl-locked .label-name {
+  color: #3E4F26;
+  text-shadow: none;
+  font-weight: 800;
+}
+/* 已抽取：轻微暖光（不抢锁定） */
+.factor-label.lbl-picked {
+  filter: drop-shadow(0 0 2px rgba(234, 207, 120, 0.45));
+}
 
+/* ============================================================
+   中心按钮
+   ============================================================ */
 .center-btn {
   position: absolute;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 72px;
-  height: 72px;
+  width: 76px;
+  height: 76px;
   border-radius: 50%;
-  background: var(--c-paper);
+  background: linear-gradient(145deg, #FBF7EA 0%, #F0EAD6 100%);
   border: 2px solid var(--c-olive);
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   z-index: 10;
-  transition: all 0.3s;
-  box-shadow: 0 4px 12px rgba(81, 109, 51, 0.28), 0 0 18px rgba(255, 230, 160, 0.35);
+  transition:
+    transform 0.3s ease,
+    background  0.3s ease,
+    color       0.3s ease,
+    border-color 0.3s ease,
+    box-shadow  0.3s ease,
+    opacity     0.25s ease;
+  box-shadow: 0 4px 12px rgba(81, 109, 51, 0.28), 0 0 18px rgba(255, 230, 160, 0.25);
   padding: 0;
   font-family: inherit;
 }
-.center-btn:hover {
+.center-btn:hover:not(:disabled) {
   background: var(--c-olive);
-  transform: translate(-50%, -50%) scale(1.12);
-  color: var(--c-paper);
-  box-shadow: 0 4px 14px rgba(81, 109, 51, 0.4), 0 0 28px rgba(255, 230, 160, 0.75);
+  transform: translate(-50%, -50%) scale(1.1);
+  color: #FBF8EF;
+  box-shadow: 0 4px 16px rgba(81, 109, 51, 0.45), 0 0 28px rgba(255, 230, 160, 0.6);
 }
-.center-btn.composite { background: var(--c-olive); color: var(--c-paper); }
-.center-btn.ready {
+.center-btn:disabled {
+  cursor: not-allowed;
+  filter: grayscale(0.15);
+}
+.center-btn.busy {
+  color: #7C6C3A;
   border-color: #D4B44C;
-  background: #FFF4C2;
-  color: #6B5A20;
+  box-shadow: 0 4px 12px rgba(212, 180, 76, 0.35), 0 0 26px rgba(255, 230, 160, 0.65);
 }
-.center-btn.ready:hover {
-  background: #D4B44C;
-  color: #3D3113;
+/* 综合分析：淡入 + 缩放 + 高亮色 */
+.center-btn.ready-hl {
+  border-color: #B28F4C;
+  background: linear-gradient(145deg, #FFF2C2 0%, #F3D97E 100%);
+  color: #5A4A15;
+  animation: composite-btn-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  box-shadow: 0 4px 14px rgba(178, 143, 76, 0.4), 0 0 30px rgba(255, 220, 130, 0.75);
 }
-.center-icon { font-size: 20px; margin-bottom: 2px; line-height: 1; }
-.center-text { font-size: 11px; font-weight: 700; letter-spacing: 1px; line-height: 1; }
+.center-btn.ready-hl:hover:not(:disabled) {
+  background: linear-gradient(145deg, #EFD26B 0%, #D4B44C 100%);
+  color: #3A2E10;
+}
+.center-btn.composite {
+  background: var(--c-olive);
+  color: #FBF8EF;
+  box-shadow: 0 4px 14px rgba(81, 109, 51, 0.45);
+}
+.center-btn.composite:hover:not(:disabled) {
+  background: #3E4F26;
+  transform: translate(-50%, -50%) scale(1.08);
+}
+@keyframes composite-btn-in {
+  0%   { transform: translate(-50%, -50%) scale(0.86); opacity: 0; }
+  60%  { transform: translate(-50%, -50%) scale(1.12); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(1);    opacity: 1; }
+}
+.center-text {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  line-height: 1;
+}
 
-/* ===== 缩略图条 (位于single模式左侧) ===== */
+/* ============================================================
+   缩略图条 / 网格
+   ============================================================ */
 .thumb-strip {
   position: absolute;
   top: 90px;
@@ -776,10 +1040,8 @@ onBeforeUnmount(() => {
   background: #FBF9F1;
   border-top: 1px solid rgba(81, 109, 51, 0.08);
 }
-.strip-meta-icon { font-size: 14px; }
 .strip-meta-name { font-size: 12px; color: var(--c-olive); font-weight: 600; letter-spacing: 0.5px; }
 
-/* 缩略条进场动画 */
 .thumb-strip-enter-active, .thumb-strip-leave-active {
   transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
@@ -788,11 +1050,11 @@ onBeforeUnmount(() => {
   transform: translateX(-20px);
 }
 
-/* ===== 缩略图网格 (集齐5因子后, 2行3列) ===== */
+/* 缩略图网格 */
 .thumb-grid {
   position: absolute;
   inset: 0;
-  padding: 40px 360px 40px 80px;  /* 右侧留转盘 288 + 16*2 + padding ≈ 360 */
+  padding: 40px 360px 40px 80px;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(2, 1fr);
@@ -818,9 +1080,6 @@ onBeforeUnmount(() => {
   transform: translateY(-4px);
   box-shadow: 0 12px 32px rgba(81, 109, 51, 0.18);
 }
-.thumb-cell.pos-last {
-  /* 第5个占第2行第1列 (让网格对称) */
-}
 .thumb-tag {
   position: relative;
   display: flex;
@@ -830,7 +1089,6 @@ onBeforeUnmount(() => {
   background: rgba(247, 244, 235, 0.95);
   border-bottom: 1px solid rgba(81, 109, 51, 0.12);
 }
-.thumb-tag-icon { font-size: 14px; }
 .thumb-tag-name { font-size: 12px; color: var(--c-olive); font-weight: 700; letter-spacing: 1px; }
 .thumb-img-wrap {
   flex: 1;
@@ -848,19 +1106,18 @@ onBeforeUnmount(() => {
   transform: scale(4);
 }
 .thumb-cell:hover .thumb-img { transform: scale(2.58); }
-.thumb-clip { display: none; }
 
 @media (max-width: 1200px) {
   .thumb-grid { padding: 30px 340px 30px 40px; gap: 18px; }
 }
 @media (max-width: 880px) {
   .wheel-wrap { width: 220px; height: 220px; }
-  .center-btn { width: 56px; height: 56px; }
-  .center-icon { font-size: 16px; }
-  .center-text { font-size: 9px; }
+  .center-btn { width: 58px; height: 58px; }
+  .center-text { font-size: 10px; letter-spacing: 1px; }
   .factor-card { width: 200px; }
   .map-title-bar { top: 10px; }
   .map-title { font-size: 13px; }
+  .label-name { font-size: 10px; letter-spacing: 0.5px; }
   .thumb-strip { top: 70px; left: 8px; padding: 8px; gap: 6px; max-height: calc(100vh - 240px); }
   .strip-card { width: 140px; }
   .thumb-grid {
