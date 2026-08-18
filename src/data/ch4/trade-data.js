@@ -3,7 +3,7 @@
 // 完整版 - 直接从 Excel 转换
 // ============================================================
 
-export const TEA_TRADE_DATA = [
+const RAW_TEA_TRADE_DATA = [
   // ===== 荷兰东印度公司 (id: 1-21) =====
   {"id":1,"yearText":"1607年","startYear":1607,"endYear":null,"origin":"澳门","destination":"万丹→阿姆斯特丹","type":"海上","note":"荷兰从澳门运茶到万丹，1610年转运至阿姆斯特丹。这是中国茶叶输入欧洲的最早记录。","source":"李明敏论文第16页","points":[{"name":"澳门","lon":113.5439,"lat":22.1987},{"name":"万丹","lon":106.1503,"lat":-6.4058},{"name":"阿姆斯特丹","lon":4.9041,"lat":52.3676}]},
   {"id":2,"yearText":"1610年","startYear":1610,"endYear":null,"origin":"中国/日本","destination":"荷兰","type":"海上","note":"荷兰人首次将茶叶从中国和日本引入欧洲","source":"刘勇《荷兰东印度公司对华直航贸易档案探析》第3页","points":[{"name":"中国/日本","lon":116.4074,"lat":39.9042},{"name":"荷兰","lon":4.9041,"lat":52.3676}]},
@@ -142,7 +142,7 @@ export const TEA_TRADE_DATA = [
   {"id":131,"yearText":"1893年","startYear":1893,"endYear":null,"origin":"汉口","destination":"恰克图→俄国","type":"陆路","note":"砖茶出口382,361担，海关两2,676,514两。恰克图贸易额降至90万卢布。","source":"同上","points":[{"name":"汉口","lon":114.285,"lat":30.584},{"name":"恰克图","lon":106.45,"lat":50.35},{"name":"俄国","lon":37.6173,"lat":55.7558}]},
   {"id":132,"yearText":"1894年","startYear":1894,"endYear":null,"origin":"汉口","destination":"恰克图→俄国","type":"陆路","note":"砖茶出口395,506担，海关两2,798,913两。","source":"同上","points":[{"name":"汉口","lon":114.285,"lat":30.584},{"name":"恰克图","lon":106.45,"lat":50.35},{"name":"俄国","lon":37.6173,"lat":55.7558}]},
 
-  // ===== 茶马古道 (id: 133-144) =====
+  // ===== 茶马古道 (id: 133-142) =====
   {"id":133,"yearText":"唐宋-明清","startYear":618,"endYear":1911,"origin":"云南西双版纳/普洱","destination":"大理→丽江→拉萨→印度","type":"陆路","note":"以普洱茶为主。丽江是滇藏贸易重要中转站。","source":"凌文锋论文第7页","points":[{"name":"普洱","lon":100.8,"lat":22},{"name":"大理","lon":100.2676,"lat":25.6065},{"name":"丽江","lon":100.2278,"lat":26.855},{"name":"拉萨","lon":91.1322,"lat":29.66},{"name":"印度","lon":77.209,"lat":28.6139}]},
   {"id":134,"yearText":"唐宋-明清","startYear":618,"endYear":1911,"origin":"四川雅安/邛崃","destination":"康定→昌都→拉萨→尼泊尔/印度","type":"陆路","note":"运输量最大、跨度最广。康定是川藏茶马贸易中心。","source":"凌文锋论文第3页","points":[{"name":"雅安","lon":103,"lat":30},{"name":"康定","lon":101.957,"lat":30.05},{"name":"昌都","lon":97.172,"lat":31.14},{"name":"拉萨","lon":91.1322,"lat":29.66},{"name":"印度","lon":77.209,"lat":28.6139}]},
   {"id":135,"yearText":"唐宋-明清","startYear":618,"endYear":1911,"origin":"陕西长安/紫阳","destination":"西安→兰州→西宁→拉萨","type":"陆路","note":"在唐蕃古道基础上形成，后演变为茶马贸易通道。","source":"凌文锋论文第3-4页","points":[{"name":"长安","lon":108.9,"lat":34.3},{"name":"西安","lon":108.94,"lat":34.341},{"name":"兰州","lon":103.834,"lat":36.061},{"name":"西宁","lon":101.778,"lat":36.617},{"name":"拉萨","lon":91.1322,"lat":29.66}]},
@@ -154,7 +154,7 @@ export const TEA_TRADE_DATA = [
   {"id":141,"yearText":"1943年","startYear":1943,"endYear":null,"origin":"云南丽江","destination":"拉萨/印度","type":"陆路","note":"'达记'商号（李达三）运往拉萨和印度的货物3,000驮。","source":"王曼曼论文第44页","points":[{"name":"丽江","lon":100.2278,"lat":26.855},{"name":"拉萨","lon":91.1322,"lat":29.66}]},
   {"id":142,"yearText":"1944年","startYear":1944,"endYear":null,"origin":"成都/昆明","destination":"康定→拉萨→印度噶伦堡","type":"陆路","note":"国民政府交通部与藏商合资成立'康藏驮运股份有限公司'。","source":"王曼曼论文第44页","points":[{"name":"成都","lon":104,"lat":28},{"name":"康定","lon":101.957,"lat":30.05},{"name":"拉萨","lon":91.1322,"lat":29.66},{"name":"噶伦堡","lon":88.474,"lat":27.059}]},
 
-  // ===== 其他路线 (id: 143-152) =====
+  // ===== 其他路线 (id: 143-150) =====
   {"id":143,"yearText":"宋","startYear":960,"endYear":null,"origin":"泉州/广州","destination":"东南亚、阿拉伯","type":"海上","note":"宋代海上茶叶贸易繁荣，泉州、广州是重要港口。","source":"Excel补充","points":[{"name":"泉州","lon":118.5,"lat":24.9},{"name":"东南亚","lon":106.8456,"lat":-6.2088}]},
   {"id":144,"yearText":"1567年","startYear":1567,"endYear":null,"origin":"福建","destination":"月港→马尼拉→阿卡普尔科→欧洲","type":"海上","note":"月港出口茶叶，经菲律宾马尼拉转运至美洲和欧洲。","source":"Excel补充","points":[{"name":"福建","lon":119.2965,"lat":26.0745},{"name":"马尼拉","lon":120.9842,"lat":14.5995},{"name":"阿卡普尔科","lon":-99.9,"lat":16.85}]},
   {"id":145,"yearText":"1405-1433年","startYear":1405,"endYear":1433,"origin":"南京/泉州","destination":"爪哇→东南亚→印度→阿拉伯→非洲","type":"海上","note":"郑和下西洋，船队携带茶叶作为贸易品。","source":"Excel补充","points":[{"name":"泉州","lon":118.5,"lat":24.9},{"name":"爪哇","lon":106.1503,"lat":-6.4058},{"name":"印度","lon":77.209,"lat":28.6139},{"name":"阿拉伯","lon":45,"lat":20}]},
@@ -164,6 +164,151 @@ export const TEA_TRADE_DATA = [
   {"id":149,"yearText":"1905年","startYear":1905,"endYear":null,"origin":"汉口","destination":"海参崴→圣彼得堡","type":"陆路","note":"西伯利亚铁路开通后，茶叶经海参崴铁路直达圣彼得堡。","source":"Excel补充","points":[{"name":"汉口","lon":114.285,"lat":30.584},{"name":"海参崴","lon":131.9,"lat":43.1},{"name":"圣彼得堡","lon":30.3,"lat":59.9}]},
   {"id":150,"yearText":"汉-唐","startYear":202,"endYear":907,"origin":"四川/中原","destination":"河西走廊→新疆→中亚、波斯、阿拉伯","type":"陆路","note":"陆上丝绸之路是茶叶西传的重要通道。","source":"Excel补充","points":[{"name":"中原","lon":108,"lat":34},{"name":"河西走廊","lon":98,"lat":38},{"name":"新疆","lon":85,"lat":40},{"name":"中亚","lon":55,"lat":30}]}
 ];
+
+// 时间轴阶段固定从唐代开始。跨越多个朝代只记录在路线生命周期中，
+// 不会成为单独的时间轴节点。
+export const DYNASTY_INFO = {
+  '唐代': {
+    title: '唐代｜茶入边疆，商路初成',
+    feature: '唐代中期以后，饮茶风尚由南方向全国扩展，茶叶逐渐成为重要商品和国家税收来源。随着边疆往来增加，茶开始沿陆路进入西北和高原地区，并通过广州等港口参与海上贸易。',
+    channels: '贞元年间已有回鹘驱马换茶的明确记载，茶马互市由此成为连接中原与边疆的重要方式。陆路上的茶、马和生活物资交换，与海上通往东南亚、南亚及更远地区的商路共同展开。',
+    impact: '茶叶不仅是日常饮品，也成为跨区域交流的媒介。贸易推动了边疆饮茶习惯形成，并加强了中原与周边地区的经济和文化联系。',
+    sourceRefs: [
+      'https://www.neac.gov.cn/seac/c103391/202304/1162265.shtml',
+      'https://scdfz.sc.gov.cn/scyx/ytsc/chuanchazhiyp/content_122144',
+      'https://www.gz.gov.cn/zt/gzydyl/whjl/content/post_9125971.html',
+    ],
+  },
+  '宋代': {
+    title: '宋代｜制度成形，海陆并进',
+    feature: '宋代茶叶生产和消费继续扩大，茶马贸易逐渐制度化。北宋熙宁以后，政府通过专门机构管理茶叶收购、运输和换马，使茶叶与边疆治理、军马供给产生更紧密的联系。',
+    channels: '西南和西北茶马道路持续发展，南方港口的海外贸易也日益繁荣。1087年，北宋在泉州设置市舶司，管理海船、货物、关税和外商事务，茶叶与瓷器、丝绸等商品由此进入更广阔的海上市场。',
+    impact: '宋代形成了陆路边贸与海上外贸并行的格局。茶叶既连接内地产区和边疆市场，也成为海外贸易商品体系的一部分。',
+    sourceRefs: [
+      'https://www.nopss.gov.cn/n1/2021/0125/c219544-32010620.html',
+      'https://www.fujian.gov.cn/zwgk/ztzl/sxzygwzxsgzx/sdjj/wvjj/202501/t20250110_6698898.htm',
+    ],
+  },
+  '元代': {
+    title: '元代｜港通四海，茶随帆远',
+    feature: '元代欧亚交通和海上贸易网络进一步扩展。泉州等港口汇集来自不同地区的商人和货物，成为连接中国沿海、东南亚、印度洋及更远市场的重要节点。',
+    channels: '茶叶与丝绸、瓷器等货物从东南沿海港口装船，经东南亚进入印度洋贸易网络。陆路交通则继续连接中原、中亚和西亚地区，使海陆商路共同构成跨区域流通体系。',
+    impact: '港口贸易的发展扩大了茶叶接触海外市场的范围，也使茶叶伴随人员、技术和生活方式的交流传播到更远地区。',
+    sourceRefs: [
+      'https://www.fujian.gov.cn/zwgk/ztzl/sxzygwzxsgzx/flsxkmh/202310/t20231012_6271639.htm',
+      'https://www.fujian.gov.cn/zwgk/ztzl/sxzygwzxsgzx/sdjj/wvjj/202512/t20251212_7045336.htm',
+    ],
+  },
+  '明代': {
+    title: '明代｜边贸延续，茶入欧洲',
+    feature: '明代茶马互市继续承担边疆贸易和治理功能，部分时期由政府加强控制。与此同时，广州、福建等沿海地区仍保持海外贸易联系，茶叶逐渐进入欧洲商人的远洋贸易网络。',
+    channels: '17世纪初，中国茶经澳门和东南亚转运至荷兰。1607年已有荷兰商船贩运中国绿茶的记录，1610年茶叶运抵欧洲；到1637年前后，荷兰市场的茶叶进口规模进一步扩大。',
+    impact: '茶叶由亚洲区域性商品逐步进入欧洲消费市场，荷兰商人及其转运网络在早期传播中发挥了重要作用，为清代更大规模的中欧茶叶贸易奠定基础。',
+    sourceRefs: [
+      'https://www.icm.gov.mo/rc/viewer/10099/2211',
+      'https://www.gz.gov.cn/zt/gzydyl/whjl/content/post_9125971.html',
+    ],
+  },
+  '清代': {
+    title: '清代｜茶路万里，市场成网',
+    feature: '清代中国茶叶对外贸易进入大规模发展阶段。海上贸易以广州为核心，陆上贸易则经恰克图连接俄国市场，逐渐形成横跨亚欧大陆的万里茶道。',
+    channels: '1685年清廷开海设关，18世纪广州外贸体系逐渐成熟。1727年中俄签订相关条约并恢复恰克图互市，来自福建、湖北、湖南等地的茶叶经陆路北运，再转往莫斯科、圣彼得堡及欧洲其他地区。',
+    impact: '茶叶成为中西贸易的重要商品。广州十三行、东印度公司和中俄商队共同构成跨海与跨大陆的贸易网络，也推动饮茶习惯在欧洲和俄罗斯传播。',
+    sourceRefs: [
+      'https://www.neac.gov.cn/seac/c103391/202210/1159337.shtml',
+      'https://www.gz.gov.cn/zt/gzydyl/whjl/content/post_9125971.html',
+    ],
+  },
+  '抗战时期': {
+    title: '抗战时期｜以茶换汇，商路转移',
+    feature: '全面抗战爆发后，传统港口、铁路和茶叶产区受到战争影响，茶叶生产与外销面临严重困难。为维持出口和获取外汇，茶叶收购、加工和运输逐渐转向统筹经营。',
+    channels: '上海等传统出口中心受阻后，部分茶叶转由香港等口岸外销，并开展对苏易货贸易。云南、福建等地建设和改造茶厂，红茶、砖茶等产品承担出口换汇和物资交换任务。',
+    impact: '茶叶出口不仅关系茶农生计，也成为战时换取外汇和物资的重要渠道。交通中断与市场变化同时推动了茶叶生产组织、机械加工和贸易管理方式的转变。',
+    sourceRefs: [
+      'https://www.chinacoop.gov.cn/HTML/2009/10/12/35590.html',
+      'https://lzhbwg.mofcom.gov.cn/edi_ecms_web_front/thb/detail/e95f006b56c0415abda6be7945679c23',
+    ],
+  },
+};
+
+const ROUTE_DYNASTIES = [
+  { name: '唐代', start: 618, end: 959 },
+  { name: '宋代', start: 960, end: 1270 },
+  { name: '元代', start: 1271, end: 1367 },
+  { name: '明代', start: 1368, end: 1643 },
+  { name: '清代', start: 1644, end: 1936 },
+  { name: '抗战时期', start: 1937, end: 1945 },
+];
+
+function dynastyForRouteYear(year) {
+  const y = Number(year);
+  if (!Number.isFinite(y) || y <= ROUTE_DYNASTIES[0].start) return '唐代';
+  for (const dynasty of ROUTE_DYNASTIES) {
+    if (y >= dynasty.start && y <= dynasty.end) return dynasty.name;
+  }
+  return y > 1945 ? '抗战时期' : '清代';
+}
+
+function routeVia(route) {
+  const names = (route.points || []).slice(1, -1).map(point => point.name).filter(Boolean);
+  return names.length ? names : [];
+}
+
+function routePeriod(route, startDynasty, endDynasty) {
+  if (route.yearText) return route.yearText;
+  return startDynasty === endDynasty ? startDynasty : `${startDynasty}至${endDynasty}`;
+}
+
+function buildHistoricalBackground(route, startDynasty, endDynasty) {
+  const span = startDynasty === endDynasty ? startDynasty : `${startDynasty}至${endDynasty}`;
+  const network = /海上|海运/.test(route.type)
+    ? '沿海港口、远洋航线与海外市场相互连接'
+    : '内地产区、沿途商埠与边疆市场相互连接';
+  return `${span}的茶叶流通不断扩展，${network}。这条由${route.origin}通往${route.destination}的路线，反映了当时茶叶生产、转运和消费网络的具体变化。原有记录指出：${route.note}`;
+}
+
+function buildRouteStory(route, period, via) {
+  const viaText = via.length ? `，途经${via.join('、')}` : '';
+  const transport = /海上|海运/.test(route.type)
+    ? '商船依靠季风、港口补给和跨区域转运完成航程'
+    : '商队借助驿道、河运与沿途集散地接续运输';
+  return `${period}，茶叶从${route.origin}出发${viaText}，最终抵达${route.destination}。${transport}。${route.note} 这一记录把路线上的地点、贸易参与者与当时的市场变化联系起来。`;
+}
+
+function buildTradeSignificance(route) {
+  return /海上|海运/.test(route.type)
+    ? `该航线扩大了${route.origin}与${route.destination}之间的商品往来，使中国茶进入更广阔的海外消费和转口网络。`
+    : `该商道加强了${route.origin}与${route.destination}之间的物资交换，并推动茶叶在边疆及欧亚内陆市场持续流通。`;
+}
+
+// 150 条原始记录全部在此规范为统一详情结构。每条路线的叙事都使用其
+// 自身年代、起终点、途经节点和原始史实，不修改任何 points 坐标。
+export const TEA_TRADE_DATA = RAW_TEA_TRADE_DATA.map((route, rawIndex) => {
+  const startDynasty = dynastyForRouteYear(route.startYear);
+  const endDynasty = dynastyForRouteYear(route.endYear == null ? route.startYear : route.endYear);
+  const via = routeVia(route);
+  const period = routePeriod(route, startDynasty, endDynasty);
+  const routeType = /海上|海运/.test(route.type) ? '海路' : '陆路';
+  return {
+    ...route,
+    id: route.id,
+    title: route.title || `${route.origin}至${route.destination}茶叶贸易路线`,
+    routeType,
+    dynasty: startDynasty === endDynasty ? startDynasty : `${startDynasty}至${endDynasty}`,
+    startDynasty,
+    endDynasty,
+    startYear: route.startYear,
+    endYear: route.endYear,
+    origin: route.origin,
+    destination: route.destination,
+    via,
+    historicalBackground: route.historicalBackground || buildHistoricalBackground(route, startDynasty, endDynasty),
+    routeStory: route.routeStory || buildRouteStory(route, period, via),
+    tradeSignificance: route.tradeSignificance || buildTradeSignificance(route),
+    sourceRefs: route.sourceRefs || (route.source ? [route.source] : []),
+    rawIndex,
+  };
+});
 
 // ============================================================
 // 历史事件（来自"故事.docx"）

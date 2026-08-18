@@ -24,182 +24,192 @@
 
       <!-- ============================== Tab: 古代贸易发展 ============================== -->
       <div v-show="ch4Tab === 'ancient'" class="ch4-view ch4-view-ancient">
-        <div class="ch4-topbar">
-          <div class="dynasty-indicator" :class="'dyn-' + dynastyClass">
-            <span class="dyn-dot"></span>
-            <span class="dyn-label">{{ dynastyName || '跨朝代' }}</span>
+        <div class="ch4-ancient-container">
+          <!-- Loading State -->
+          <div v-if="ancientLoading" class="map-loading">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">地图载入中...</div>
+          </div>
+          <div v-else-if="ancientError" class="map-error">
+            <div class="error-icon">⚠️</div>
+            <div class="error-text">地图加载失败</div>
+            <div class="error-hint">{{ ancientError }}</div>
+            <button class="reload-btn" @click="reloadMap">重新加载</button>
           </div>
 
-          <div class="year-title">
-            <span class="year-num">{{ dynastyName || '跨朝代' }}</span>
-          </div>
+          <!-- Main Map Stage -->
+          <div class="ch4-stage">
+            <div ref="mapEl" class="map"></div>
 
-          <div class="topbar-actions">
-            <button class="action-btn" :class="{ playing: isPlaying }" @click="togglePlay">
-              <span v-if="!isPlaying" class="btn-icon">▶</span>
-              <span v-else class="btn-icon">❚❚</span>
-              <span class="btn-text">{{ isPlaying ? '暂停' : '播放' }}</span>
-            </button>
-            <button class="action-btn secondary" @click="resetView">
-              <span class="btn-icon">↺</span>
-              <span class="btn-text">重置</span>
-            </button>
-          </div>
-        </div>
+            <!-- Dynasty Label (compact, top-left) -->
+            <div class="dynasty-label" :class="'dyn-' + dynastyClass">
+              <span class="dyn-dot"></span>
+              <span class="dyn-text">当前：{{ dynastyName }}</span>
+            </div>
 
-        <div class="ch4-stage">
-          <div ref="mapEl" class="map"></div>
+            <div class="route-filter-control">
+              <button
+                v-for="option in routeFilterOptions"
+                :key="option.value"
+                :class="['route-filter-btn', { active: routeFilter === option.value }]"
+                :aria-pressed="routeFilter === option.value"
+                @click.stop="setRouteFilter(option.value)"
+              >{{ option.label }}</button>
+            </div>
 
-          <div v-if="showHint" class="map-hint">
-            <span class="hint-icon">💡</span>
-            <span>点击地图上的路线查看详情 · 拖动下方时间轴探索不同年代</span>
-          </div>
-
-          <div class="map-legend">
-            <div class="legend-title">图例</div>
-            <div class="legend-row">
-              <span class="legend-line land"></span>
-              <span>陆路·茶马古道</span>
-            </div>
-            <div class="legend-row">
-              <span class="legend-line sea"></span>
-              <span>海上·茶叶海运</span>
-            </div>
-            <div class="legend-row">
-              <span class="legend-line ended"></span>
-              <span>已结束路线</span>
-            </div>
-            <div class="legend-row nodes">
-              <span class="legend-node origin"></span>
-              <span>起点 / 中国港口</span>
-            </div>
-            <div class="legend-row nodes">
-              <span class="legend-node dest"></span>
-              <span>终点 / 海外都城</span>
-            </div>
-          </div>
-
-          <!-- 信息卡 - 渐入渐出 -->
-          <transition name="card-fade" mode="out-in">
-            <div v-if="selectedRoute" class="route-detail-panel" :key="selectedRoute.id || selectedRoute.origin + selectedRoute.startYear">
-              <div class="panel-header">
-                <div class="panel-title-wrap">
-                  <span class="panel-type-tag">{{ selectedRoute.type || '贸易路线' }}</span>
-                  <h3 class="panel-title">{{ routeFromTo }}</h3>
-                </div>
-                <button class="panel-close" @click="selectedRoute = null">×</button>
+            <!-- Legend -->
+            <div class="map-legend">
+              <div class="legend-title">图例</div>
+              <div class="legend-row">
+                <span class="legend-line land"></span>
+                <span>陆路</span>
               </div>
-              <div class="panel-scroll">
-                <div class="detail-year">
-                  <span class="detail-year-label">年代</span>
-                  <span class="detail-year-value">{{ selectedRoute.yearText || selectedRoute.startYear + '年' }}</span>
-                </div>
-                <div class="detail-note">
-                  <div class="detail-section-label">路线纪事</div>
-                  <p>{{ selectedRoute.note || '暂无详细记录' }}</p>
-                </div>
-                <div class="detail-source">
-                  <div class="detail-section-label">史料来源</div>
-                  <p>{{ selectedRoute.source || '待考证' }}</p>
-                </div>
-                <div v-if="routeHistoryEvents.length" class="detail-history">
-                  <div class="detail-section-label with-icon">
-                    <span>📜</span>
-                    <span>历史背景</span>
+              <div class="legend-row">
+                <span class="legend-line sea"></span>
+                <span>海路</span>
+              </div>
+              <div class="legend-row">
+                <span class="legend-line historical"></span>
+                <span>历史路线</span>
+              </div>
+              <div class="legend-row nodes">
+                <span class="legend-node origin"></span>
+                <span>起点</span>
+              </div>
+              <div class="legend-row nodes">
+                <span class="legend-node destination"></span>
+                <span>终点</span>
+              </div>
+            </div>
+
+            <!-- 播放时显示朝代背景；仅在用户点击路线或节点后显示路线详情 -->
+            <transition name="ancient-panel-fade" mode="out-in">
+              <div class="route-detail-panel" :key="panelKey">
+                <template v-if="panelMode === 'dynasty'">
+                  <div class="panel-header">
+                    <div class="panel-badges">
+                      <span class="panel-type-tag dynasty">朝代背景</span>
+                      <span class="panel-dynasty-tag">{{ dynastyName }}</span>
+                    </div>
                   </div>
-                  <ul>
-                    <li v-for="(ev, i) in routeHistoryEvents" :key="i">{{ ev }}</li>
-                  </ul>
+                  <div class="panel-title-row">
+                    <h3 class="panel-title">{{ currentDynastyInfo.title }}</h3>
+                  </div>
+                  <div class="panel-scroll">
+                    <div class="panel-section">
+                      <div class="section-label">阶段特征</div>
+                      <p class="section-text">{{ currentDynastyInfo.feature }}</p>
+                    </div>
+                    <div class="panel-section">
+                      <div class="section-label">主要通道</div>
+                      <p class="section-text">{{ currentDynastyInfo.channels }}</p>
+                    </div>
+                    <div class="panel-section">
+                      <div class="section-label">贸易影响</div>
+                      <p class="section-text">{{ currentDynastyInfo.impact }}</p>
+                    </div>
+                  </div>
+                </template>
+
+                <template v-else-if="nodeRouteOptions.length && !selectedRoute">
+                  <div class="panel-header">
+                    <div class="panel-badges">
+                      <span class="panel-type-tag dynasty">路线节点</span>
+                      <span class="panel-dynasty-tag">{{ dynastyName }}</span>
+                    </div>
+                    <button class="panel-back" @click="showDynastyPanel">返回朝代背景</button>
+                  </div>
+                  <div class="panel-title-row">
+                    <h3 class="panel-title">{{ selectedNodeName }}</h3>
+                    <p class="panel-subtitle">该节点关联 {{ nodeRouteOptions.length }} 条路线，请选择查看详情。</p>
+                  </div>
+                  <div class="panel-scroll node-route-list">
+                    <button
+                      v-for="route in nodeRouteOptions"
+                      :key="route.id"
+                      class="node-route-option"
+                      @click="selectRoute(route)"
+                    >
+                      <span class="node-route-kind">{{ route.routeType }} · {{ route.dynasty }}</span>
+                      <strong>{{ route.origin }} → {{ route.destination }}</strong>
+                    </button>
+                  </div>
+                </template>
+
+                <template v-else-if="selectedRoute">
+                  <div class="panel-header">
+                    <div class="panel-badges">
+                      <span class="panel-type-tag" :class="kind(selectedRoute)">{{ selectedRoute.routeType }}</span>
+                      <span class="panel-dynasty-tag">{{ selectedRoute.dynasty }}</span>
+                    </div>
+                    <button class="panel-back" @click="showDynastyPanel">返回朝代背景</button>
+                  </div>
+                  <div class="panel-title-row">
+                    <h3 class="panel-title">{{ routeFromTo }}</h3>
+                  </div>
+                  <div class="panel-scroll">
+                    <div class="panel-info-grid">
+                      <div class="info-item">
+                        <span class="info-label">时间</span>
+                        <span class="info-value">{{ routeDisplayTime }}</span>
+                      </div>
+                      <div class="info-item">
+                        <span class="info-label">流向</span>
+                        <span class="info-value">{{ selectedRoute.routeType === '海路' ? '海上航线' : '陆路商道' }}</span>
+                      </div>
+                      <div class="info-item info-item-wide">
+                        <span class="info-label">途经节点</span>
+                        <span class="info-value">{{ routeViaText }}</span>
+                      </div>
+                    </div>
+                    <div class="panel-section">
+                      <div class="section-label">历史背景</div>
+                      <p class="section-text">{{ selectedRoute.historicalBackground }}</p>
+                    </div>
+                    <div class="panel-section">
+                      <div class="section-label">路线故事</div>
+                      <p class="section-text">{{ selectedRoute.routeStory }}</p>
+                    </div>
+                    <div class="panel-section">
+                      <div class="section-label">贸易影响</div>
+                      <p class="section-text">{{ selectedRoute.tradeSignificance }}</p>
+                    </div>
+                  </div>
+                </template>
+              </div>
+            </transition>
+
+            <!-- Floating Timeline (在地图容器内部，半悬浮) -->
+            <div class="timeline-floating">
+              <div class="timeline-header">
+                <span class="current-dynasty-label">{{ dynastyName }}</span>
+                <div class="timeline-controls">
+                  <button class="play-btn" :class="{ playing: isPlaying }" @click="togglePlay">{{ isPlaying ? '暂停' : '播放' }}</button>
+                  <button class="reset-btn" @click="resetView">重置</button>
+                </div>
+              </div>
+              <div class="timeline-body">
+                <div class="timeline-axis">
+                  <div class="slider-track" ref="sliderTrack" @mousedown="onSliderMouseDown">
+                    <div class="slider-fill" :style="{ width: progress * 100 + '%' }"></div>
+                    <div class="slider-thumb" :style="{ left: progress * 100 + '%' }"></div>
+                  </div>
+                  <button
+                    v-for="tick in dynastyTicks"
+                    :key="tick.name"
+                    type="button"
+                    class="dynasty-tick"
+                    :class="{ active: dynastyName === tick.name, alternate: tick.index % 2 === 1 }"
+                    :style="{ left: (tick.progress * 100) + '%' }"
+                    @mousedown.stop
+                    @click="jumpToDynasty(tick)"
+                  >
+                    <span class="tick-label">{{ tick.name }}</span>
+                    <span class="tick-mark"></span>
+                  </button>
                 </div>
               </div>
             </div>
-          </transition>
-
-          <transition name="panel-fade">
-            <div v-if="currentEvents.length && !selectedRoute" class="history-panel">
-              <div class="history-title">📜 {{ dynastyName }} · 此时</div>
-              <ul>
-                <li v-for="(ev, i) in currentEvents.slice(0, 3)" :key="i">{{ ev }}</li>
-              </ul>
-            </div>
-          </transition>
-        </div>
-
-        <div class="timeline-panel">
-          <div class="stats-grid">
-            <div class="stat-card">
-              <div class="stat-label">活跃路线</div>
-              <div class="stat-num">{{ stats.activeCount }}</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-label">已结束路线</div>
-              <div class="stat-num">{{ stats.endedCount }}</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-label">可视流线</div>
-              <div class="stat-num">{{ stats.routeCount }}</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-label">涉及节点</div>
-              <div class="stat-num">{{ stats.countryCount }}</div>
-            </div>
-          </div>
-
-          <div class="slider-wrap">
-            <div class="dynasty-ticks">
-              <div
-                v-for="d in dynasties"
-                :key="d.name"
-                class="tick"
-                :style="{ left: ((d.start - 618) / (1945 - 618) * 100) + '%' }"
-              >
-                <span class="tick-line"></span>
-                <span class="tick-label">{{ d.name }}</span>
-              </div>
-            </div>
-
-            <input
-              type="range"
-              :min="618"
-              :max="1945"
-              step="1"
-              :value="currentYear"
-              @input="onSliderInput"
-              @change="onSliderChange"
-              class="year-slider"
-              ref="sliderInput"
-            />
-          </div>
-
-          <!-- 播放控制区 - 在时间轴下方 -->
-          <div class="timeline-controls">
-            <button class="action-btn" :class="{ playing: isPlaying }" @click="togglePlay">
-              <span v-if="!isPlaying" class="btn-icon">▶</span>
-              <span v-else class="btn-icon">❚❚</span>
-              <span class="btn-text">{{ isPlaying ? '暂停' : '播放' }}</span>
-            </button>
-            <button class="action-btn secondary" @click="resetView">
-              <span class="btn-icon">↺</span>
-              <span class="btn-text">重置</span>
-            </button>
-            <span class="step-indicator" v-if="totalSteps > 0">
-              {{ currentStep + 1 }} / {{ totalSteps }}
-            </span>
-          </div>
-
-          <div class="filter-buttons">
-            <button
-              :class="['filter-btn', { active: filter === 'all' }]"
-              @click="filter = 'all'"
-            >全部</button>
-            <button
-              :class="['filter-btn', { active: filter === 'sea' }]"
-              @click="filter = 'sea'"
-            >海上</button>
-            <button
-              :class="['filter-btn', { active: filter === 'land' }]"
-              @click="filter = 'land'"
-            >陆路</button>
           </div>
         </div>
       </div><!-- end ch4-view-ancient -->
@@ -212,8 +222,9 @@
               {{ isModernChinaMode ? '🇨🇳 选择省份' : ' ' + (selectedModernProvince || '中国') + ' → 世界' }}
             </span>
             <span class="title-sub" v-if="isModernChinaMode">点击任意省份，查看该省茶叶出口全球流向</span>
-            <span class="title-sub" v-if="!isModernChinaMode && modernProvinceInfo.flows.length">{{ modernYear }}年 出口总额 <b class="hl-num">{{ fmtNum(modernProvinceInfo.provinceValue / 1e8) }}</b> 亿元，覆盖 <b class="hl-num">{{ modernProvinceInfo.flows.length }}</b> 个主要国家</span>
-            <span class="title-sub" v-else-if="!isModernChinaMode">{{ modernYear }}年 出口总额 <b class="hl-num">{{ fmtNum(modernProvinceInfo.provinceValue / 1e8) }}</b> 亿元，暂无主要出口目的地数据</span>
+            <span class="title-sub" v-if="!isModernChinaMode && modernProvinceInfo.hasData && modernProvinceInfo.flows.length">{{ modernYear }}年 出口总额 <b class="hl-num">{{ fmtNum(modernProvinceInfo.provinceValue / 1e8) }}</b> 亿元，覆盖 <b class="hl-num">{{ modernProvinceInfo.flows.length }}</b> 个主要国家</span>
+            <span class="title-sub" v-else-if="!isModernChinaMode && modernProvinceInfo.hasData">{{ modernYear }}年 出口总额 <b class="hl-num">{{ fmtNum(modernProvinceInfo.provinceValue / 1e8) }}</b> 亿元，暂无主要出口目的地数据</span>
+            <span class="title-sub" v-else-if="!isModernChinaMode">{{ modernYear }}年该省暂无茶叶出口数据</span>
           </div>
           <div class="modern-controls">
             <div class="year-select">
@@ -228,25 +239,61 @@
         <div class="ch4-stage modern-stage">
           <div ref="modernMapEl" class="map modern-map"></div>
 
+          <!-- 茶叶形比例符号图例：概览与世界详情共用同一固定尺度 -->
+          <div class="map-legend modern-legend">
+            <div class="modern-legend-section">
+              <div class="modern-legend-title">茶叶符号大小：出口额（亿元）</div>
+              <div class="leaf-size-legend">
+                <div v-for="item in leafSizeLegendItems" :key="item.ratio" class="leaf-size-item">
+                  <span
+                    class="legend-leaf size-leaf"
+                    :style="{ width: item.displaySize + 'px', height: item.displaySize + 'px' }"
+                    v-html="createLeafSvg('#7F985D', false, 1)"
+                  ></span>
+                  <span>{{ fmtNum(item.valueYi) }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="modern-legend-section color-section">
+              <div class="modern-legend-title">茶叶颜色：出口额同比增速</div>
+              <div class="leaf-color-legend">
+                <div v-for="item in leafColorLegendItems" :key="item.label" class="leaf-color-item">
+                  <span class="legend-leaf color-leaf" v-html="createLeafSvg(item.color, false, 1)"></span>
+                  <span>{{ item.label }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- 悬浮信息卡 -->
           <transition name="panel-fade">
             <div v-if="isModernChinaMode && hoveredProvince" class="hover-card">
               <div class="hc-title">{{ hoveredProvince.name }}</div>
-              <div class="hc-row"><span>出口额</span><b>{{ fmtNum(hoveredProvince.value / 1e8) }} 亿元</b></div>
-              <div class="hc-row"><span>全国占比</span><b>{{ hoveredProvince.share }}%</b></div>
+              <template v-if="hoveredProvince.hasData">
+                <div class="hc-row"><span>出口额</span><b>{{ fmtNum(hoveredProvince.valueYi) }} 亿元</b></div>
+                <div class="hc-row"><span>全国占比</span><b>{{ fmtNum(hoveredProvince.share) }}%</b></div>
+                <div class="hc-row"><span>同比增速</span><b>{{ formatYoY(hoveredProvince.yoy) }}</b></div>
+                <div class="hc-row market-row"><span>主要出口市场</span><b>{{ hoveredProvince.markets }}</b></div>
+              </template>
+              <div v-else class="hc-empty">该年份暂无数据</div>
             </div>
           </transition>
 
           <!-- 世界模式：主要出口目的地 Top10 -->
           <transition name="panel-slide">
-            <div v-if="!isModernChinaMode && modernProvinceInfo.flows.length" class="modern-country-panel">
+            <div v-if="!isModernChinaMode" class="modern-country-panel">
               <div class="panel-header">
                 <div class="panel-title-wrap">
                   <span class="panel-type-tag modern-tag">全球流向</span>
                   <h3 class="panel-title">{{ selectedModernProvince }} · 主要出口目的地</h3>
                 </div>
               </div>
-              <div class="panel-scroll">
+              <div v-if="modernProvinceInfo.hasData" class="province-trade-summary">
+                <div><span>出口额</span><b>{{ fmtNum(modernProvinceInfo.provinceValue / 1e8) }}亿元</b></div>
+                <div><span>全国占比</span><b>{{ fmtNum(modernProvinceInfo.share) }}%</b></div>
+                <div><span>同比增速</span><b>{{ formatYoY(modernProvinceInfo.yoy) }}</b></div>
+              </div>
+              <div v-if="modernProvinceInfo.flows.length" class="panel-scroll">
                 <div
                   v-for="(f, i) in modernProvinceInfo.flows.slice(0, 10)"
                   :key="f.country"
@@ -261,6 +308,9 @@
                   <div class="cr-val">{{ fmtNum(f.value / 1e8) }}<span class="unit">亿元</span></div>
                 </div>
               </div>
+              <div v-else class="modern-empty-state">
+                {{ modernProvinceInfo.hasData ? '该年份暂无主要出口目的地数据' : '该年份暂无数据' }}
+              </div>
             </div>
           </transition>
         </div>
@@ -273,7 +323,7 @@
 import { ref, reactive, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import L from 'leaflet'
 import ChapterIntro from './ChapterIntro.vue'
-import { TEA_TRADE_DATA, HISTORICAL_EVENTS, getEventsByYear } from '../data/ch4/trade-data.js'
+import { TEA_TRADE_DATA, DYNASTY_INFO } from '../data/ch4/trade-data.js'
 import { assetUrl } from '../utils/base.js'
 import {
   PROVINCE_CENTER,
@@ -302,23 +352,42 @@ function switchCh4Tab(k) {
   }, 60)
 }
 
+const MIN_YEAR = 618
+const MAX_YEAR = 1945
 const dynasties = [
-  { name: '唐代', start: 618, end: 907 },
-  { name: '宋代', start: 960, end: 1279 },
-  { name: '元代', start: 1271, end: 1368 },
-  { name: '明代', start: 1368, end: 1644 },
-  { name: '清代', start: 1644, end: 1911 },
+  { name: '唐代', start: 618, end: 959 },
+  { name: '宋代', start: 960, end: 1270 },
+  { name: '元代', start: 1271, end: 1367 },
+  { name: '明代', start: 1368, end: 1643 },
+  { name: '清代', start: 1644, end: 1936 },
   { name: '抗战时期', start: 1937, end: 1945 },
 ]
+function yearToProgress(year) {
+  return Math.max(0, Math.min(1, (Number(year) - MIN_YEAR) / (MAX_YEAR - MIN_YEAR)))
+}
+const dynastyTicks = dynasties.map(function(dynasty, index) {
+  return { ...dynasty, index, progress: yearToProgress(dynasty.start) }
+})
+
+function getDynastyByProgress(currentProgress) {
+  var active = dynastyTicks[0]
+  for (var i = 0; i < dynastyTicks.length; i++) {
+    if (currentProgress + 1e-8 >= dynastyTicks[i].progress) active = dynastyTicks[i]
+    else break
+  }
+  return active
+}
 
 const kind = r => /海上|海运/.test(r.type) ? 'sea' : 'land'
-function getRouteState(r, y) {
-  y = Number(y)
-  const s = Number(r.startYear)
-  if (y < s) return 'not_started'
-  if (r.endYear === undefined || r.endYear === null || r.endYear === '') return 'active_permanent'
-  const e = Number(r.endYear)
-  return y <= e ? 'active' : 'ended'
+function routePassesFilter(route) {
+  return routeFilter.value === 'all' || kind(route) === routeFilter.value
+}
+function setRouteFilter(value) {
+  routeFilter.value = value
+  if ((selectedRoute.value && !routePassesFilter(selectedRoute.value)) || nodeRouteOptions.value.length) {
+    showDynastyPanel()
+  }
+  renderCurrentProgress()
 }
 const inChina = p => p.lon >= 73 && p.lon <= 135 && p.lat >= 18 && p.lat <= 54
 const capitals = [
@@ -372,70 +441,55 @@ function coords(points) {
   }
   return out
 }
-function getAllDataYears() {
-  var years = new Set()
-  for (var i = 0; i < TEA_TRADE_DATA.length; i++) {
-    var r = TEA_TRADE_DATA[i]
-    if (r.startYear != null) years.add(Number(r.startYear))
-    if (r.endYear != null) years.add(Number(r.endYear))
-  }
-  years.add(618); years.add(1945)
-  return Array.from(years).sort(function(a, b) { return a - b })
-}
-var allDataYears = getAllDataYears()
-function getClosestDataYear(y) {
-  var closest = allDataYears[0], minDiff = Infinity
-  for (var i = 0; i < allDataYears.length; i++) {
-    var x = allDataYears[i]
-    var d = Math.abs(x - y)
-    if (d < minDiff) { minDiff = d; closest = x }
-  }
-  return closest
-}
-function getNextDataYear(y) {
-  for (var i = 0; i < allDataYears.length; i++) {
-    var x = allDataYears[i]
-    if (x > y) return x
-  }
-  return allDataYears[allDataYears.length - 1]
-}
-function getDynastyName(y) {
-  for (var i = 0; i < dynasties.length; i++) {
-    var d = dynasties[i]
-    if (y >= d.start && y <= d.end) return d.name
-  }
-  return ''
-}
-
 var sectionEl = ref(null)
 var mapEl = ref(null)
-var sliderInput = ref(null)
-var currentYear = ref(618)
-var filter = ref('all')
+var sliderTrack = ref(null)
 var isPlaying = ref(false)
+var routeFilter = ref('all')
+const routeFilterOptions = [
+  { label: '全部', value: 'all' },
+  { label: '陆路', value: 'land' },
+  { label: '海路', value: 'sea' },
+]
+var panelMode = ref('dynasty')
 var selectedRoute = ref(null)
-var showHint = ref(true)
+var selectedNodeName = ref('')
+var nodeRouteOptions = ref([])
 var introDone = ref(false)
 
-var currentStep = ref(0)
-var totalSteps = ref(0)
-var stepRoutes = ref([])
-
-var eraMode = ref('all')
+var progress = ref(0.0)
+var currentYear = computed(function() {
+  return Math.floor(MIN_YEAR + progress.value * (MAX_YEAR - MIN_YEAR) + 1e-8)
+})
+var ancientLoading = ref(true)
+var ancientError = ref(null)
+var ancientMapReady = ref(false)
+var isDraggingTimeline = ref(false)
+var isAnimatingProgress = false
 
 var map = null
 var routeLayer = null
+var routeHitLayer = null
 var nodeLayer = null
-var playTimer = null
+var nodeHitLayer = null
+var nodeRegistry = new Map()
+var lastFrameTime = null
+var animationFrameId = null
 
-var stats = reactive({
-  activeCount: 0,
-  endedCount: 0,
-  routeCount: 0,
-  countryCount: 0,
+// Pre-computed route data with progress ranges
+var routeProgressData = []
+var routeProgressMap = new Map()
+
+// Active routes cache
+var activeRouteLayers = new Map()
+
+var dynastyName = computed(function() { return getDynastyByProgress(progress.value).name })
+var currentDynastyInfo = computed(function() { return DYNASTY_INFO[dynastyName.value] })
+var panelKey = computed(function() {
+  if (panelMode.value === 'dynasty') return 'dynasty-' + dynastyName.value
+  if (selectedRoute.value) return 'route-' + selectedRoute.value.id
+  return 'node-' + selectedNodeName.value
 })
-
-var dynastyName = computed(function() { return getDynastyName(currentYear.value) })
 var dynastyClass = computed(function() {
   var n = dynastyName.value
   if (n === '唐代') return 'tang'
@@ -446,552 +500,773 @@ var dynastyClass = computed(function() {
   if (n === '抗战时期') return 'kangzhan'
   return 'default'
 })
-var currentEvents = computed(function() { return getEventsByYear(currentYear.value) })
+
+function pausePlayback() {
+  isPlaying.value = false
+  stopAnimationLoop()
+}
+
+function showDynastyPanel() {
+  panelMode.value = 'dynasty'
+  selectedRoute.value = null
+  selectedNodeName.value = ''
+  nodeRouteOptions.value = []
+  if (map && routeLayer) renderCurrentProgress()
+}
+
+function jumpToDynasty(tick) {
+  pausePlayback()
+  showDynastyPanel()
+  animateProgressTo(tick.progress, 500)
+}
+
+function openRouteDetail(route, event) {
+  if (event && event.originalEvent) L.DomEvent.stopPropagation(event.originalEvent)
+  pausePlayback()
+  panelMode.value = 'route'
+  selectedRoute.value = route
+  nodeRouteOptions.value = []
+  renderCurrentProgress()
+}
+
+function selectRoute(route) {
+  openRouteDetail(route)
+}
+
+function routeForVisual(rp) {
+  var eligible = (rp.routes || [rp.route])
+    .filter(function(route) { return routePassesFilter(route) })
+    .filter(function(route) { return Number(route.startYear) <= currentYear.value + 1 })
+    .sort(function(a, b) { return Number(b.startYear) - Number(a.startYear) })
+  return eligible[0] || rp.route
+}
+
+// 资料卡时间显示
+// 如果 yearText 包含具体年份（如"1607年"、"1701-1710年"），显示 yearText
+// 如果 yearText 只包含朝代（如"唐宋-明清"、"宋"），显示"时间：" + yearText
+var routeDisplayTime = computed(function() {
+  if (!selectedRoute.value) return ''
+  if (selectedRoute.value.yearText) return selectedRoute.value.yearText
+  if (selectedRoute.value.startYear != null && selectedRoute.value.endYear != null) {
+    return selectedRoute.value.startYear + '—' + selectedRoute.value.endYear + '年'
+  }
+  if (selectedRoute.value.startYear != null) return selectedRoute.value.startYear + '年'
+  return selectedRoute.value.dynasty
+})
+
+var routeViaText = computed(function() {
+  if (!selectedRoute.value) return ''
+  var via = selectedRoute.value.via || []
+  return via.length ? via.join(' → ') : '直达'
+})
+
+// 五种生命周期状态判断
+function getRouteState(rp, targetProgress) {
+  if (targetProgress < rp.startProgress) return 'hidden'
+  if (targetProgress < rp.drawEndProgress) return 'drawing'
+  if (targetProgress < rp.retireStartProgress) return 'active'
+  if (targetProgress < rp.retireEndProgress) return 'retiring'
+  return 'historical'
+}
+
+const NODE_FADE_PROGRESS = 0.008 // 60 秒完整播放时约 480ms
+const DYNASTY_PLAY_DURATION_MS = {
+  '唐代': 9000,
+  '宋代': 9000,
+  '元代': 8000,
+  '明代': 9000,
+  '清代': 15000,
+  '抗战时期': 8000,
+}
+const DYNASTY_SETTLE_MS = 1500
+
+function dynastyStage(name) {
+  var index = Math.max(0, dynastyTicks.findIndex(function(tick) { return tick.name === name }))
+  return {
+    index,
+    start: dynastyTicks[index].progress,
+    end: index < dynastyTicks.length - 1 ? dynastyTicks[index + 1].progress : 1,
+    duration: DYNASTY_PLAY_DURATION_MS[name] || 8000,
+  }
+}
+
+function visualGeometryKey(route) {
+  return visualPoints(route).map(function(point) {
+    return point.name + ':' + Number(point.lon).toFixed(5) + ':' + Number(point.lat).toFixed(5)
+  }).join('|')
+}
+
+// 同一朝代、同一节点序列的年度记录合并为一条视觉路线，再把视觉路线
+// 分布到该朝代的叙事时长中；全部绘制在最后 1.5 秒稳定展示前完成。
+function precomputeRouteProgress() {
+  routeProgressData = []
+  routeProgressMap = new Map()
+  var groups = new Map()
+  TEA_TRADE_DATA.forEach(function(route) {
+    var key = route.startDynasty + '|' + visualGeometryKey(route)
+    var group = groups.get(key)
+    if (!group) {
+      group = { key, routes: [], route }
+      groups.set(key, group)
+    }
+    group.routes.push(route)
+  })
+
+  dynastyTicks.forEach(function(tick) {
+    var stage = dynastyStage(tick.name)
+    var stageGroups = Array.from(groups.values())
+      .filter(function(group) { return group.route.startDynasty === tick.name })
+      .sort(function(a, b) {
+        return Number(a.route.startYear) - Number(b.route.startYear) || a.route.rawIndex - b.route.rawIndex
+      })
+    var count = stageGroups.length
+    var drawingEndRatio = (stage.duration - DYNASTY_SETTLE_MS) / stage.duration
+    var routeDrawRatio = count <= 1
+      ? drawingEndRatio - 0.05
+      : count <= 3
+        ? Math.max(0.48, drawingEndRatio * 0.72)
+        : Math.max(0.22, drawingEndRatio * 0.38)
+    var startWindow = Math.max(0, drawingEndRatio - routeDrawRatio - 0.05)
+
+    stageGroups.forEach(function(group, index) {
+      var startRatio = count <= 1
+        ? 0.05
+        : 0.05 + startWindow * (index / Math.max(1, count - 1))
+      var endRatio = Math.min(drawingEndRatio, startRatio + routeDrawRatio)
+      if (index === count - 1) endRatio = drawingEndRatio
+      var endDynastyIndex = Math.max.apply(null, group.routes.map(function(route) {
+        return Math.max(stage.index, dynastyTicks.findIndex(function(item) { return item.name === route.endDynasty }))
+      }))
+      var lifeEnd = endDynastyIndex < dynastyTicks.length - 1
+        ? dynastyTicks[endDynastyIndex + 1].progress
+        : 1
+      var nextStage = dynastyTicks[Math.min(dynastyTicks.length - 1, endDynastyIndex + 1)]
+      var nextDuration = DYNASTY_PLAY_DURATION_MS[nextStage.name] || 8000
+      var nextEnd = endDynastyIndex + 2 < dynastyTicks.length ? dynastyTicks[endDynastyIndex + 2].progress : 1
+      var retireSpan = Math.max(0.004, (nextEnd - lifeEnd) * (1000 / nextDuration))
+      var data = {
+        route: group.route,
+        routes: group.routes,
+        startProgress: stage.start + (stage.end - stage.start) * startRatio,
+        drawEndProgress: stage.start + (stage.end - stage.start) * endRatio,
+        retireStartProgress: lifeEnd,
+        retireEndProgress: Math.min(1, lifeEnd + retireSpan),
+        nodeFadeProgress: (stage.end - stage.start) * (600 / stage.duration),
+        key: 'visual-' + group.key,
+        visual: null,
+      }
+      routeProgressData.push(data)
+      group.routes.forEach(function(route) { routeProgressMap.set(String(route.id), data) })
+    })
+  })
+
+  routeProgressData.sort(function(a, b) { return a.startProgress - b.startProgress })
+}
+
+function getVisiblePath(fullPath, routeProgress) {
+  if (routeProgress <= 0 || !fullPath || fullPath.length < 2) return []
+  if (routeProgress >= 1) return fullPath
+  var totalPoints = fullPath.length
+  var visibleCount = Math.max(2, Math.floor(totalPoints * routeProgress))
+  return fullPath.slice(0, visibleCount)
+}
+
 var routeFromTo = computed(function() {
   if (!selectedRoute.value) return ''
-  var vp = visualPoints(selectedRoute.value)
-  if (!vp || vp.length === 0) return ''
-  var fromName = vp[0] && vp[0].name ? vp[0].name : (selectedRoute.value.origin || '起点')
-  var toName = vp[vp.length - 1] && vp[vp.length - 1].name ? vp[vp.length - 1].name : (selectedRoute.value.destination || '终点')
-  return fromName + ' → ' + toName
-})
-var routeHistoryEvents = computed(function() {
-  if (!selectedRoute.value) return []
-  return getEventsByYear(selectedRoute.value.startYear)
+  return selectedRoute.value.origin + ' → ' + selectedRoute.value.destination
 })
 
-watch(filter, function() {
-  render()
-})
-
-function onSliderInput(e) {
-  var v = Number(e.target.value)
-  currentYear.value = getClosestDataYear(v)
-  eraMode.value = 'era'
-  renderByEra(currentYear.value)
+function onSliderMouseDown(e) {
+  isDraggingTimeline.value = true
+  pausePlayback()
+  showDynastyPanel()
+  updateProgressFromEvent(e)
+  window.addEventListener('mousemove', onSliderMouseMove)
+  window.addEventListener('mouseup', onSliderMouseUp)
 }
 
-function onSliderChange(e) {
-  var v = Number(e.target.value)
-  currentYear.value = getClosestDataYear(v)
-  eraMode.value = 'era'
-  renderByEra(currentYear.value)
+function onSliderMouseMove(e) {
+  if (!isDraggingTimeline.value) return
+  updateProgressFromEvent(e)
 }
 
-function renderByEra(year) {
-  if (!map || !routeLayer || !nodeLayer) return
-  
-  var routes = []
-  for (var i = 0; i < TEA_TRADE_DATA.length; i++) {
-    var r = TEA_TRADE_DATA[i]
-    try {
-      var k = kind(r)
-      if (filter.value === 'sea' && k !== 'sea') continue
-      if (filter.value === 'land' && k !== 'land') continue
-      
-      if (r.startYear === undefined || r.startYear === null) continue
-      
-      var state = getRouteState(r, year)
-      if (state === 'not_started') continue
-      
-      routes.push(r)
-    } catch (e) {
-      console.warn('处理路线时出错，已跳过:', r, e)
+function onSliderMouseUp(e) {
+  isDraggingTimeline.value = false
+  window.removeEventListener('mousemove', onSliderMouseMove)
+  window.removeEventListener('mouseup', onSliderMouseUp)
+}
+
+function updateProgressFromEvent(e) {
+  if (!sliderTrack.value) return
+  var rect = sliderTrack.value.getBoundingClientRect()
+  var x = Math.max(0, Math.min(rect.width, e.clientX - rect.left))
+  var newProgress = rect.width > 0 ? x / rect.width : 0
+  progress.value = newProgress
+  renderCurrentProgress()
+}
+
+function animateProgressTo(targetProgress, duration) {
+  if (isAnimatingProgress) return
+  isAnimatingProgress = true
+  if (isPlaying.value) {
+    isPlaying.value = false
+    stopAnimationLoop()
+  }
+  var startProgress = progress.value
+  var startTime = null
+  function step(timestamp) {
+    if (!isAnimatingProgress) return
+    if (startTime === null) startTime = timestamp
+    var elapsed = timestamp - startTime
+    var t = Math.min(1, elapsed / duration)
+    var eased = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2
+    progress.value = startProgress + (targetProgress - startProgress) * eased
+    renderCurrentProgress()
+    if (t < 1) {
+      requestAnimationFrame(step)
+    } else {
+      isAnimatingProgress = false
     }
   }
-  
-  var sortedRoutes = routes.sort(function(a, b) {
-    var aYear = Number(a.startYear) || 0
-    var bYear = Number(b.startYear) || 0
-    return aYear - bYear
+  requestAnimationFrame(step)
+}
+
+function renderCurrentProgress() {
+  if (!map || !routeLayer || !nodeLayer) return
+  drawRoutesAtProgress(progress.value)
+}
+
+function routeNodeFractions(points) {
+  if (!points || points.length <= 1) return [0]
+  var cumulative = [0]
+  var total = 0
+  for (var i = 1; i < points.length; i++) {
+    var prev = L.latLng(points[i - 1].lat, points[i - 1].lon)
+    var next = L.latLng(points[i].lat, points[i].lon)
+    total += prev.distanceTo(next)
+    cumulative.push(total)
+  }
+  return cumulative.map(function(distance, index) {
+    return total > 0 ? distance / total : index / (points.length - 1)
   })
-  
-  stepRoutes.value = sortedRoutes
-  totalSteps.value = sortedRoutes.length
-  
-  if (totalSteps.value === 0) {
-    if (routeLayer) routeLayer.clearLayers()
-    if (nodeLayer) nodeLayer.clearLayers()
-    stats.activeCount = 0
-    stats.endedCount = 0
-    stats.routeCount = 0
-    stats.countryCount = 0
+}
+
+function buildRouteRegistry() {
+  routeLayer.clearLayers()
+  routeHitLayer.clearLayers()
+  routeProgressData.forEach(function(rp) {
+    var fullPath = coords(visualPoints(rp.route))
+    if (fullPath.length < 2) return
+    var baseColor = kind(rp.route) === 'sea' ? '#5C7C3A' : '#B28F4C'
+    var historicalColor = kind(rp.route) === 'sea' ? '#6B8060' : '#8A8270'
+    var primaryLine = L.polyline([], {
+      pane: 'tradeRoutePane', color: baseColor, weight: 2.8, opacity: 0,
+      smoothFactor: 0.5, lineCap: 'round', lineJoin: 'round', interactive: false,
+    }).addTo(routeLayer)
+    var historicalLine = L.polyline([], {
+      pane: 'tradeRoutePane', color: historicalColor, weight: 1.8, opacity: 0,
+      smoothFactor: 0.5, dashArray: '6 4', lineCap: 'round', lineJoin: 'round', interactive: false,
+    }).addTo(routeLayer)
+    var hitLine = L.polyline([], {
+      pane: 'routeHitPane', color: '#000000', weight: 14, opacity: 0.001,
+      interactive: true, bubblingMouseEvents: false,
+    }).addTo(routeHitLayer)
+    rp.visual = { fullPath, primaryLine, historicalLine, hitLine, hover: false }
+    hitLine.on('click', function(event) { openRouteDetail(routeForVisual(rp), event) })
+    hitLine.on('mouseover', function() {
+      rp.visual.hover = true
+      map.getContainer().style.cursor = 'pointer'
+      updateRouteVisual(rp, progress.value)
+    })
+    hitLine.on('mouseout', function() {
+      rp.visual.hover = false
+      map.getContainer().style.cursor = ''
+      updateRouteVisual(rp, progress.value)
+    })
+    hitLine.bindTooltip('', { sticky: true, direction: 'top', offset: [0, -6], className: 'ch4-tip' })
+  })
+}
+
+function updateRouteVisual(rp, targetProgress) {
+  if (!rp.visual) return
+  var visual = rp.visual
+  var passes = routePassesFilter(rp.route)
+  var state = passes ? getRouteState(rp, targetProgress) : 'hidden'
+  if (state === 'hidden') {
+    visual.primaryLine.setLatLngs([])
+    visual.historicalLine.setLatLngs([])
+    visual.hitLine.setLatLngs([])
     return
   }
-  
-  renderAllRoutes(sortedRoutes, year)
+  var drawSpan = Math.max(0.000001, rp.drawEndProgress - rp.startProgress)
+  var local = state === 'drawing'
+    ? Math.max(0, Math.min(1, (targetProgress - rp.startProgress) / drawSpan))
+    : 1
+  var visiblePath = getVisiblePath(visual.fullPath, local)
+  if (visiblePath.length < 2) {
+    visual.primaryLine.setLatLngs([])
+    visual.historicalLine.setLatLngs([])
+    visual.hitLine.setLatLngs([])
+    return
+  }
+  var highlighted = visual.hover || (selectedRoute.value && routeProgressMap.get(String(selectedRoute.value.id)) === rp)
+  var weightBoost = highlighted ? 1.5 : 0
+  var primaryOpacity = state === 'historical' ? 0 : 0.9
+  var historicalOpacity = state === 'historical' ? 0.6 : 0
+  if (state === 'drawing') primaryOpacity = 0.95
+  if (state === 'retiring') {
+    var retireSpan = Math.max(0.000001, rp.retireEndProgress - rp.retireStartProgress)
+    var retire = Math.max(0, Math.min(1, (targetProgress - rp.retireStartProgress) / retireSpan))
+    primaryOpacity = (1 - retire) * 0.9
+    historicalOpacity = retire * 0.6
+  }
+  if (highlighted) {
+    if (primaryOpacity > 0) primaryOpacity = 1
+    if (historicalOpacity > 0) historicalOpacity = 0.9
+  }
+  visual.primaryLine.setLatLngs(visiblePath)
+  visual.primaryLine.setStyle({ weight: 2.8 + weightBoost, opacity: primaryOpacity })
+  visual.historicalLine.setLatLngs(state === 'drawing' ? [] : visiblePath)
+  visual.historicalLine.setStyle({ weight: 1.8 + weightBoost, opacity: historicalOpacity })
+  visual.hitLine.setLatLngs(visiblePath)
+  var detailRoute = routeForVisual(rp)
+  visual.hitLine.setTooltipContent((detailRoute.yearText || detailRoute.dynasty) + '｜' + detailRoute.origin + '→' + detailRoute.destination)
 }
 
-function renderAllRoutes(routes, year) {
-  if (!map || !routeLayer || !nodeLayer) return
-  
-  routeLayer.clearLayers()
+function buildNodeRegistry() {
   nodeLayer.clearLayers()
-  
-  var activeNodes = new Map()
-  var activeCount = 0
-  var endedCount = 0
-  var routeCount = 0
-  
-  routes.forEach(function(r, idx) {
-    try {
-      var k = kind(r)
-      var state = getRouteState(r, year)
-      
-      var isActive = state === 'active' || state === 'active_permanent'
-      var isEnded = state === 'ended'
-      
-      var vp = visualPoints(r)
-      if (!vp || vp.length < 2) return
-      
-      var c = coords(vp)
-      if (!c || c.length < 2) return
-      
-      var baseColor = k === 'sea' ? '#196c58' : '#d4933b'
-      
-      if (isActive) activeCount++
-      if (isEnded) endedCount++
-      routeCount += Math.max(0, (vp.length || 0) - 1)
-      
-      var line = L.polyline(c, {
-        color: isActive ? baseColor : '#8a8270',
-        weight: isActive ? 2.7 : 1.5,
-        opacity: isActive ? 0.92 : 0.45,
-        smoothFactor: 0.5,
-        dashArray: isEnded ? '6 4' : null,
-        interactive: true,
-      })
-      
-      if (isActive) {
-        var totalLen = Math.max(1, c.length * 20)
-        line.setStyle({ dashArray: totalLen, dashOffset: totalLen })
-        setTimeout(function() {
-          try { line.setStyle({ dashOffset: 0 }) } catch (e) {}
-        }, 100 + idx * 60)
-      }
-      
-      line.on('click', function(e) {
-        L.DomEvent.stopPropagation(e)
-        selectedRoute.value = r
-        showHint.value = false
-      })
-      
-      var fromName = (vp.length && vp[0] && vp[0].name) ? vp[0].name : (r.origin || '起点')
-      var toName = (vp.length && vp[vp.length - 1] && vp[vp.length - 1].name) ? vp[vp.length - 1].name : (r.destination || '终点')
-      
-      line.bindTooltip((r.yearText || '') + '｜' + fromName + '→' + toName, {
-        sticky: true,
-        direction: 'top',
-        offset: [0, -6],
-        className: 'ch4-tip',
-      })
-      
-      line.addTo(routeLayer)
-      
-      if (isActive && vp && vp.length >= 2) {
-        vp.forEach(function(p, pIdx) {
-          if (!p || p.lon === undefined || p.lat === undefined) return
-          var key = p.lon + ',' + p.lat
-          if (!activeNodes.has(key)) {
-            var isOrigin = pIdx === 0
-            var isDest = pIdx === vp.length - 1
-            activeNodes.set(key, { lon: p.lon, lat: p.lat, name: p.name, isOrigin: isOrigin, isCapital: isDest && !inChina(p) })
-          }
+  nodeHitLayer.clearLayers()
+  nodeRegistry.clear()
+  routeProgressData.forEach(function(rp) {
+    var points = visualPoints(rp.route)
+    var fractions = routeNodeFractions(points)
+    points.forEach(function(point, nodeIndex) {
+      if (!point || point.lon == null || point.lat == null) return
+      var nodeKey = (point.name || '路线节点') + '|' + Number(point.lat).toFixed(6) + '|' + Number(point.lon).toFixed(6)
+      var node = nodeRegistry.get(nodeKey)
+      if (!node) {
+        var marker = L.circleMarker([point.lat, point.lon], {
+          pane: 'tradeNodePane', radius: 5, fillColor: '#B28F4C', color: '#ffffff',
+          weight: 2, fillOpacity: 0, opacity: 0, interactive: false,
+        }).addTo(nodeLayer)
+        var hitMarker = L.circleMarker([point.lat, point.lon], {
+          pane: 'nodeHitPane', radius: 10, color: '#000000', weight: 0,
+          opacity: 0, fillOpacity: 0, interactive: true, bubblingMouseEvents: false,
         })
-      }
-    } catch (e) {
-      console.warn('渲染单条路线时出错:', r, e)
-    }
-  })
-  
-  var nodeIdx = 0
-  var nodeIterator = activeNodes.values()
-  var nodeResult = nodeIterator.next()
-  while (!nodeResult.done) {
-    var p = nodeResult.value
-    try {
-      var isCapital = p.isCapital && !p.isOrigin
-      var radius = isCapital ? 7 : 5
-      var fillColor = p.isOrigin ? '#196c58' : (isCapital ? '#B28F4C' : '#5C7C3A')
-      
-      var marker = L.circleMarker([p.lat || 0, p.lon || 0], {
-        radius: 0,
-        fillColor: fillColor,
-        color: '#ffffff',
-        weight: 2,
-        fillOpacity: 0.95,
-      }).bindTooltip(p.name || '节点', {
-        permanent: false,
-        direction: 'top',
-        offset: [0, -6],
-        className: 'ch4-node-tip',
-      }).addTo(nodeLayer)
-      
-      setTimeout(function(marker, radius) {
-        return function() {
-          try { marker.setStyle({ radius: radius }) } catch (e) {}
+        node = {
+          marker, hitMarker, routeIds: new Set(), routeFractions: new Map(),
+          name: point.name || '路线节点', lat: Number(point.lat), lng: Number(point.lon), hitEnabled: false,
         }
-      }(marker, radius), 200 + nodeIdx * 60)
-      nodeIdx++
-    } catch (e) {
-      console.warn('渲染节点时出错:', p, e)
+        hitMarker.bindTooltip(node.name, { direction: 'top', offset: [0, -6], className: 'ch4-node-tip' })
+        hitMarker.on('click', function(event) {
+          var route = getRouteForNode(node)
+          if (route) openRouteDetail(route, event)
+        })
+        nodeRegistry.set(nodeKey, node)
+      }
+      ;(rp.routes || [rp.route]).forEach(function(route) {
+        var id = String(route.id)
+        node.routeIds.add(id)
+        node.routeFractions.set(id, fractions[nodeIndex] || 0)
+      })
+    })
+  })
+}
+
+function nodeOpacityForRoute(node, routeId, targetProgress) {
+  var rp = routeProgressMap.get(String(routeId))
+  if (!rp || !routePassesFilter(rp.route) || targetProgress < rp.startProgress) return 0
+  var fraction = node.routeFractions.get(String(routeId)) || 0
+  var trigger = rp.startProgress + (rp.drawEndProgress - rp.startProgress) * fraction
+  var fadeSpan = Math.max(0.0001, rp.nodeFadeProgress || NODE_FADE_PROGRESS)
+  var opacity = Math.max(0, Math.min(1, (targetProgress - trigger) / fadeSpan))
+  var state = getRouteState(rp, targetProgress)
+  if (state === 'retiring') {
+    var span = Math.max(0.000001, rp.retireEndProgress - rp.retireStartProgress)
+    opacity *= 1 - Math.max(0, Math.min(1, (targetProgress - rp.retireStartProgress) / span)) * 0.5
+  } else if (state === 'historical') opacity = Math.min(opacity, 0.5)
+  return opacity
+}
+
+function updateNodeMarkers(targetProgress) {
+  nodeRegistry.forEach(function(node) {
+    var bestOpacity = 0
+    var bestRoute = null
+    node.routeIds.forEach(function(routeId) {
+      var opacity = nodeOpacityForRoute(node, routeId, targetProgress)
+      if (opacity > bestOpacity) {
+        bestOpacity = opacity
+        var rp = routeProgressMap.get(String(routeId))
+        bestRoute = rp && routeForVisual(rp)
+      }
+    })
+    node.marker.setStyle({
+      fillColor: bestRoute && kind(bestRoute) === 'sea' ? '#5C7C3A' : '#B28F4C',
+      fillOpacity: bestOpacity, opacity: bestOpacity,
+    })
+    var enabled = bestOpacity > 0.05
+    if (enabled && !node.hitEnabled) {
+      nodeHitLayer.addLayer(node.hitMarker)
+      node.hitEnabled = true
+    } else if (!enabled && node.hitEnabled) {
+      nodeHitLayer.removeLayer(node.hitMarker)
+      node.hitEnabled = false
     }
-    nodeResult = nodeIterator.next()
+    node.hitMarker.setStyle({ opacity: enabled ? 0.001 : 0, fillOpacity: enabled ? 0.001 : 0 })
+    var hitElement = node.hitMarker.getElement()
+    if (hitElement) hitElement.style.pointerEvents = enabled ? 'auto' : 'none'
+  })
+}
+
+function getRouteForNode(node) {
+  var candidates = []
+  node.routeIds.forEach(function(routeId) {
+    var rp = routeProgressMap.get(String(routeId))
+    if (!rp || !routePassesFilter(rp.route) || rp.startProgress > progress.value + 1e-8) return
+    candidates.push({ rp, route: routeForVisual(rp) })
+  })
+  if (!candidates.length) return null
+  var current = candidates.filter(function(item) {
+    return getDynastyByProgress(item.rp.startProgress).name === dynastyName.value
+  })
+  var list = current.length ? current : candidates
+  list.sort(function(a, b) {
+    return b.rp.startProgress - a.rp.startProgress || Number(b.route.startYear) - Number(a.route.startYear)
+  })
+  return list[0].route
+}
+
+function drawRoutesAtProgress(targetProgress) {
+  routeProgressData.forEach(function(rp) { updateRouteVisual(rp, targetProgress) })
+  updateNodeMarkers(targetProgress)
+}
+
+function startAnimationLoop() {
+  if (animationFrameId) return
+  lastFrameTime = null
+  isAnimatingProgress = false
+  
+  function animate(currentTime) {
+    if (!isPlaying.value) {
+      animationFrameId = null
+      return
+    }
+
+    if (lastFrameTime === null) {
+      lastFrameTime = currentTime
+    }
+
+    var deltaTime = currentTime - lastFrameTime
+    lastFrameTime = currentTime
+
+    var activeTick = getDynastyByProgress(progress.value)
+    var stage = dynastyStage(activeTick.name)
+    var stageSpan = Math.max(0.000001, stage.end - stage.start)
+    var newProgress = progress.value + deltaTime * (stageSpan / stage.duration)
+    newProgress = Math.min(stage.end, newProgress)
+
+    if (newProgress >= 1.0) {
+      progress.value = 1.0
+      isPlaying.value = false
+      stopAnimationLoop()
+      renderCurrentProgress()
+      return
+    }
+
+    progress.value = newProgress
+    renderCurrentProgress()
+    animationFrameId = requestAnimationFrame(animate)
   }
   
-  stats.activeCount = activeCount
-  stats.endedCount = endedCount
-  stats.routeCount = routeCount
-  stats.countryCount = activeNodes.size
+  animationFrameId = requestAnimationFrame(animate)
 }
 
-function updateDynastyInfo() {}
+function stopAnimationLoop() {
+  if (animationFrameId) {
+    cancelAnimationFrame(animationFrameId)
+    animationFrameId = null
+  }
+}
 
 function togglePlay() {
-  if (totalSteps.value === 0) {
-    console.warn('没有可播放的路线')
-    return
-  }
-  
-  eraMode.value = 'all'
-  
-  if (currentStep.value >= totalSteps.value - 1 && !isPlaying.value) {
-    currentStep.value = 0
-    renderStep(0)
-    syncSliderToStep(0)
-  }
-  
-  isPlaying.value = !isPlaying.value
-  
-  if (isPlaying.value) {
-    if (currentStep.value >= totalSteps.value - 1) {
-      currentStep.value = 0
-      renderStep(0)
-      syncSliderToStep(0)
-    }
-    
-    if (playTimer) {
-      clearInterval(playTimer)
-      playTimer = null
-    }
-    
-    playTimer = setInterval(function() {
-      var next = currentStep.value + 1
-      if (next < totalSteps.value) {
-        currentStep.value = next
-        renderStep(next)
-        syncSliderToStep(next)
-      } else {
-        isPlaying.value = false
-        if (playTimer) {
-          clearInterval(playTimer)
-          playTimer = null
-        }
-      }
-    }, 4000)
-  } else {
-    if (playTimer) {
-      clearInterval(playTimer)
-      playTimer = null
-    }
-  }
-}
-
-function syncSliderToStep(stepIndex) {
-  if (stepIndex >= stepRoutes.value.length) return
-  var route = stepRoutes.value[stepIndex]
-  if (!route) return
-  
-  var year = Number(route.startYear) || 618
-  currentYear.value = year
-  
-  if (sliderInput.value) {
-    sliderInput.value.value = year
-  }
-}
-
-function renderStep(stepIndex) {
-  if (!map || !routeLayer || !nodeLayer) return
-  
-  if (stepIndex >= stepRoutes.value.length) {
-    console.warn('步骤索引超出范围:', stepIndex, stepRoutes.value.length)
-    return
-  }
-  
-  eraMode.value = 'all'
-  
-  routeLayer.clearLayers()
-  nodeLayer.clearLayers()
-  
-  var routesToShow = stepRoutes.value.slice(0, stepIndex + 1)
-  var activeNodes = new Map()
-  var activeCount = 0
-  var endedCount = 0
-  var routeCount = 0
-  
-  routesToShow.forEach(function(r, idx) {
-    try {
-      var k = kind(r)
-      if (filter.value === 'sea' && k !== 'sea') return
-      if (filter.value === 'land' && k !== 'land') return
-      
-      var displayYear = Number(r.startYear) + 50
-      var state = getRouteState(r, displayYear)
-      
-      var isActive = state === 'active' || state === 'active_permanent'
-      var isEnded = state === 'ended'
-      
-      var vp = visualPoints(r)
-      if (!vp || vp.length < 2) return
-      
-      var c = coords(vp)
-      if (!c || c.length < 2) return
-      
-      var baseColor = k === 'sea' ? '#196c58' : '#d4933b'
-      
-      if (isActive) activeCount++
-      if (isEnded) endedCount++
-      routeCount += Math.max(0, (vp.length || 0) - 1)
-      
-      var line = L.polyline(c, {
-        color: isActive ? baseColor : '#8a8270',
-        weight: isActive ? 2.7 : 1.5,
-        opacity: isActive ? 0.92 : 0.45,
-        smoothFactor: 0.5,
-        dashArray: isEnded ? '6 4' : null,
-        interactive: true,
-      })
-      
-      if (isActive) {
-        var totalLen = Math.max(1, c.length * 20)
-        line.setStyle({ dashArray: totalLen, dashOffset: totalLen })
-        setTimeout(function() {
-          try { line.setStyle({ dashOffset: 0 }) } catch (e) {}
-        }, 300 + idx * 150)
-      }
-      
-      line.on('click', function(e) {
-        L.DomEvent.stopPropagation(e)
-        selectedRoute.value = r
-        showHint.value = false
-      })
-      
-      var fromName = (vp.length && vp[0] && vp[0].name) ? vp[0].name : (r.origin || '起点')
-      var toName = (vp.length && vp[vp.length - 1] && vp[vp.length - 1].name) ? vp[vp.length - 1].name : (r.destination || '终点')
-      
-      line.bindTooltip((r.yearText || '') + '｜' + fromName + '→' + toName, {
-        sticky: true,
-        direction: 'top',
-        offset: [0, -6],
-        className: 'ch4-tip',
-      })
-      
-      line.addTo(routeLayer)
-      
-      if (isActive && vp && vp.length >= 2) {
-        vp.forEach(function(p, pIdx) {
-          if (!p || p.lon === undefined || p.lat === undefined) return
-          var key = p.lon + ',' + p.lat
-          if (!activeNodes.has(key)) {
-            var isOrigin = pIdx === 0
-            var isDest = pIdx === vp.length - 1
-            activeNodes.set(key, { lon: p.lon, lat: p.lat, name: p.name, isOrigin: isOrigin, isCapital: isDest && !inChina(p) })
-          }
-        })
-      }
-    } catch (e) {
-      console.warn('渲染单条路线时出错:', r, e)
-    }
-  })
-  
-  var nodeIdx = 0
-  var nodeIterator = activeNodes.values()
-  var nodeResult = nodeIterator.next()
-  while (!nodeResult.done) {
-    var p = nodeResult.value
-    try {
-      var isCapital = p.isCapital && !p.isOrigin
-      var radius = isCapital ? 7 : 5
-      var fillColor = p.isOrigin ? '#196c58' : (isCapital ? '#B28F4C' : '#5C7C3A')
-      
-      var marker = L.circleMarker([p.lat || 0, p.lon || 0], {
-        radius: 0,
-        fillColor: fillColor,
-        color: '#ffffff',
-        weight: 2,
-        fillOpacity: 0.95,
-      }).bindTooltip(p.name || '节点', {
-        permanent: false,
-        direction: 'top',
-        offset: [0, -6],
-        className: 'ch4-node-tip',
-      }).addTo(nodeLayer)
-      
-      setTimeout(function(marker, radius) {
-        return function() {
-          try { marker.setStyle({ radius: radius }) } catch (e) {}
-        }
-      }(marker, radius), 300 + nodeIdx * 80)
-      nodeIdx++
-    } catch (e) {
-      console.warn('渲染节点时出错:', p, e)
-    }
-    nodeResult = nodeIterator.next()
-  }
-  
-  stats.activeCount = activeCount
-  stats.endedCount = endedCount
-  stats.routeCount = routeCount
-  stats.countryCount = activeNodes.size
-  
-  if (stepIndex < stepRoutes.value.length) {
-    var currentRoute = stepRoutes.value[stepIndex]
-    if (currentRoute) {
-      selectedRoute.value = currentRoute
-      showHint.value = false
-    }
-  }
-}
-
-function render() {
-  if (!map || !routeLayer || !nodeLayer) return
-  
-  var routes = []
-  for (var i = 0; i < TEA_TRADE_DATA.length; i++) {
-    var r = TEA_TRADE_DATA[i]
-    try {
-      var k = kind(r)
-      if (filter.value === 'sea' && k !== 'sea') continue
-      if (filter.value === 'land' && k !== 'land') continue
-      
-      if (r.startYear === undefined || r.startYear === null) {
-        console.warn('路线缺少 startYear，已跳过:', r)
-        continue
-      }
-      
-      routes.push(r)
-    } catch (e) {
-      console.warn('处理路线时出错，已跳过:', r, e)
-    }
-  }
-  
-  stepRoutes.value = routes.sort(function(a, b) {
-    var aYear = Number(a.startYear) || 0
-    var bYear = Number(b.startYear) || 0
-    return aYear - bYear
-  })
-  
-  totalSteps.value = stepRoutes.value.length
-  
-  if (totalSteps.value === 0) {
-    console.warn('没有可显示的路线数据')
-    if (routeLayer) routeLayer.clearLayers()
-    if (nodeLayer) nodeLayer.clearLayers()
-    stats.activeCount = 0
-    stats.endedCount = 0
-    stats.routeCount = 0
-    stats.countryCount = 0
-    return
-  }
-  
-  if (eraMode.value === 'era') {
-    renderByEra(currentYear.value)
-    return
-  }
+  if (isDraggingTimeline.value) return
   
   if (!isPlaying.value) {
-    currentStep.value = 0
-    renderStep(0)
-    setTimeout(function() { syncSliderToStep(0) }, 100)
+    if (progress.value >= 1.0) {
+      progress.value = 0
+    }
+    showDynastyPanel()
+    isPlaying.value = true
+    startAnimationLoop()
+  } else {
+    isPlaying.value = false
+    stopAnimationLoop()
   }
 }
 
 function resetView() {
-  currentYear.value = 618
-  filter.value = 'all'
-  eraMode.value = 'all'
-  if (map) map.flyTo([30, 90], 3, { duration: 1 })
-  if (isPlaying.value) {
-    isPlaying.value = false
-    if (playTimer) {
-      clearInterval(playTimer)
-      playTimer = null
-    }
-  }
-  showHint.value = true
-  selectedRoute.value = null
-  currentStep.value = 0
-  render()
-  setTimeout(function() {
-    if (sliderInput.value) {
-      sliderInput.value.value = 618
-    }
-  }, 100)
+  stopAnimationLoop()
+  isAnimatingProgress = false
+  isPlaying.value = false
+  progress.value = 0
+  showDynastyPanel()
+  renderCurrentProgress()
+}
+
+function reloadMap() {
+  ancientError.value = null
+  ancientLoading.value = true
+  nextTick(function() {
+    initMap()
+  })
 }
 
 function initMap() {
-  map = L.map(mapEl.value, {
-    center: [30, 90],
-    zoom: 3,
-    minZoom: 2,
-    maxZoom: 7,
-    worldCopyJump: true,
-    zoomControl: false,
-    attributionControl: false,
+  if (!mapEl.value) {
+    console.error('地图容器不存在')
+    ancientError.value = '地图容器未找到，请刷新页面'
+    ancientLoading.value = false
+    return
+  }
+
+  var rect = mapEl.value.getBoundingClientRect()
+  if (rect.width === 0 || rect.height === 0) {
+    console.warn('地图容器尺寸为0，延迟初始化')
+    setTimeout(function() { initMap() }, 100)
+    return
+  }
+
+  ancientLoading.value = true
+  ancientError.value = null
+  ancientMapReady.value = false
+
+  try {
+    if (map) {
+      map.remove()
+      map = null
+    }
+
+    map = L.map(mapEl.value, {
+      center: [32, 88],
+      zoom: 2.5,
+      minZoom: 1.5,
+      maxZoom: 7,
+      zoomSnap: 0.5,
+      zoomDelta: 0.5,
+      worldCopyJump: true,
+      zoomControl: false,
+      attributionControl: false,
+      preferCanvas: true,
+    })
+
+    map.createPane('chinaProvincePane')
+    map.getPane('chinaProvincePane').style.zIndex = 340
+    map.createPane('chinaBorderHaloPane')
+    map.getPane('chinaBorderHaloPane').style.zIndex = 350
+    map.createPane('chinaBorderPane')
+    map.getPane('chinaBorderPane').style.zIndex = 355
+    map.createPane('tradeRoutePane')
+    map.getPane('tradeRoutePane').style.zIndex = 460
+    map.createPane('routeHitPane')
+    map.getPane('routeHitPane').style.zIndex = 470
+    map.createPane('tradeNodePane')
+    map.getPane('tradeNodePane').style.zIndex = 480
+    map.createPane('nodeHitPane')
+    map.getPane('nodeHitPane').style.zIndex = 490
+
+    L.control.zoom({ position: 'bottomright' }).addTo(map)
+
+    try {
+      var tileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
+        subdomains: 'abcd',
+        maxZoom: 19,
+        attribution: '',
+        errorTileUrl: '',
+      })
+      tileLayer.on('tileerror', function(error) {
+        try { error.target._raw = true } catch(e) {}
+      })
+      tileLayer.addTo(map)
+    } catch (tileErr) {
+      console.warn('瓦片图层加载失败:', tileErr)
+    }
+
+    routeLayer = L.layerGroup().addTo(map)
+    routeHitLayer = L.layerGroup().addTo(map)
+    nodeLayer = L.layerGroup().addTo(map)
+    nodeHitLayer = L.layerGroup().addTo(map)
+
+    map.on('click', function() {
+      if (panelMode.value === 'route') showDynastyPanel()
+    })
+
+    loadChinaBoundary()
+
+    precomputeRouteProgress()
+    buildRouteRegistry()
+    buildNodeRegistry()
+
+    progress.value = 0
+    nextTick(function() {
+      map.invalidateSize()
+      renderCurrentProgress()
+      ancientLoading.value = false
+      ancientMapReady.value = true
+    })
+
+    setupMapResizeObserver()
+
+    console.log('古代贸易地图初始化成功')
+  } catch (err) {
+    console.error('地图初始化失败:', err)
+    ancientError.value = '地图初始化失败: ' + (err.message || '未知错误')
+    ancientLoading.value = false
+  }
+}
+
+function fitToShowAllRoutes() {
+  if (!map) return
+
+  // Calculate bounds from all routes
+  var allLatLngs = []
+  routeProgressData.forEach(function(rp) {
+    var route = rp.route
+    try {
+      var vp = visualPoints(route)
+      if (!vp || vp.length < 2) return
+      var c = coords(vp)
+      if (!c || c.length < 2) return
+      c.forEach(function(pt) {
+        allLatLngs.push([pt[1], pt[0]]) // L.latLng format
+      })
+    } catch (e) {}
   })
 
-  L.control.zoom({ position: 'bottomright' }).addTo(map)
+  if (allLatLngs.length > 0) {
+    var bounds = L.latLngBounds(allLatLngs)
+    // Add padding and show most of the world
+    map.fitBounds(bounds.pad(0.3), { duration: 0.5, maxZoom: 4 })
+  } else {
+    // Fallback: show a large area covering China to Europe/Africa
+    map.setView([25, 100], 3)
+  }
+}
 
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
-    subdomains: 'abcd',
-    maxZoom: 19,
-    attribution: ''
-  }).addTo(map)
+function setupMapResizeObserver() {
+  if (!mapEl.value) return
 
-  routeLayer = L.layerGroup().addTo(map)
-  nodeLayer = L.layerGroup().addTo(map)
+  if (window._ch4ResizeObserver) {
+    window._ch4ResizeObserver.disconnect()
+  }
 
-  map.on('click', function() {
-    if (selectedRoute.value) {
-      selectedRoute.value = null
+  var observer = new ResizeObserver(function(entries) {
+    for (var i = 0; i < entries.length; i++) {
+      var entry = entries[i]
+      if (entry.contentRect.width > 0 && entry.contentRect.height > 0) {
+        if (map) map.invalidateSize()
+      }
     }
   })
+
+  observer.observe(mapEl.value)
+  window._ch4ResizeObserver = observer
+
+  // Also handle visibility changes
+  document.addEventListener('visibilitychange', onVisibilityChange)
+}
+
+function onVisibilityChange() {
+  if (!document.hidden && map) {
+    setTimeout(function() {
+      if (map) map.invalidateSize()
+    }, 100)
+  }
 }
 
 function loadChinaBoundary() {
-  fetch('https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json')
+  // 省界和国界使用独立 pane；任一请求失败都不影响路线与另一边界层。
+  fetch(assetUrl('data/2/china-provinces.geojson'))
     .then(function(r) { return r.json() })
     .then(function(geo) {
       if (!map) return
+      try {
+        if (!geo || !geo.type) {
+          console.warn('中国边界数据加载失败，无有效GeoJSON')
+          return
+        }
+        L.geoJSON(geo, {
+          pane: 'chinaProvincePane',
+          interactive: false,
+          style: function() {
+            return {
+              color: '#D8CDAF',
+              weight: 0.8,
+              opacity: 0.85,
+              dashArray: '3 4',
+              lineCap: 'round',
+              fillColor: '#F7F4EB',
+              fillOpacity: 0.42,
+              interactive: false,
+            }
+          },
+        }).addTo(map)
+      } catch (renderErr) {
+        console.warn('中国省界渲染失败:', renderErr)
+      }
+    })
+    .catch(function(err) {
+      console.warn('中国省界数据加载失败:', err)
+    })
+
+  fetch(assetUrl('data/1/china_outline.geojson'))
+    .then(function(r) { return r.json() })
+    .then(function(geo) {
+      if (!map || !geo || !geo.type) return
       L.geoJSON(geo, {
+        pane: 'chinaBorderHaloPane',
         interactive: false,
         style: function() {
           return {
-            color: '#B28F4C',
-            weight: 2,
-            opacity: 0.9,
-            fillColor: '#F7F4EB',
-            fillOpacity: 0.5,
+            color: '#F7F4EB', weight: 4.6, opacity: 0.95,
+            fillOpacity: 0, interactive: false,
+          }
+        },
+      }).addTo(map)
+      L.geoJSON(geo, {
+        pane: 'chinaBorderPane',
+        interactive: false,
+        style: function() {
+          return {
+            color: '#9A712C',
+            weight: 2.5,
+            opacity: 1,
+            dashArray: null,
+            lineCap: 'round',
+            lineJoin: 'round',
+            fillOpacity: 0,
+            interactive: false,
           }
         },
       }).addTo(map)
     })
-    .catch(function(err) { console.warn('中国边界加载失败:', err) })
+    .catch(function(err) {
+      console.warn('中国国界轮廓加载失败，已保留省界与贸易路线:', err)
+    })
 }
 
 function onKeydown(e) {
   if (e.code === 'ArrowRight') {
-    var next = getNextDataYear(currentYear.value)
-    if (next > currentYear.value) {
-      currentYear.value = next
-      renderByEra(currentYear.value)
-    }
+    e.preventDefault()
+    pausePlayback()
+    showDynastyPanel()
+    progress.value = Math.min(1, progress.value + 0.005)
+    renderCurrentProgress()
   } else if (e.code === 'ArrowLeft') {
-    var idx = allDataYears.indexOf(currentYear.value)
-    if (idx > 0) {
-      currentYear.value = allDataYears[idx - 1]
-      renderByEra(currentYear.value)
-    }
+    e.preventDefault()
+    pausePlayback()
+    showDynastyPanel()
+    progress.value = Math.max(0, progress.value - 0.005)
+    renderCurrentProgress()
   } else if (e.code === 'Space') {
     e.preventDefault()
     togglePlay()
@@ -1001,8 +1276,10 @@ function onKeydown(e) {
 function onIntroDone() {
   introDone.value = true
   setTimeout(function() {
-    if (map) map.invalidateSize()
-    render()
+    if (map) {
+      map.invalidateSize()
+      renderCurrentProgress()
+    }
   }, 300)
 }
 
@@ -1010,7 +1287,7 @@ function onIntroDone() {
 // Part 2: 当代贸易情况
 // ==========================================================================
 var modernMapEl = ref(null)
-var modernYears = MODERN_YEARS.filter(function(y) { return y >= 2015 && y <= 2026 })
+var modernYears = MODERN_YEARS.filter(function(y) { return y >= 2015 && y <= 2025 })
 var modernYear = ref(2024)
 var isModernChinaMode = ref(true)
 var selectedModernProvince = ref(null)
@@ -1020,14 +1297,138 @@ var modernMap = null
 var modernProvLayer = null
 var modernFlowLayer = null
 var modernMarkersLayer = null
+var modernBubbleLayer = null
+var modernProvinceGeoJsonPromise = null
 var modernHighlightedCountry = null
 
 var modernProvinceInfo = reactive({
-  provinceValue: 0,
+  provinceValue: null,
   totalValue: 0,
   flows: [],
   year: 2024,
+  share: null,
+  yoy: null,
+  hasData: false,
 })
+
+const MIN_LEAF_SIZE = 14
+const MAX_LEAF_SIZE = 50
+const MODERN_GLOBAL_MAX_VALUE = Math.max.apply(null, modernYears.flatMap(function(year) {
+  return getProvinceExports(year)
+    .filter(function(item) { return item && item.value != null && Number(item.value) > 0 })
+    .map(function(item) { return Number(item.value) })
+}).concat([0]))
+
+function normalizeProvinceName(name) {
+  return String(name || '').replace(/省|市|自治区|壮族|回族|维吾尔|特别行政区|特别行政/g, '')
+}
+
+function findProvinceRecord(records, provinceName) {
+  var target = normalizeProvinceName(provinceName)
+  return (records || []).find(function(item) {
+    return item.name === provinceName || normalizeProvinceName(item.name) === target
+  }) || null
+}
+
+function resolveProvinceName(featureName) {
+  var target = normalizeProvinceName(featureName)
+  var knownNames = Object.keys(PROVINCE_CENTER)
+  for (var i = 0; i < knownNames.length; i++) {
+    if (normalizeProvinceName(knownNames[i]) === target) return knownNames[i]
+  }
+  var current = findProvinceRecord(getProvinceExports(modernYear.value), featureName)
+  return current ? current.name : featureName
+}
+
+function calculateYoY(currentValue, previousValue) {
+  if (currentValue == null || previousValue == null || Number(previousValue) <= 0) return null
+  return ((Number(currentValue) - Number(previousValue)) / Number(previousValue)) * 100
+}
+
+function formatYoY(yoy) {
+  if (yoy == null || !Number.isFinite(Number(yoy))) return '暂无可比数据'
+  var value = Number(yoy)
+  return (value > 0 ? '+' : '') + value.toFixed(1) + '%'
+}
+
+function getYoYColor(yoy) {
+  if (yoy == null || !Number.isFinite(Number(yoy))) return '#D8D2C2'
+  if (yoy >= 20) return '#516D33'
+  if (yoy >= 5) return '#7F985D'
+  if (yoy >= 0) return '#A8B68D'
+  if (yoy >= -5) return '#C3C19A'
+  return '#B28F4C'
+}
+
+function getLeafSize(value, globalMaxValue) {
+  if (value == null || Number(value) <= 0 || Number(globalMaxValue) <= 0) return 0
+  return MIN_LEAF_SIZE + Math.sqrt(Number(value) / Number(globalMaxValue)) * (MAX_LEAF_SIZE - MIN_LEAF_SIZE)
+}
+
+var provinceBubbleData = computed(function() {
+  var currentRecords = getProvinceExports(modernYear.value)
+  var previousRecords = getProvinceExports(modernYear.value - 1)
+  var total = currentRecords.reduce(function(sum, item) {
+    return item && item.value != null ? sum + Number(item.value) : sum
+  }, 0)
+  var names = new Set(Object.keys(PROVINCE_CENTER))
+  currentRecords.forEach(function(item) { names.add(item.name) })
+
+  return Array.from(names).map(function(provinceName) {
+    var current = findProvinceRecord(currentRecords, provinceName)
+    var previous = findProvinceRecord(previousRecords, provinceName)
+    var currentValue = current && current.value != null ? Number(current.value) : null
+    var previousValue = previous && previous.value != null ? Number(previous.value) : null
+    var hasData = currentValue != null
+    return {
+      provinceName: current ? current.name : provinceName,
+      currentValue: currentValue,
+      previousValue: previousValue,
+      valueYi: hasData ? currentValue / 1e8 : null,
+      yoy: calculateYoY(currentValue, previousValue),
+      share: hasData && total > 0 ? currentValue / total * 100 : null,
+      center: PROVINCE_CENTER[(current && current.name) || provinceName] || null,
+      hasData: hasData,
+    }
+  })
+})
+
+function getProvinceBubble(provinceName) {
+  var target = normalizeProvinceName(provinceName)
+  return provinceBubbleData.value.find(function(item) {
+    return normalizeProvinceName(item.provinceName) === target
+  }) || null
+}
+
+var leafSizeLegendItems = computed(function() {
+  return [0.25, 0.5, 1].map(function(ratio) {
+    var value = MODERN_GLOBAL_MAX_VALUE * ratio
+    return {
+      ratio: ratio,
+      valueYi: value / 1e8,
+      displaySize: getLeafSize(value, MODERN_GLOBAL_MAX_VALUE),
+    }
+  })
+})
+
+const leafColorLegendItems = [
+  { label: '≥20%', color: '#516D33' },
+  { label: '5%—20%', color: '#7F985D' },
+  { label: '0—5%', color: '#A8B68D' },
+  { label: '-5%—0', color: '#C3C19A' },
+  { label: '＜-5%', color: '#B28F4C' },
+  { label: '暂无可比数据', color: '#D8D2C2' },
+]
+
+function createLeafSvg(color, selected, opacity) {
+  var stroke = selected ? '#B28F4C' : '#F7F4EB'
+  var strokeWidth = selected ? 4 : 1.4
+  return '<svg class="province-leaf-svg" viewBox="0 0 64 64" aria-hidden="true" style="opacity:' + (opacity == null ? 1 : opacity) + '">' +
+    '<path class="leaf-body" d="M55 7C36 8 18 16 10 31C4 42 9 53 20 56C34 60 47 45 52 28C55 18 55 11 55 7Z" fill="' + color + '" stroke="' + stroke + '" stroke-width="' + strokeWidth + '" stroke-linejoin="round" vector-effect="non-scaling-stroke" />' +
+    '<path class="leaf-vein" d="M15 50C25 39 35 28 49 15" />' +
+    '<path class="leaf-vein secondary" d="M25 39L23 27M34 30L34 19M28 36L41 37" />' +
+    '</svg>'
+}
 
 function fmtNum(n) {
   if (n == null || isNaN(n)) return '0.00'
@@ -1056,142 +1457,202 @@ function onWindowResize() {
   }
 }
 
-function buildProvinceChoropleth() {
-  var yearData = getProvinceExports(modernYear.value)
-  var provinceMap = {}
-  var total = yearData.reduce(function(s, p) { return s + p.value }, 0)
-  yearData.forEach(function(p) { provinceMap[p.name] = { value: p.value, share: total ? (p.value / total * 100).toFixed(1) : 0 } })
-
-  // 判断是否为"无数据"省份：出口额为0 或 全国占比为0.00%
-  var isZeroProvince = function(info) {
-    if (!info) return true
-    if (!info.value || info.value <= 0) return true
-    var sh = provinceMap[info.name] ? parseFloat(provinceMap[info.name].share) : 0
-    if (sh <= 0) return true
-    return false
+function modernProvinceStyle(featureName) {
+  var selected = selectedModernProvince.value &&
+    normalizeProvinceName(selectedModernProvince.value) === normalizeProvinceName(featureName)
+  return selected ? {
+    pane: 'modernProvincePane',
+    color: '#B28F4C', weight: 2, opacity: 1,
+    fillColor: '#F7F4EB', fillOpacity: 0.34,
+    dashArray: null, lineCap: 'round', lineJoin: 'round',
+    interactive: true, bubblingMouseEvents: false,
+  } : {
+    pane: 'modernProvincePane',
+    color: '#D8CDAF', weight: 0.8, opacity: 0.85,
+    fillColor: '#F7F4EB', fillOpacity: 0.28,
+    dashArray: null, lineCap: 'round', lineJoin: 'round',
+    interactive: true, bubblingMouseEvents: false,
   }
+}
 
-  var positiveYearData = yearData.filter(function(p) { return p.value > 0 })
-  var maxV = Math.max.apply(null, positiveYearData.map(function(p) { return p.value }).concat([1]))
-  var colorFor = function(v) {
-    if (!v || v <= 0) return '#F7F4EB'  // 0 出口省份使用最浅纸色
-    var t = Math.log10(Math.max(v, 1)) / Math.log10(maxV + 1)
-    var lerp = function(a, b, k) { return a + (b - a) * k }
-    var stop1 = { r: 247, g: 244, b: 235 }
-    var stop2 = { r: 178, g: 143, b: 76 }
-    var stop3 = { r: 81, g: 109, b: 51 }
-    var col = t < 0.5
-      ? { r: lerp(stop1.r, stop2.r, t / 0.5), g: lerp(stop1.g, stop2.g, t / 0.5), b: lerp(stop1.b, stop2.b, t / 0.5) }
-      : { r: lerp(stop2.r, stop3.r, (t - 0.5) / 0.5), g: lerp(stop2.g, stop3.g, (t - 0.5) / 0.5), b: lerp(stop2.b, stop3.b, (t - 0.5) / 0.5) }
-    return 'rgb(' + Math.round(col.r) + ',' + Math.round(col.g) + ',' + Math.round(col.b) + ')'
+function hoverProvinceData(provinceName) {
+  var item = getProvinceBubble(provinceName)
+  if (!item) return { name: provinceName, hasData: false, valueYi: null, share: null, yoy: null, markets: '暂无数据' }
+  var flowInfo = item.hasData ? estimateProvinceFlows(item.provinceName, modernYear.value, 3) : null
+  return {
+    name: item.provinceName,
+    hasData: item.hasData,
+    valueYi: item.valueYi,
+    share: item.share,
+    yoy: item.yoy,
+    markets: flowInfo && flowInfo.flows.length
+      ? flowInfo.flows.map(function(flow) { return flow.country }).join('、')
+      : '暂无数据',
   }
+}
 
-  var matchProvince = function(featureName) {
-    for (var i = 0; i < yearData.length; i++) {
-      var p = yearData[i]
-      if (p.name === featureName) return p
-      var clean = p.name.replace(/省|市|自治区|壮族|回族|维吾尔|特别行政/g, '')
-      var fClean = featureName.replace(/省|市|自治区|壮族|回族|维吾尔|特别行政/g, '')
-      if (clean && (clean === fClean || p.name.includes(featureName) || featureName.includes(clean))) return p
-    }
+function provinceBubbleTooltip(item) {
+  if (!item || !item.hasData) return '<b>' + (item ? item.provinceName : '省份') + '</b><br/>该年份暂无数据'
+  return '<b>' + item.provinceName + '</b>' +
+    '<br/>出口额：' + fmtNum(item.valueYi) + ' 亿元' +
+    '<br/>全国占比：' + fmtNum(item.share) + '%' +
+    '<br/>同比增速：' + formatYoY(item.yoy)
+}
+
+function stopModernMapEvent(event) {
+  if (event && event.originalEvent) L.DomEvent.stopPropagation(event.originalEvent)
+}
+
+function ensureModernProvinceLayer() {
+  if (!modernMap) return Promise.resolve(null)
+  if (modernProvLayer) {
+    modernProvLayer.setStyle(function(feature) {
+      var featureName = feature.properties.name || feature.properties.NAME || feature.properties.NL_NAME_1 || ''
+      return modernProvinceStyle(resolveProvinceName(featureName))
+    })
+    return Promise.resolve(modernProvLayer)
+  }
+  if (!modernProvinceGeoJsonPromise) {
+    modernProvinceGeoJsonPromise = fetch(assetUrl('data/2/china-provinces.geojson')).then(function(response) {
+      if (!response.ok) throw new Error('省级GeoJSON加载失败：' + response.status)
+      return response.json()
+    })
+  }
+  return modernProvinceGeoJsonPromise.then(function(geo) {
+    if (!modernMap) return null
+    modernProvLayer = L.geoJSON(geo, {
+      pane: 'modernProvincePane',
+      interactive: true,
+      bubblingMouseEvents: false,
+      style: function(feature) {
+        var featureName = feature.properties.name || feature.properties.NAME || feature.properties.NL_NAME_1 || ''
+        return modernProvinceStyle(resolveProvinceName(featureName))
+      },
+      onEachFeature: function(feature, layer) {
+        var featureName = feature.properties.name || feature.properties.NAME || feature.properties.NL_NAME_1 || ''
+        var provinceName = resolveProvinceName(featureName)
+        layer.on('mouseover', function() {
+          var bubble = getProvinceBubble(provinceName)
+          var clickable = Boolean(bubble && bubble.hasData && bubble.currentValue > 0)
+          hoveredProvince.value = hoverProvinceData(provinceName)
+          var path = layer.getElement && layer.getElement()
+          if (path) path.style.cursor = clickable ? 'pointer' : 'default'
+          var selected = selectedModernProvince.value &&
+            normalizeProvinceName(selectedModernProvince.value) === normalizeProvinceName(provinceName)
+          layer.setStyle({ color: selected ? '#B28F4C' : '#516D33', weight: selected ? 2.2 : 1.5 })
+          layer.bringToFront()
+        })
+        layer.on('mouseout', function() {
+          hoveredProvince.value = null
+          if (modernProvLayer) modernProvLayer.resetStyle(layer)
+        })
+        layer.on('click', function(event) {
+          stopModernMapEvent(event)
+          var bubble = getProvinceBubble(provinceName)
+          if (!bubble || !bubble.hasData || bubble.currentValue <= 0) return
+          enterWorldMode(provinceName)
+        })
+      },
+    }).addTo(modernMap)
+    return modernProvLayer
+  }).catch(function(error) {
+    console.warn('当代贸易省界加载失败:', error)
     return null
-  }
+  })
+}
 
-  // 判断省份是否可点击：非零出口 且 非零占比 且 不是台湾省
-  var isClickable = function(info, featureName) {
-    if (isZeroProvince(info)) return false
-    var nm = (info && info.name) || featureName || ''
-    if (/台湾/.test(nm)) return false
-    return true
-  }
+function renderModernProvinceBubbles(options) {
+  if (!modernMap || !modernBubbleLayer) return
+  var opts = options || {}
+  var selectedProvince = opts.selectedProvince || null
+  var detailMode = Boolean(opts.detailMode)
+  var modeScale = detailMode ? 0.72 : 1
+  modernBubbleLayer.clearLayers()
 
-  return { provinceMap: provinceMap, colorFor: colorFor, matchProvince: matchProvince, isClickable: isClickable, isZeroProvince: isZeroProvince }
+  provinceBubbleData.value.forEach(function(item) {
+    if (!item.hasData || item.currentValue == null || item.currentValue <= 0 || !item.center) return
+    var selected = selectedProvince &&
+      normalizeProvinceName(selectedProvince) === normalizeProvinceName(item.provinceName)
+    var baseSize = getLeafSize(item.currentValue, MODERN_GLOBAL_MAX_VALUE)
+    var size = baseSize * modeScale * (selected ? 1.08 : 1)
+    var opacity = detailMode && !selected ? 0.5 : 1
+    var icon = L.divIcon({
+      className: 'province-tea-leaf-icon' + (selected ? ' selected' : '') + (detailMode && !selected ? ' muted' : ''),
+      html: createLeafSvg(getYoYColor(item.yoy), selected, opacity),
+      iconSize: [size, size],
+      iconAnchor: [size / 2, size / 2],
+      tooltipAnchor: [0, -size * 0.35],
+    })
+    var marker = L.marker(item.center, {
+      icon: icon,
+      pane: selected
+        ? 'modernSelectedBubblePane'
+        : (detailMode ? 'modernDetailBubblePane' : 'modernBubblePane'),
+      interactive: true,
+      bubblingMouseEvents: false,
+      keyboard: true,
+      riseOnHover: true,
+      riseOffset: 1200,
+      zIndexOffset: selected ? 1800 : 0,
+      title: item.provinceName,
+    })
+    marker.bindTooltip(provinceBubbleTooltip(item), {
+      direction: 'top', offset: [0, -4], opacity: 0.96, className: 'route-tip province-bubble-tip',
+    })
+    marker.on('mouseover', function() {
+      hoveredProvince.value = hoverProvinceData(item.provinceName)
+      marker.setZIndexOffset(selected ? 2400 : 1600)
+      var el = marker.getElement()
+      if (el) el.classList.add('hovered')
+    })
+    marker.on('mouseout', function() {
+      hoveredProvince.value = null
+      marker.setZIndexOffset(selected ? 1800 : 0)
+      var el = marker.getElement()
+      if (el) el.classList.remove('hovered')
+    })
+    marker.on('click', function(event) {
+      stopModernMapEvent(event)
+      enterWorldMode(item.provinceName)
+    })
+    marker.addTo(modernBubbleLayer)
+  })
 }
 
 function onModernYearChange() {
-  if (isModernChinaMode.value) {
-    renderModernChinaProvinces()
-  } else if (selectedModernProvince.value) {
-    enterWorldMode(selectedModernProvince.value)
-  }
+  hoveredProvince.value = null
+  if (isModernChinaMode.value) renderModernChinaProvinces()
+  else if (selectedModernProvince.value) enterWorldMode(selectedModernProvince.value, { preserveView: true })
 }
 
 function renderModernChinaProvinces() {
   if (!modernMap) return
-  if (modernProvLayer) { modernMap.removeLayer(modernProvLayer); modernProvLayer = null }
-  var _build = buildProvinceChoropleth()
-  var provinceMap = _build.provinceMap
-  var colorFor = _build.colorFor
-  var matchProvince = _build.matchProvince
-  var isClickable = _build.isClickable
-  var isZeroProvince = _build.isZeroProvince
-
-  fetch(assetUrl('data/2/china-provinces.geojson'))
-    .then(function(r) { return r.json() })
-    .then(function(geo) {
-      modernProvLayer = L.geoJSON(geo, {
-        style: function(f) {
-          var name = f.properties.name || f.properties.NAME || f.properties.NL_NAME_1 || ''
-          var info = matchProvince(name)
-          var zero = isZeroProvince(info)
-          return {
-            color: zero ? '#B28F4C' : '#7e7866',
-            weight: zero ? 0.4 : 0.6,
-            fillColor: zero ? '#F7F4EB' : colorFor(info.value),
-            fillOpacity: zero ? 1.0 : 0.88,
-            dashArray: zero ? '4 4' : null,
-          }
-        },
-        onEachFeature: function(f, layer) {
-          var name = f.properties.name || f.properties.NAME || f.properties.NL_NAME_1 || ''
-          var info = matchProvince(name)
-          var clickable = isClickable(info, name)
-          if (clickable) {
-            layer.on('mouseover', function() {
-              hoveredProvince.value = info ? { name: info.name, value: info.value, share: provinceMap[info.name] ? provinceMap[info.name].share : 0 } : null
-              layer.setStyle({ weight: 1.6, color: '#516D33' })
-              layer.bringToFront()
-            })
-            layer.on('mouseout', function() {
-              hoveredProvince.value = null
-              modernProvLayer && modernProvLayer.resetStyle(layer)
-            })
-            layer.on('click', function() {
-              if (!info) return
-              enterWorldMode(info.name)
-            })
-            layer._path && (layer._path.style.cursor = 'pointer')
-          } else {
-            // 0出口/0占比/台湾省：仅悬浮提示数值，无法点击
-            var displayInfo = info || { name: name.replace(/省|市|自治区|壮族|回族|维吾尔|特别行政/g, '') + '省', value: 0 }
-            layer.on('mouseover', function() {
-              var sh = provinceMap[displayInfo.name] ? provinceMap[displayInfo.name].share : 0
-              hoveredProvince.value = { name: displayInfo.name, value: displayInfo.value || 0, share: sh }
-              layer.setStyle({ weight: 1.2, color: '#B28F4C' })
-              layer.bringToFront()
-            })
-            layer.on('mouseout', function() {
-              hoveredProvince.value = null
-              modernProvLayer && modernProvLayer.resetStyle(layer)
-            })
-          }
-        },
-      }).addTo(modernMap)
-      modernProvLayer.bringToFront()
-    })
+  selectedModernProvince.value = null
+  ensureModernProvinceLayer()
+  renderModernProvinceBubbles({ selectedProvince: null, detailMode: false })
 }
 
-function enterWorldMode(provinceName) {
+function enterWorldMode(provinceName, options) {
+  var opts = options || {}
   selectedModernProvince.value = provinceName
   isModernChinaMode.value = false
-  var info = estimateProvinceFlows(provinceName, modernYear.value, 20)
-  Object.assign(modernProvinceInfo, info || { provinceValue: 0, totalValue: 0, flows: [], year: modernYear.value })
-  modernProvinceInfo.year = modernYear.value
+  var bubble = getProvinceBubble(provinceName)
+  var hasData = Boolean(bubble && bubble.hasData)
+  var info = hasData ? estimateProvinceFlows(provinceName, modernYear.value, 20) : null
+  Object.assign(modernProvinceInfo, {
+    provinceValue: hasData ? bubble.currentValue : null,
+    totalValue: info ? info.totalValue : 0,
+    flows: info ? info.flows : [],
+    year: modernYear.value,
+    share: hasData ? bubble.share : null,
+    yoy: hasData ? bubble.yoy : null,
+    hasData: hasData,
+  })
 
   nextTick(function() {
     if (!modernMap) return
     modernMap.invalidateSize()
-    fitModernWorldBounds()
+    if (!opts.preserveView) fitModernWorldBounds()
     renderModernFlows(provinceName, info)
   })
 }
@@ -1242,54 +1703,15 @@ function renderModernFlows(provinceName, info) {
   if (modernFlowLayer) { modernMap.removeLayer(modernFlowLayer); modernFlowLayer = null }
   if (modernMarkersLayer) { modernMap.removeLayer(modernMarkersLayer); modernMarkersLayer = null }
 
-  var center = PROVINCE_CENTER[provinceName] || PROVINCE_CENTER['浙江省']
+  var bubble = getProvinceBubble(provinceName)
+  var center = (bubble && bubble.center) || PROVINCE_CENTER[provinceName]
+  ensureModernProvinceLayer()
+  renderModernProvinceBubbles({ selectedProvince: provinceName, detailMode: true })
+  if (!center) return
   var fromLat = center[0], fromLon = center[1]
 
   // 阻止事件冒泡到地图 click 空白区返回逻辑
   var stopClick = function(ev) { L.DomEvent.stopPropagation(ev) }
-
-  if (modernProvLayer) { modernMap.removeLayer(modernProvLayer); modernProvLayer = null }
-  var _build2 = buildProvinceChoropleth()
-  var colorFor2 = _build2.colorFor
-  var matchProvince2 = _build2.matchProvince
-  var isZeroProvince2 = _build2.isZeroProvince
-
-  fetch(assetUrl('data/2/china-provinces.geojson'))
-    .then(function(r) { return r.json() })
-    .then(function(geo) {
-      modernProvLayer = L.geoJSON(geo, {
-        style: function(f) {
-          var name = f.properties.name || f.properties.NAME || f.properties.NL_NAME_1 || ''
-          var info = matchProvince2(name)
-          var zero = isZeroProvince2(info)
-          var pClean = provinceName.replace(/省|市|自治区|壮族|回族|维吾尔|特别行政/g, '')
-          var fClean = name.replace(/省|市|自治区|壮族|回族|维吾尔|特别行政/g, '')
-          var isSelected = pClean === fClean
-          if (isSelected) {
-            // 选中省份：红色边框 + 金棕色填充，突出显示
-            return {
-              color: '#C8462E',
-              weight: 2.6,
-              fillColor: zero ? '#B28F4C' : colorFor2(info.value),
-              fillOpacity: 0.92,
-              dashArray: zero ? '4 4' : null,
-            }
-          } else {
-            // 其他省份：保留分级设色 (choropleth) 风格
-            return {
-              color: zero ? '#B28F4C' : '#7e7866',
-              weight: zero ? 0.4 : 0.6,
-              fillColor: zero ? '#F7F4EB' : colorFor2(info.value),
-              fillOpacity: zero ? 1.0 : 0.88,
-              dashArray: zero ? '4 4' : null,
-            }
-          }
-        },
-        onEachFeature: function(f, layer) {
-          layer.on('click', stopClick)
-        }
-      }).addTo(modernMap)
-    })
 
   if (!info) return
   var flows = info.flows
@@ -1331,6 +1753,7 @@ function renderModernFlows(provinceName, info) {
     // ========== 1. 创建线路（初始只含起点，动画中逐点追加）==========
     var startPts = [pts[0]]
     var line = L.polyline(startPts, {
+      pane: 'modernFlowPane',
       color: col, weight: w, opacity: 0.45 + itemNorm * 0.45,
       lineCap: 'round', lineJoin: 'round', interactive: false,
       bubblingMouseEvents: true,
@@ -1351,6 +1774,7 @@ function renderModernFlows(provinceName, info) {
     var isTop3 = itemNorm >= 0.5
     var r = isTop3 ? 8 : 5
     var marker = L.circleMarker([toLat, toLon], {
+      pane: 'modernFlowMarkerPane',
       radius: 0, color: '#fff', weight: 1.5,
       fillColor: isTop3 ? '#C8462E' : '#B28F4C', fillOpacity: 0, opacity: 0,
       interactive: false,
@@ -1406,6 +1830,7 @@ function renderModernFlows(provinceName, info) {
 
         // 命中辅助线
         var hitLine = L.polyline(pts, {
+          pane: 'modernFlowPane',
           color: '#000', weight: Math.max(12, w + 10), opacity: 0.01,
           lineCap: 'round', lineJoin: 'round', interactive: true,
         })
@@ -1427,30 +1852,8 @@ function renderModernFlows(provinceName, info) {
     window._ch4FlowAnimTimers.push(requestAnimationFrame(animateFlow))
   })
 
-  // 起点 marker（即时显示，带脉冲效果）
-  var originMarker = L.circleMarker([fromLat, fromLon], {
-    radius: 0, color: '#fff', weight: 3,
-    fillColor: '#516D33', fillOpacity: 0,
-  })
-  originMarker._baseMarker = { radius: 12 }
-  originMarker.bindTooltip('<b>' + provinceName + '</b><br/>出口总额 ' + fmtNum(modernProvinceInfo.provinceValue / 1e8) + ' 亿元', { direction: 'top', offset: [0, -8] })
-  originMarker.on('click', stopClick)
-  originMarker.addTo(modernMarkersLayer)
-  // 起点 marker 即时弹出
-  var originAnimStart = null
-  function animateOrigin(t) {
-    if (!originAnimStart) originAnimStart = t
-    var p = Math.min(1, (t - originAnimStart) / 400)
-    var e = 1 - Math.pow(1 - p, 2)
-    originMarker.setStyle({ radius: 12 * e, fillOpacity: e, opacity: e })
-    if (p < 1) requestAnimationFrame(animateOrigin)
-  }
-  requestAnimationFrame(animateOrigin)
-
-  // 确保路线层和标记层在省份层之上
-  if (modernFlowLayer) modernFlowLayer.bringToFront()
-  if (modernMarkersLayer) modernMarkersLayer.bringToFront()
-  if (modernProvLayer) modernProvLayer.bringToBack()
+  // 省级起点由选中的茶叶符号承担；流向线直接从同一省级中心出发。
+  // Pane 层级已固定，无需对 LayerGroup 调用不存在的 bringToFront()。
 }
 
 function initModernMap() {
@@ -1463,10 +1866,24 @@ function initModernMap() {
     zoomControl: false,
     attributionControl: false,
   })
+  modernMap.createPane('modernProvincePane')
+  modernMap.getPane('modernProvincePane').style.zIndex = 410
+  // 详情模式中的未选中茶叶位于流向线下方，避免遮挡路线。
+  modernMap.createPane('modernDetailBubblePane')
+  modernMap.getPane('modernDetailBubblePane').style.zIndex = 430
+  modernMap.createPane('modernFlowPane')
+  modernMap.getPane('modernFlowPane').style.zIndex = 440
+  modernMap.createPane('modernFlowMarkerPane')
+  modernMap.getPane('modernFlowMarkerPane').style.zIndex = 450
+  modernMap.createPane('modernBubblePane')
+  modernMap.getPane('modernBubblePane').style.zIndex = 470
+  modernMap.createPane('modernSelectedBubblePane')
+  modernMap.getPane('modernSelectedBubblePane').style.zIndex = 480
   L.control.zoom({ position: 'bottomright' }).addTo(modernMap)
   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
     maxZoom: 9, subdomains: 'abcd',
   }).addTo(modernMap)
+  modernBubbleLayer = L.layerGroup().addTo(modernMap)
 
   // 区分点击 vs 拖动：只在纯点击（非拖动）空白区域返回
   var dragState = { startX: 0, startY: 0, moved: false }
@@ -1518,13 +1935,21 @@ watch(ch4Tab, function(nv) {
       fitModernChinaBounds()
     }, 250)
   }
+  if (nv === 'ancient') {
+    nextTick(function() {
+      if (map) {
+        map.invalidateSize()
+        renderCurrentProgress()
+      } else {
+        initMap()
+      }
+    })
+  }
 })
 
 onMounted(async function() {
   await nextTick()
   initMap()
-  await nextTick()
-  loadChinaBoundary()
 
   window.addEventListener('keydown', onKeydown)
   window.addEventListener('resize', onWindowResize)
@@ -1533,18 +1958,39 @@ onMounted(async function() {
 onBeforeUnmount(function() {
   window.removeEventListener('keydown', onKeydown)
   window.removeEventListener('resize', onWindowResize)
-  if (playTimer) {
-    clearInterval(playTimer)
-    playTimer = null
+  document.removeEventListener('visibilitychange', onVisibilityChange)
+
+  stopAnimationLoop()
+  isAnimatingProgress = false
+
+  if (window._ch4ResizeObserver) {
+    window._ch4ResizeObserver.disconnect()
+    window._ch4ResizeObserver = null
   }
+
+  window.removeEventListener('mousemove', onSliderMouseMove)
+  window.removeEventListener('mouseup', onSliderMouseUp)
+
   if (map) {
     map.remove()
     map = null
   }
+  routeLayer = null
+  routeHitLayer = null
+  nodeLayer = null
+  nodeHitLayer = null
+  nodeRegistry.clear()
+  activeRouteLayers.clear()
+
   if (modernMap) {
     modernMap.remove()
     modernMap = null
   }
+  modernProvLayer = null
+  modernFlowLayer = null
+  modernMarkersLayer = null
+  modernBubbleLayer = null
+  modernProvinceGeoJsonPromise = null
 })
 </script>
 
@@ -1569,763 +2015,699 @@ onBeforeUnmount(function() {
   opacity: 1;
 }
 
-.ch4-topbar {
-  flex-shrink: 0;
+/* ================================================================
+   古代贸易发展 - 新布局
+   ================================================================ */
+.ch4-view-ancient {
+  --serif: var(--font-body);
+  flex: 1;
   display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.ch4-ancient-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 520px;
+  position: relative;
+  padding: 12px 16px 0;
+  gap: 0;
+}
+
+/* Loading State */
+.map-loading, .map-error {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  background: linear-gradient(135deg, #FAF7EF 0%, #F5F1E8 100%);
-  border: 1px solid var(--line);
+  justify-content: center;
+  gap: 16px;
+  background: rgba(247, 244, 235, 0.95);
+  z-index: 100;
   border-radius: 12px;
-  padding: 14px 22px;
-  margin: 12px 16px 0;
-  box-shadow: 0 2px 12px rgba(81, 109, 51, 0.06);
-  z-index: 800;
 }
 
-.dynasty-indicator {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 6px 16px;
-  background: rgba(92, 124, 58, 0.08);
-  border-radius: 20px;
-  border: 1px solid rgba(92, 124, 58, 0.2);
-}
-.dyn-dot {
-  width: 10px;
-  height: 10px;
+.loading-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid rgba(92, 124, 58, 0.2);
+  border-top-color: #5C7C3A;
   border-radius: 50%;
-  background: var(--c-olive-mid);
-  box-shadow: 0 0 0 3px rgba(92, 124, 58, 0.2);
+  animation: spin 0.8s linear infinite;
 }
-.dyn-tang .dyn-dot { background: #C8763E; box-shadow: 0 0 0 3px rgba(200, 118, 62, 0.2); }
-.dyn-song .dyn-dot { background: #5A7A9A; box-shadow: 0 0 0 3px rgba(90, 122, 154, 0.2); }
-.dyn-yuan .dyn-dot { background: #6B8E6B; box-shadow: 0 0 0 3px rgba(107, 142, 107, 0.2); }
-.dyn-ming .dyn-dot { background: #B28F4C; box-shadow: 0 0 0 3px rgba(178, 143, 76, 0.2); }
-.dyn-qing .dyn-dot { background: #8A6A9A; box-shadow: 0 0 0 3px rgba(138, 106, 154, 0.2); }
-.dyn-kangzhan .dyn-dot { background: #A8453A; box-shadow: 0 0 0 3px rgba(168, 69, 58, 0.2); }
 
-.dyn-label {
-  font: 600 14px/1 var(--serif);
-  color: var(--c-olive);
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-text, .error-text {
+  font: 600 15px/1 var(--serif);
+  color: #516D33;
   letter-spacing: 0.1em;
 }
 
-.year-title {
-  display: flex;
-  align-items: baseline;
-  gap: 4px;
-}
-.year-num {
-  font: 900 28px/1 var(--serif);
-  color: var(--c-olive-deep2);
-  letter-spacing: 0.08em;
-}
-
-.topbar-actions {
-  display: flex;
-  gap: 10px;
-}
-
-.action-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 18px;
-  border: 1.5px solid var(--c-olive-mid);
+.error-icon { font-size: 36px; }
+.error-hint { font-size: 13px; color: #7A7060; max-width: 280px; text-align: center; }
+.reload-btn {
+  padding: 8px 20px;
+  border: 1.5px solid #B28F4C;
   border-radius: 8px;
-  background: var(--c-olive);
-  color: var(--c-paper);
-  font: 600 13px/1 var(--sans);
+  background: #fff;
+  color: #B28F4C;
+  font: 600 13px/1 var(--serif);
   cursor: pointer;
   transition: all 0.25s ease;
-  letter-spacing: 0.05em;
 }
-.action-btn:hover {
-  background: var(--c-olive-dark);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(81, 109, 51, 0.25);
-}
-.action-btn.playing {
-  background: var(--c-gold);
-  border-color: var(--c-gold-deep);
-}
-.action-btn.secondary {
-  background: var(--c-paper);
-  color: var(--c-olive);
-  border-color: var(--c-beige);
-}
-.action-btn.secondary:hover {
-  background: var(--c-paper-3);
-  box-shadow: 0 4px 12px rgba(178, 143, 76, 0.15);
-}
-.btn-icon {
-  font-size: 10px;
-}
+.reload-btn:hover { background: #B28F4C; color: #fff; }
 
+/* Map Stage - the main area */
 .ch4-stage {
   position: relative;
   flex: 1;
-  min-height: 0;
-  margin: 12px 16px;
-  border-radius: 14px;
+  min-height: calc(100vh - 200px);
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 24px rgba(81, 109, 51, 0.12);
-  border: 1px solid var(--line);
-  z-index: 1;
+  background: #F7F4EB;
+  box-shadow: 0 2px 12px rgba(81, 109, 51, 0.08);
+  border: 1px solid rgba(81, 109, 51, 0.12);
 }
 
-.map {
+.ch4-stage .map {
   width: 100%;
   height: 100%;
-  background: var(--c-paper);
-  position: relative;
+  min-height: calc(100vh - 200px);
   z-index: 1;
 }
-.map :deep(.leaflet-container) {
-  background: var(--c-paper) !important;
-}
 
-.map-hint {
+/* Dynasty Label - compact, top-left overlay */
+.dynasty-label {
   position: absolute;
-  top: 16px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 700;
+  top: 12px;
+  left: 12px;
+  z-index: 400;
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 18px;
-  background: rgba(247, 244, 235, 0.95);
-  backdrop-filter: blur(8px);
-  border: 1px solid var(--line);
-  border-radius: 20px;
-  font: 400 12px/1 var(--sans);
-  color: var(--ink-soft);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
-}
-.hint-icon {
-  font-size: 14px;
+  padding: 6px 14px;
+  background: rgba(247, 244, 235, 0.92);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(178, 143, 76, 0.4);
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(81, 109, 51, 0.1);
+  transition: all 0.25s ease;
 }
 
+.dynasty-label .dyn-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #5C7C3A;
+  box-shadow: 0 0 0 2px rgba(92, 124, 58, 0.2);
+  transition: all 0.3s ease;
+}
+
+.dynasty-label .dyn-text {
+  font: 600 13px/1 var(--serif);
+  color: #516D33;
+  letter-spacing: 0.08em;
+  transition: opacity 0.3s ease;
+}
+
+.dynasty-label.dyn-tang .dyn-dot { background: #C8763E; box-shadow: 0 0 0 2px rgba(200, 118, 62, 0.25); }
+.dynasty-label.dyn-song .dyn-dot { background: #5A7A9A; box-shadow: 0 0 0 2px rgba(90, 122, 154, 0.25); }
+.dynasty-label.dyn-yuan .dyn-dot { background: #6B8E6B; box-shadow: 0 0 0 2px rgba(107, 142, 107, 0.25); }
+.dynasty-label.dyn-ming .dyn-dot { background: #B28F4C; box-shadow: 0 0 0 2px rgba(178, 143, 76, 0.25); }
+.dynasty-label.dyn-qing .dyn-dot { background: #8A6A9A; box-shadow: 0 0 0 2px rgba(138, 106, 154, 0.25); }
+.dynasty-label.dyn-kangzhan .dyn-dot { background: #A8453A; box-shadow: 0 0 0 2px rgba(168, 69, 58, 0.25); }
+
+.route-filter-control {
+  position: absolute;
+  top: 52px;
+  left: 12px;
+  z-index: 400;
+  display: flex;
+  gap: 5px;
+  padding: 5px;
+  border: 1px solid rgba(178, 143, 76, 0.3);
+  border-radius: 18px;
+  background: rgba(247, 244, 235, 0.9);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 2px 8px rgba(81, 109, 51, 0.08);
+}
+.route-filter-btn {
+  padding: 5px 10px;
+  border: 0;
+  border-radius: 13px;
+  background: transparent;
+  color: #516D33;
+  font: 600 11px/1 var(--serif);
+  cursor: pointer;
+}
+.route-filter-btn:hover { background: rgba(81, 109, 51, 0.1); }
+.route-filter-btn.active { background: #516D33; color: #F7F4EB; }
+
+/* Legend - compact, bottom-left overlay (raised above floating timeline) */
 .map-legend {
   position: absolute;
-  bottom: 16px;
-  left: 16px;
-  z-index: 800;
-  background: rgba(247, 244, 235, 0.94);
-  backdrop-filter: blur(8px);
+  bottom: clamp(248px, 33vh, 300px);
+  left: 12px;
+  z-index: 400;
+  background: rgba(247, 244, 235, 0.92);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(178, 143, 76, 0.3);
   border-radius: 10px;
-  padding: 12px 16px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-  font-size: 0.82rem;
-  border: 1px solid var(--line);
+  padding: 10px 14px;
+  box-shadow: 0 2px 8px rgba(81, 109, 51, 0.08);
+  min-width: 160px;
 }
 
 .legend-title {
-  font-weight: 700;
-  color: var(--c-olive);
-  margin-bottom: 10px;
-  font-size: 0.78rem;
-  letter-spacing: 0.1em;
+  font: 600 11px/1 var(--serif);
+  color: #516D33;
+  letter-spacing: 0.12em;
+  margin-bottom: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(178, 143, 76, 0.2);
 }
 
 .legend-row {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 6px;
-  color: var(--ink-soft);
-}
-.legend-row.nodes {
-  margin-top: 8px;
-  padding-top: 8px;
-  border-top: 1px dashed rgba(81, 109, 51, 0.15);
+  gap: 8px;
+  font: 500 11px/1 var(--sans);
+  color: #5A6655;
+  margin-bottom: 5px;
 }
 
+.legend-row:last-child { margin-bottom: 0; }
+
 .legend-line {
-  display: inline-block;
-  width: 28px;
-  height: 0;
-  border-top: 3px solid;
+  width: 20px;
+  height: 3px;
   border-radius: 2px;
+  flex-shrink: 0;
 }
-.legend-line.land {
-  border-color: #d4933b;
+
+.legend-line.land { background: #B28F4C; }
+.legend-line.sea { background: #5C7C3A; }
+.legend-line.historical {
+  height: 0;
+  background: none;
+  border-top: 2px dashed #8A8270;
+  opacity: 0.65;
 }
-.legend-line.sea {
-  border-color: #196c58;
-}
-.legend-line.ended {
-  border-color: #8a8270;
-  border-top-style: dashed;
-  border-top-width: 2px;
+
+.legend-row.nodes .legend-line {
+  height: 8px;
+  width: 8px;
+  border-radius: 50%;
 }
 
 .legend-node {
-  display: inline-block;
-  width: 12px;
-  height: 12px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
+  flex-shrink: 0;
   border: 2px solid #fff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
-}
-.legend-node.origin {
-  background: #196c58;
-}
-.legend-node.dest {
-  background: #B28F4C;
-  width: 14px;
-  height: 14px;
 }
 
-/* ===== 信息卡 - 渐入渐出 ===== */
+.legend-node.origin { background: #196c58; }
+.legend-node.destination { background: #B28F4C; }
+
+/* Route Info Panel - right side overlay */
 .route-detail-panel {
   position: absolute;
-  top: 16px;
-  right: 16px;
-  bottom: 16px;
-  width: 380px;
-  max-width: 42%;
-  z-index: 900;
-  background: rgba(247, 244, 235, 0.98);
-  backdrop-filter: blur(14px);
-  border-radius: 14px;
-  overflow: hidden;
-  box-shadow: 0 10px 40px rgba(81, 109, 51, 0.2);
-  border: 1px solid rgba(178, 143, 76, 0.2);
+  top: 12px;
+  right: 12px;
+  width: 280px;
+  max-height: calc(100% - 24px);
+  z-index: 400;
+  background: rgba(247, 244, 235, 0.96);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(178, 143, 76, 0.4);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(81, 109, 51, 0.12);
   display: flex;
   flex-direction: column;
-}
-
-.card-fade-enter-active,
-.card-fade-leave-active {
-  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.card-fade-enter-from {
-  opacity: 0;
-  transform: translateY(20px) scale(0.96);
-}
-.card-fade-leave-to {
-  opacity: 0;
-  transform: translateY(-20px) scale(0.96);
+  overflow: hidden;
 }
 
 .panel-header {
   display: flex;
-  align-items: flex-start;
   justify-content: space-between;
-  padding: 16px 18px;
-  border-bottom: 1px solid var(--line);
+  align-items: flex-start;
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(178, 143, 76, 0.2);
   flex-shrink: 0;
-  background: linear-gradient(135deg, rgba(92, 124, 58, 0.08) 0%, rgba(178, 143, 76, 0.06) 100%);
 }
 
-.panel-title-wrap {
+.panel-badges {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
-  flex: 1;
-  min-width: 0;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 
 .panel-type-tag {
-  display: inline-block;
-  padding: 3px 12px;
-  background: var(--c-gold);
-  color: #fff;
-  font: 600 0.72rem/1 var(--sans);
+  padding: 3px 10px;
   border-radius: 12px;
-  letter-spacing: 0.08em;
-  width: fit-content;
+  font: 600 11px/1 var(--serif);
+  letter-spacing: 0.05em;
+}
+
+.panel-type-tag.land { background: rgba(178, 143, 76, 0.15); color: #8E6E32; }
+.panel-type-tag.sea { background: rgba(92, 124, 58, 0.15); color: #5C7C3A; }
+.panel-type-tag.dynasty { background: rgba(81, 109, 51, 0.12); color: #516D33; }
+
+.panel-dynasty-tag {
+  padding: 3px 10px;
+  background: rgba(81, 109, 51, 0.1);
+  color: #516D33;
+  border-radius: 12px;
+  font: 600 11px/1 var(--serif);
+}
+
+.panel-back {
+  border: 0;
+  background: transparent;
+  color: #5C7C3A;
+  font: 600 10px/1.2 var(--serif);
+  cursor: pointer;
+  padding: 4px 0 4px 8px;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.panel-back:hover { color: #8E6E32; }
+
+.panel-title-row {
+  padding: 10px 14px;
+  flex-shrink: 0;
 }
 
 .panel-title {
-  font: 700 1.25rem/1.3 var(--serif);
-  color: var(--c-olive-deep2);
+  font: 700 16px/1.3 var(--serif);
+  color: #516D33;
+  letter-spacing: 0.05em;
   margin: 0;
-  letter-spacing: 0.03em;
 }
 
-.panel-close {
-  width: 30px;
-  height: 30px;
-  border: none;
-  background: var(--c-paper-3);
-  color: var(--c-beige-dark);
-  font-size: 1.3rem;
-  line-height: 1;
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-  flex-shrink: 0;
-}
-.panel-close:hover {
-  background: var(--c-gold);
-  color: #fff;
+.panel-subtitle {
+  margin: 6px 0 0;
+  color: #7A7060;
+  font: 500 11px/1.5 var(--sans);
 }
 
 .panel-scroll {
   flex: 1;
   overflow-y: auto;
-  padding: 16px 18px 20px;
-}
-.panel-scroll::-webkit-scrollbar {
-  width: 5px;
-}
-.panel-scroll::-webkit-scrollbar-track {
-  background: transparent;
-}
-.panel-scroll::-webkit-scrollbar-thumb {
-  background: rgba(178, 143, 76, 0.3);
-  border-radius: 3px;
-}
-.panel-scroll::-webkit-scrollbar-thumb:hover {
-  background: rgba(178, 143, 76, 0.5);
+  padding: 4px 14px 14px;
 }
 
-.detail-year {
-  display: flex;
-  align-items: baseline;
-  gap: 12px;
-  padding: 10px 14px;
-  background: var(--c-paper);
-  border-radius: 8px;
-  border-left: 3px solid var(--c-gold);
-  margin-bottom: 14px;
-}
-.detail-year-label {
-  font: 500 0.75rem/1 var(--sans);
-  color: var(--muted);
-  letter-spacing: 0.1em;
-}
-.detail-year-value {
-  font: 700 1.1rem/1 var(--serif);
-  color: var(--c-gold-deep);
-}
-
-.detail-section-label {
-  font: 700 0.75rem/1 var(--sans);
-  color: var(--c-olive);
-  letter-spacing: 0.1em;
-  margin-bottom: 6px;
-}
-.detail-section-label.with-icon {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.detail-note,
-.detail-source,
-.detail-history {
-  margin-bottom: 16px;
-}
-
-.detail-note p,
-.detail-source p {
-  font: 400 0.87rem/1.7 var(--serif);
-  color: var(--ink);
-  margin: 0;
-  padding: 10px 12px;
-  background: rgba(255, 255, 255, 0.5);
-  border-radius: 6px;
-  border: 1px solid var(--line);
-}
-.detail-source p {
-  font-size: 0.8rem;
-  color: var(--muted);
-  font-style: italic;
-}
-
-.detail-history ul {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.detail-history li {
-  font: 400 0.85rem/1.7 var(--serif);
-  color: var(--ink-soft);
-  padding: 8px 12px;
-  padding-left: 22px;
-  position: relative;
-  border-bottom: 1px dashed var(--line);
-}
-.detail-history li:last-child {
-  border-bottom: none;
-}
-.detail-history li::before {
-  content: '▸';
-  position: absolute;
-  left: 8px;
-  color: var(--c-gold);
-}
-
-.history-panel {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  width: 320px;
-  max-width: 38%;
-  z-index: 850;
-  background: rgba(247, 244, 235, 0.95);
-  backdrop-filter: blur(10px);
-  border-radius: 12px;
-  padding: 14px 16px;
-  box-shadow: 0 4px 20px rgba(81, 109, 51, 0.12);
-  border: 1px solid var(--line);
-}
-
-.history-title {
-  font: 700 0.85rem/1 var(--serif);
-  color: var(--c-olive);
-  margin-bottom: 10px;
-  letter-spacing: 0.05em;
-}
-
-.history-panel ul {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.history-panel li {
-  font: 400 0.8rem/1.6 var(--serif);
-  color: var(--ink-soft);
-  padding: 6px 0;
-  padding-left: 16px;
-  position: relative;
-  border-bottom: 1px dashed var(--line);
-}
-.history-panel li:last-child {
-  border-bottom: none;
-}
-.history-panel li::before {
-  content: '◆';
-  position: absolute;
-  left: 0;
-  color: var(--c-gold);
-  font-size: 0.6rem;
-  top: 10px;
-}
-
-.timeline-panel {
-  flex-shrink: 0;
-  margin: 0 16px 12px;
-  background: linear-gradient(135deg, #FAF7EF 0%, #F5F1E8 100%);
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 20px 24px;
-  box-shadow: 0 2px 14px rgba(81, 109, 51, 0.06);
-}
-
-.stats-grid {
+.panel-info-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1rem;
-  margin-bottom: 1.6rem;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(178, 143, 76, 0.15);
+  margin-bottom: 12px;
 }
 
-.stat-card {
-  background: var(--c-paper);
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  padding: 14px 16px;
-  text-align: center;
-  transition: all 0.25s ease;
-}
-.stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 14px rgba(178, 143, 76, 0.12);
-  border-color: rgba(178, 143, 76, 0.3);
-}
-
-.stat-label {
-  font: 400 0.78rem/1 var(--sans);
-  color: var(--muted);
-  letter-spacing: 0.1em;
-  margin-bottom: 8px;
-}
-
-.stat-num {
-  font: 900 1.8rem/1 var(--serif);
-  color: var(--c-olive);
-  letter-spacing: 0.02em;
-}
-
-.slider-wrap {
-  position: relative;
-  padding: 50px 8px 20px;
-  margin-bottom: 1rem;
-}
-
-.dynasty-ticks {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 48px;
-  pointer-events: none;
-}
-
-.tick {
-  position: absolute;
+.info-item {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  transform: translateX(-50%);
+  gap: 2px;
 }
 
-.tick-line {
-  width: 1px;
-  height: 14px;
-  background: var(--c-beige);
+.info-label {
+  font: 500 10px/1 var(--sans);
+  color: #9A9080;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
-.tick-label {
-  font: 600 0.78rem/1 var(--serif);
-  color: var(--c-olive);
-  margin-top: 4px;
-  letter-spacing: 0.05em;
-  padding: 2px 8px;
-  background: var(--c-paper);
-  border: 1px solid var(--line);
-  border-radius: 4px;
-  white-space: nowrap;
+.info-value {
+  font: 600 12px/1.3 var(--serif);
+  color: #3A4A2A;
 }
 
-.year-slider {
-  -webkit-appearance: none;
-  appearance: none;
+.info-item-wide { grid-column: 1 / -1; }
+
+.panel-section {
+  margin-bottom: 14px;
+}
+
+.section-label {
+  font: 600 11px/1 var(--serif);
+  color: #516D33;
+  letter-spacing: 0.1em;
+  margin-bottom: 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(81, 109, 51, 0.15);
+}
+
+.section-text {
+  font: 500 12px/1.7 var(--sans);
+  color: #4A5A3A;
+  margin: 0;
+  text-align: justify;
+}
+
+/* 朝代切换仅做 280ms 透明度过渡，信息框不会关闭或位移。 */
+.ancient-panel-fade-enter-active,
+.ancient-panel-fade-leave-active { transition: opacity 0.28s ease; }
+.ancient-panel-fade-enter-from,
+.ancient-panel-fade-leave-to { opacity: 0; }
+
+.node-route-list { display: flex; flex-direction: column; gap: 8px; }
+.node-route-option {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
   width: 100%;
-  height: 8px;
-  border-radius: 4px;
-  background: linear-gradient(90deg,
-    #C8763E 0%, #C8763E 20%,
-    #5A7A9A 22%, #5A7A9A 32%,
-    #6B8E6B 33%, #6B8E6B 38%,
-    #B28F4C 39%, #B28F4C 58%,
-    #8A6A9A 59%, #8A6A9A 78%,
-    #C3C19A 79%, #C3C19A 95%,
-    #A8453A 96%, #A8453A 100%
-  );
-  outline: none;
+  padding: 9px 10px;
+  border: 1px solid rgba(178, 143, 76, 0.25);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.45);
+  color: #3A4A2A;
+  text-align: left;
   cursor: pointer;
 }
+.node-route-option:hover { border-color: #B28F4C; background: rgba(178, 143, 76, 0.08); }
+.node-route-option strong { font: 600 12px/1.45 var(--serif); }
+.node-route-kind { color: #7A7060; font: 500 10px/1 var(--sans); }
 
-.year-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: var(--c-paper);
-  border: 3px solid var(--c-olive);
-  cursor: pointer;
-  box-shadow: 0 2px 10px rgba(81, 109, 51, 0.3);
-  transition: all 0.2s ease;
-}
-.year-slider::-webkit-slider-thumb:hover {
-  transform: scale(1.15);
-  border-color: var(--c-gold);
-  box-shadow: 0 3px 14px rgba(178, 143, 76, 0.4);
-}
-
-.year-slider::-moz-range-thumb {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: var(--c-paper);
-  border: 3px solid var(--c-olive);
-  cursor: pointer;
-  box-shadow: 0 2px 10px rgba(81, 109, 51, 0.3);
+/* ================================================================
+   Floating Timeline (inside map container, half-floating)
+   ================================================================ */
+.timeline-floating {
+  position: absolute;
+  bottom: clamp(96px, 13vh, 122px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(72%, 980px);
+  z-index: 1000;
+  pointer-events: auto;
+  padding: 12px 18px 14px;
+  background: rgba(250, 247, 239, 0.82);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(178, 143, 76, 0.4);
+  border-radius: 14px;
+  box-shadow: 0 6px 24px rgba(81, 109, 51, 0.16);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 90px;
+  max-height: 130px;
 }
 
-/* ===== 时间轴控制区 ===== */
+.timeline-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.current-dynasty-label {
+  font: 700 18px/1 var(--serif);
+  color: #516D33;
+  letter-spacing: 0.08em;
+}
+
 .timeline-controls {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  margin: 6px 0 12px;
-  padding: 8px 0;
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
+  gap: 8px;
 }
 
-.step-indicator {
-  font: 500 13px/1 var(--sans);
-  color: var(--c-olive);
+.play-btn, .reset-btn {
   padding: 6px 16px;
-  background: var(--c-paper);
-  border: 1px solid var(--line);
   border-radius: 8px;
-  min-width: 60px;
-  text-align: center;
-}
-
-.filter-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-}
-
-.filter-btn {
-  padding: 8px 28px;
-  border: 1.5px solid var(--c-beige);
-  border-radius: 22px;
-  background: var(--c-paper);
-  color: var(--ink-soft);
-  font: 500 0.88rem/1 var(--sans);
+  font: 600 13px/1 var(--serif);
   cursor: pointer;
+  pointer-events: auto;
   transition: all 0.25s ease;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.05em;
 }
-.filter-btn:hover {
-  border-color: var(--c-olive-mid);
-  color: var(--c-olive);
+
+.play-btn {
+  background: #5C7C3A;
+  color: #fff;
+  border: 1.5px solid #5C7C3A;
+}
+
+.play-btn:hover {
+  background: #516D33;
+  border-color: #516D33;
   transform: translateY(-1px);
-}
-.filter-btn.active {
-  background: var(--c-olive);
-  border-color: var(--c-olive);
-  color: var(--c-paper);
-  box-shadow: 0 3px 12px rgba(81, 109, 51, 0.25);
+  box-shadow: 0 2px 8px rgba(81, 109, 51, 0.2);
 }
 
-.panel-slide-enter-active,
-.panel-slide-leave-active {
-  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.panel-slide-enter-from,
-.panel-slide-leave-to {
-  opacity: 0;
-  transform: translateX(30px);
+.play-btn.playing {
+  background: #B28F4C;
+  border-color: #B28F4C;
 }
 
-.panel-fade-enter-active,
-.panel-fade-leave-active {
-  transition: all 0.3s ease;
-}
-.panel-fade-enter-from,
-.panel-fade-leave-to {
-  opacity: 0;
-  transform: translateY(-8px);
+.reset-btn {
+  background: transparent;
+  color: #5C7C3A;
+  border: 1.5px solid #C3C19A;
 }
 
-:deep(.ch4-tip) {
-  background: rgba(247, 244, 235, 0.98) !important;
-  border: 1px solid var(--c-gold-light) !important;
-  color: var(--c-olive-deep2) !important;
-  font: 500 12px/1.4 var(--sans) !important;
+.reset-btn:hover {
+  background: rgba(92, 124, 58, 0.1);
+  border-color: #5C7C3A;
+  color: #5C7C3A;
+}
+
+.timeline-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-height: 0;
+}
+
+.timeline-axis {
+  position: relative;
+  height: 44px;
+  margin: 0 32px;
+}
+
+.dynasty-tick {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 72px;
+  padding: 0;
+  transform: translateX(-50%);
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.dynasty-tick:hover .tick-label,
+.dynasty-tick.active .tick-label { color: #516D33; font-weight: 700; }
+
+.tick-mark {
+  position: absolute;
+  left: 50%;
+  bottom: 4px;
+  width: 2px;
+  height: 8px;
+  transform: translateX(-50%);
+  background: #B28F4C;
+  border-radius: 1px;
+  transition: height 0.2s ease, background 0.2s ease;
+}
+
+.dynasty-tick.active .tick-mark { height: 11px; background: #516D33; }
+
+.tick-label {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  font: 600 9px/1 var(--serif);
+  color: #7A7060;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  transition: color 0.2s ease;
+}
+
+.dynasty-tick.alternate .tick-label { top: 9px; }
+
+.slider-track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 6px;
+  height: 4px;
+  background: rgba(195, 193, 154, 0.3);
+  border-radius: 2px;
+  cursor: pointer;
+  pointer-events: auto;
+  z-index: 1;
+}
+
+.slider-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #B28F4C, #5C7C3A);
+  border-radius: 2px;
+}
+
+.slider-thumb {
+  position: absolute;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  background: #fff;
+  border: 2.5px solid #5C7C3A;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  cursor: grab;
+  box-shadow: 0 2px 8px rgba(81, 109, 51, 0.25);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.slider-thumb:hover {
+  transform: translate(-50%, -50%) scale(1.15);
+  box-shadow: 0 2px 12px rgba(81, 109, 51, 0.35);
+}
+
+.slider-thumb:active {
+  cursor: grabbing;
+}
+
+/* ================================================================
+   Leaflet map custom styles
+   ================================================================ */
+.ch4-tip, .ch4-node-tip {
+  background: rgba(247, 244, 235, 0.97) !important;
+  border: 1px solid rgba(178, 143, 76, 0.4) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 8px rgba(81, 109, 51, 0.15) !important;
+  color: #3A4A2A !important;
+  font: 500 12px/1.5 var(--serif) !important;
   padding: 6px 12px !important;
-  border-radius: 6px !important;
-  box-shadow: 0 3px 12px rgba(81, 109, 51, 0.15) !important;
-}
-:deep(.ch4-tip::before) {
-  border-top-color: var(--c-gold-light) !important;
 }
 
-:deep(.ch4-node-tip) {
-  background: var(--c-olive) !important;
-  border: none !important;
-  color: var(--c-paper) !important;
-  font: 500 11px/1 var(--sans) !important;
-  padding: 3px 9px !important;
-  border-radius: 4px !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
-}
-:deep(.ch4-node-tip::before) {
-  border-top-color: var(--c-olive) !important;
+.ch4-tip::before, .ch4-node-tip::before {
+  border-top-color: rgba(178, 143, 76, 0.4) !important;
 }
 
-@media (max-width: 960px) {
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
+.leaflet-control-zoom {
+  background: rgba(247, 244, 235, 0.9) !important;
+  border: 1px solid rgba(178, 143, 76, 0.3) !important;
+  border-radius: 8px !important;
+  overflow: hidden;
+}
+
+.leaflet-control-zoom a {
+  background: transparent !important;
+  color: #516D33 !important;
+  font-weight: bold;
+  border-color: rgba(178, 143, 76, 0.2) !important;
+}
+
+.leaflet-control-zoom a:hover {
+  background: rgba(92, 124, 58, 0.1) !important;
+  color: #516D33 !important;
+}
+
+/* Scrollbar styling */
+.panel-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+.panel-scroll::-webkit-scrollbar-track {
+  background: rgba(178, 143, 76, 0.1);
+  border-radius: 2px;
+}
+.panel-scroll::-webkit-scrollbar-thumb {
+  background: rgba(178, 143, 76, 0.4);
+  border-radius: 2px;
+}
+.panel-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(178, 143, 76, 0.6);
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .dynasty-label,
+  .play-btn,
+  .reset-btn {
+    transition: none;
   }
+  .loading-spinner {
+    animation-duration: 2s;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 900px) {
   .route-detail-panel {
-    width: auto;
-    max-width: none;
-    left: 8px;
+    width: 240px;
     right: 8px;
-    top: auto;
-    bottom: 8px;
-    max-height: 55%;
+    top: 8px;
   }
-  .history-panel {
-    width: auto;
-    max-width: none;
-    left: 8px;
-    right: 8px;
-    top: 56px;
+
+  .ch4-ancient-container {
+    padding: 8px;
+    min-height: 480px;
   }
-  .ch4-topbar {
-    flex-wrap: wrap;
-    justify-content: center;
+
+  .ch4-stage {
+    min-height: calc(100vh - 180px);
+  }
+
+  .timeline-floating {
+    width: 90%;
+    padding: 10px 14px;
+    bottom: clamp(96px, 13vh, 122px);
+  }
+
+  .map-legend {
+    padding: 8px 12px;
+    min-width: 140px;
+  }
+
+  .legend-row {
+    font-size: 10px;
   }
 }
 
 @media (max-width: 640px) {
-  .ch4-stage {
-    margin: 8px 8px;
+  .route-detail-panel {
+    width: calc(100% - 16px);
+    right: 8px;
+    left: 8px;
+    top: auto;
+    bottom: 160px;
+    max-height: 45%;
   }
-  .ch4-topbar {
-    margin: 8px 8px 0;
+
+  .current-dynasty-label {
+    font-size: 16px;
   }
-  .timeline-panel {
-    margin: 0 8px 8px;
+
+  .legend-row {
+    font-size: 10px;
+    gap: 6px;
   }
-  .dynasty-ticks .tick-label {
-    font-size: 0.65rem;
-    padding: 2px 5px;
-  }
-  .year-num {
-    font-size: 22px;
-  }
-  .filter-btn {
-    padding: 7px 18px;
-    font-size: 0.8rem;
+
+  .timeline-floating {
+    width: 92%;
+    padding: 8px 12px;
   }
 }
 
-/* ---------- 路线生长动画 ---------- */
-.world-map :deep(svg path.leaflet-interactive),
-.world-map :deep(svg polyline.leaflet-interactive) {
-  transition: stroke-dashoffset 1.6s cubic-bezier(.4,0,.2,1);
-}
-
-/* ---------- 数据点波浪弹出 ---------- */
-.world-map :deep(.ch4-wave-node) {
-  animation: ch4WavePop .5s cubic-bezier(.34,1.56,.64,1) both;
-}
-@keyframes ch4WavePop {
-  0% { transform: scale(0); opacity: 0; }
-  60% { transform: scale(1.3); opacity: 1; }
-  100% { transform: scale(1); opacity: 1; }
-}
-
-/* ---------- 信息卡滑入 ---------- */
-.world-map ~ .detail-panel,
-.detail-panel {
-  animation: panelSlide .5s cubic-bezier(.4,0,.2,1);
-}
-@keyframes panelSlide {
-  from { opacity: 0; transform: translateX(20px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-
-/* ---------- 历史事件交错淡入 ---------- */
-.history-panel .event-item {
-  animation: eventFadeIn .4s cubic-bezier(.4,0,.2,1) both;
-}
-@keyframes eventFadeIn {
-  from { opacity: 0; transform: translateY(12px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+/* ================================================================
+   当代贸易情况
+   ================================================================ */
+.ch4-view-modern { padding-top: 8px; }
 
 /* ================================================================
    Tab Navigation
@@ -2375,13 +2757,8 @@ onBeforeUnmount(function() {
   --serif: var(--font-body);
 }
 
-.ch4-view-ancient .timeline-panel {
-  flex-shrink: 1;
-  overflow-y: auto;
-  min-height: 180px;
-}
 .ch4-view-ancient .ch4-stage {
-  min-height: 320px;
+  min-height: calc(100vh - 200px);
 }
 
 /* ================================================================
@@ -2456,13 +2833,121 @@ onBeforeUnmount(function() {
 .hc-title { font: 700 15px/1 var(--serif); color: var(--c-olive); margin-bottom: 6px; }
 .hc-row { display: flex; justify-content: space-between; align-items: center; padding: 3px 0; font-size: 12px; color: var(--c-beige-dark); }
 .hc-row b { color: var(--c-gold-deep, #8a6f3d); font-family: var(--serif); font-weight: 900; }
+.hc-row.market-row { align-items: flex-start; gap: 12px; }
+.hc-row.market-row b { max-width: 126px; white-space: normal; text-align: right; line-height: 1.35; }
+.hc-empty { padding-top: 4px; color: var(--c-beige-dark); font-size: 12px; }
+
+:deep(.province-tea-leaf-icon) {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  overflow: visible;
+}
+:deep(.province-tea-leaf-icon::before) {
+  content: '';
+  position: absolute;
+  inset: -5px;
+}
+:deep(.province-leaf-svg) {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  transform-origin: 50% 50%;
+  animation: province-leaf-in 400ms ease both;
+}
+:deep(.province-leaf-svg .leaf-vein) {
+  fill: none;
+  stroke: #F7F4EB;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.76;
+  vector-effect: non-scaling-stroke;
+}
+:deep(.province-leaf-svg .leaf-vein.secondary) {
+  stroke-width: 1.7;
+  opacity: 0.62;
+}
+:deep(.province-tea-leaf-icon.hovered .province-leaf-svg) {
+  filter: drop-shadow(0 2px 3px rgba(81, 109, 51, 0.26));
+  transform: scale(1.04);
+}
+:deep(.province-tea-leaf-icon.selected .province-leaf-svg) {
+  filter: drop-shadow(0 2px 4px rgba(178, 143, 76, 0.38));
+}
+@keyframes province-leaf-in {
+  from { opacity: 0; transform: scale(0.84); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+:deep(.province-bubble-tip) {
+  background: rgba(247, 244, 235, 0.98) !important;
+  border: 1px solid rgba(178, 143, 76, 0.34) !important;
+  color: #516D33 !important;
+  box-shadow: 0 4px 14px rgba(81, 109, 51, 0.15);
+  font: 500 12px/1.55 var(--serif);
+}
 
 .modern-legend {
   left: 16px !important;
   top: 16px !important;
-  min-width: 200px;
+  bottom: auto !important;
+  z-index: 950;
+  width: 248px;
+  min-width: 0;
+  padding: 9px 11px;
 }
-.legend-bar { display: block; width: 140px; height: 12px; border-radius: 6px; margin: 4px 0 6px; background: linear-gradient(90deg,#EFE9DA 0%, #B28F4C 50%, #516D33 100%); }
+.modern-legend-section + .modern-legend-section {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(178, 143, 76, 0.26);
+}
+.modern-legend-title {
+  margin-bottom: 6px;
+  color: #516D33;
+  font: 700 11px/1.35 var(--serif);
+}
+.leaf-size-legend {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  align-items: end;
+  gap: 4px;
+}
+.leaf-size-item {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 3px;
+  color: var(--c-beige-dark);
+  font: 600 10px/1 var(--serif);
+}
+.legend-leaf {
+  display: inline-block;
+  flex: none;
+}
+.legend-leaf :deep(.province-leaf-svg) {
+  animation: none;
+}
+.leaf-color-legend {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px 8px;
+}
+.leaf-color-item {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 5px;
+  color: var(--c-beige-dark);
+  font: 500 10px/1.2 var(--sans);
+}
+.color-leaf {
+  width: 18px;
+  height: 18px;
+}
 .modern-flow-legend { width: 140px !important; max-width: 260px; background: linear-gradient(90deg, rgba(178,143,76,0.2) 0%, #C8462E 100%) !important; }
 .legend-scale { display: flex; justify-content: space-between; font-size: 11px; color: var(--c-beige-dark); letter-spacing: 0.08em; }
 .legend-hint { margin-top: 6px; padding-top: 6px; border-top: 1px dashed rgba(178,143,76,0.25); font-size: 11px; color: var(--c-beige-dark); }
@@ -2487,6 +2972,30 @@ onBeforeUnmount(function() {
   flex: 1;
   overflow-y: auto;
   padding: 8px 12px 16px;
+}
+.province-trade-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin: 0 12px 8px;
+  padding: 9px 10px;
+  border-radius: 8px;
+  background: rgba(239, 233, 218, 0.58);
+}
+.province-trade-summary div { min-width: 0; }
+.province-trade-summary span,
+.province-trade-summary b { display: block; }
+.province-trade-summary span { margin-bottom: 4px; color: var(--c-beige-dark); font-size: 10px; }
+.province-trade-summary b { color: var(--c-olive); font: 700 11px/1.2 var(--serif); white-space: nowrap; }
+.modern-empty-state {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  color: var(--c-beige-dark);
+  font: 500 13px/1.6 var(--serif);
+  text-align: center;
 }
 .country-row {
   display: grid;
