@@ -56,15 +56,18 @@
               <circle class="ripple ripple-2" cx="390" cy="220" r="18" fill="url(#rippleGrad)" />
               <circle class="ripple ripple-3" cx="390" cy="220" r="18" fill="url(#rippleGrad)" />
               <!-- 标注框（左上） -->
-              <g class="zone-tag" transform="translate(24, 76)">
-                <rect x="0" y="0" width="152" height="64" rx="12"
+              <g class="zone-tag" transform="translate(24, 70)">
+                <rect x="0" y="0" width="172" height="72" rx="12"
                       :fill="activePhonePanel === 'leaves' ? 'rgba(92,124,58,0.95)' : 'rgba(247,244,235,0.92)'" />
-                <text x="14" y="26"
+                <text x="14" y="24"
                       :fill="activePhonePanel === 'leaves' ? '#FFF8E8' : '#5C7C3A'"
-                      style="font-size:13px;font-weight:700;letter-spacing:0.05em">叶片 · 茶种</text>
-                <text x="14" y="52"
-                      :fill="activePhonePanel === 'leaves' ? '#EFE9DA' : '#4A4A40'"
-                      style="font-size:22px;font-weight:900;font-family:var(--font-huiwen)">{{ fmt(output, 2) }}万吨</text>
+                      style="font-size:12.5px;font-weight:700;letter-spacing:0.05em">叶片 · 新生</text>
+                <text x="14" y="41"
+                      :fill="activePhonePanel === 'leaves' ? '#EFE9DA' : '#5A6655'"
+                      style="font-size:9px;font-weight:500;letter-spacing:0.02em">茶叶内销量</text>
+                <text x="14" y="60"
+                      :fill="activePhonePanel === 'leaves' ? '#FFF8E8' : '#4A4A40'"
+                      style="font-size:17px;font-weight:900;font-family:var(--font-huiwen)">{{ fmt(leavesDomesticLatest.volume, 2) }}万吨</text>
               </g>
               <!-- 引线：标签右下 → 热区中心左下 -->
               <line x1="176" y1="106" x2="320" y2="232" stroke="#5C7C3A" stroke-width="2" stroke-dasharray="4 4" fill="none" opacity="0.75" />
@@ -81,17 +84,20 @@
               <circle class="ripple ripple-1" cx="285" cy="520" r="18" fill="url(#rippleGrad)" />
               <circle class="ripple ripple-2" cx="285" cy="520" r="18" fill="url(#rippleGrad)" />
               <circle class="ripple ripple-3" cx="285" cy="520" r="18" fill="url(#rippleGrad)" />
-              <g class="zone-tag" transform="translate(24, 484)">
-                <rect x="0" y="0" width="164" height="64" rx="12"
+              <g class="zone-tag" transform="translate(24, 478)">
+                <rect x="0" y="0" width="184" height="72" rx="12"
                       :fill="activePhonePanel === 'branches' ? 'rgba(107,68,35,0.95)' : 'rgba(247,244,235,0.92)'" />
-                <text x="14" y="26"
+                <text x="14" y="24"
                       :fill="activePhonePanel === 'branches' ? '#FFF8E8' : '#6B4423'"
-                      style="font-size:13px;font-weight:700;letter-spacing:0.05em">枝条 · 出口</text>
-                <text x="14" y="52"
-                      :fill="activePhonePanel === 'branches' ? '#EFE9DA' : '#4A4A40'"
-                      style="font-size:22px;font-weight:900;font-family:var(--font-huiwen)">{{ fmt(exportTotal / 1e8, 2) }}亿元</text>
+                      style="font-size:12.5px;font-weight:700;letter-spacing:0.05em">枝条 · 远拓</text>
+                <text x="14" y="41"
+                      :fill="activePhonePanel === 'branches' ? '#EFE9DA' : '#5A6655'"
+                      style="font-size:9px;font-weight:500;letter-spacing:0.02em">茶叶出口额</text>
+                <text x="14" y="60"
+                      :fill="activePhonePanel === 'branches' ? '#FFF8E8' : '#4A4A40'"
+                      style="font-size:17px;font-weight:900;font-family:var(--font-huiwen)">{{ fmt(exportTotal / 1e8, 2) }}亿元</text>
               </g>
-              <line x1="188" y1="516" x2="218" y2="520" stroke="#6B4423" stroke-width="2" stroke-dasharray="4 4" fill="none" opacity="0.75" />
+              <line x1="208" y1="550" x2="218" y2="520" stroke="#6B4423" stroke-width="2" stroke-dasharray="4 4" fill="none" opacity="0.75" />
             </g>
 
             <!-- ============ 区域3: 根系（对应泥土层根部中心） ============ -->
@@ -105,17 +111,20 @@
               <circle class="ripple ripple-1" cx="295" cy="750" r="18" fill="url(#rippleGrad)" />
               <circle class="ripple ripple-2" cx="295" cy="750" r="18" fill="url(#rippleGrad)" />
               <circle class="ripple ripple-3" cx="295" cy="750" r="18" fill="url(#rippleGrad)" />
-              <g class="zone-tag" transform="translate(24, 738)">
-                <rect x="0" y="0" width="180" height="64" rx="12"
+              <g class="zone-tag" transform="translate(24, 732)">
+                <rect x="0" y="0" width="200" height="72" rx="12"
                       :fill="activePhonePanel === 'roots' ? 'rgba(178,143,76,0.95)' : 'rgba(247,244,235,0.92)'" />
-                <text x="14" y="26"
+                <text x="14" y="24"
                       :fill="activePhonePanel === 'roots' ? '#FFF8E8' : '#B28F4C'"
-                      style="font-size:13px;font-weight:700;letter-spacing:0.05em">根系 · 生产</text>
-                <text x="14" y="52"
-                      :fill="activePhonePanel === 'roots' ? '#EFE9DA' : '#4A4A40'"
-                      style="font-size:22px;font-weight:900;font-family:var(--font-huiwen)">{{ fmt(gardenArea, 2) }}千公顷</text>
+                      style="font-size:12.5px;font-weight:700;letter-spacing:0.05em">根系 · 深植</text>
+                <text x="14" y="41"
+                      :fill="activePhonePanel === 'roots' ? '#EFE9DA' : '#5A6655'"
+                      style="font-size:9px;font-weight:500;letter-spacing:0.02em">全国茶园面积</text>
+                <text x="14" y="60"
+                      :fill="activePhonePanel === 'roots' ? '#FFF8E8' : '#4A4A40'"
+                      style="font-size:17px;font-weight:900;font-family:var(--font-huiwen)">{{ fmt(gardenArea, 2) }}千公顷</text>
               </g>
-              <line x1="204" y1="770" x2="240" y2="752" stroke="#B28F4C" stroke-width="2" stroke-dasharray="4 4" fill="none" opacity="0.75" />
+              <line x1="224" y1="804" x2="240" y2="752" stroke="#B28F4C" stroke-width="2" stroke-dasharray="4 4" fill="none" opacity="0.75" />
             </g>
           </svg>
         </div>
@@ -131,7 +140,7 @@
           </div>
           <div class="phone-statusbar">
             <span class="sb-time">9:41</span>
-            <span class="sb-title">{{ activePhonePanel === 'roots' ? '生产根基' : activePhonePanel === 'leaves' ? '茶种结构' : '出口流向' }}</span>
+            <span class="sb-title">{{ activePhonePanel === 'roots' ? '根深植' : activePhonePanel === 'leaves' ? '叶新生' : '枝远拓' }}</span>
             <span class="sb-signal">●●●</span>
           </div>
 
@@ -139,8 +148,15 @@
           <div class="phone-screen-wrap">
             <div class="phone-screen" :key="activePhonePanel">
 
-            <!-- ========== 根系：生产根基（瀑布流） ========== -->
+            <!-- ========== 根系：根深植（瀑布流） ========== -->
             <div v-if="activePhonePanel === 'roots'" class="waterfall-panel panel-roots">
+
+              <!-- 1. 标题与导语 -->
+              <div class="lv-hero">
+                <div class="lv-hero-kicker">根系·深植</div>
+                <div class="lv-hero-sub">中国茶园资源、生产基础与区域格局</div>
+                <div class="lv-hero-intro">从茶园面积到核心产区，再到重点省份的长期变化，看一片茶叶生长所依托的土地基础与区域分布。</div>
+              </div>
 
               <!-- 顶部小工具条 -->
               <div class="wf-controls wf-ctrl-inline">
@@ -185,16 +201,18 @@
 
               <!-- 地图 -->
               <div class="ch5-card small-card wf-map-card">
-                <div class="card-title-sm">{{ metricLabel }}分布</div>
+                <div class="card-title-sm">{{ rootsYear }}年中国各省{{ metricLabel }}分布</div>
                 <div class="chart-container chart-map">
                   <div v-if="!mapReady" class="ch5-map-loading">加载中…</div>
                   <EChart v-else :option="rootsMapOption" @ready="onRootsMapReady" @click="onMapClick" style="height:280px" />
                 </div>
+                <div v-if="metric === 'gardenArea'" class="lv-chart-note">图示说明：圆点大小表示各省茶园面积（千公顷），圆点越大，茶园面积越大；颜色深浅表示茶园面积占该省行政区划面积的覆盖率（%），颜色越深，覆盖率越高。</div>
+                <div v-else class="lv-chart-note">图示说明：颜色深浅表示各省{{ metricLabel }}（{{ metricUnit }}），颜色越深，数值越高。</div>
               </div>
 
               <!-- 省份详情 -->
               <div class="ch5-card small-card wf-prov-card">
-                <div class="card-title-sm">{{ selectedProvince }} · 详情</div>
+                <div class="card-title-sm">{{ selectedProvince }} {{ metricLabel }}变化趋势{{ provinceYearRange ? `（${provinceYearRange}）` : '' }}</div>
                 <div v-if="rootsProvinceDetail" class="province-detail-body small">
                   <div class="chart-container chart-province-trend small">
                     <EChart :option="rootsProvinceTrendOption" style="height:200px" />
@@ -205,70 +223,213 @@
 
               <!-- TOP10 排名 -->
               <div class="ch5-card small-card wf-rank-card">
-                <div class="card-title-sm">{{ metricLabel }} TOP 10</div>
+                <div class="card-title-sm">{{ rootsYear }}年中国{{ metricLabel }} TOP 10</div>
+                <div class="ch5-chart-unit">单位：{{ metricUnit }}</div>
                 <div class="chart-container chart-ranking small">
                   <EChart :option="rootsRankingOption" style="height:260px" />
                 </div>
               </div>
             </div>
 
-            <!-- ========== 叶片：茶种结构（瀑布流） ========== -->
+            <!-- ========== 叶片：叶新生（2010—2024 长期趋势与新表达） ========== -->
             <div v-if="activePhonePanel === 'leaves'" class="waterfall-panel panel-leaves">
 
-              <div class="wf-controls wf-ctrl-inline">
-                <div class="ch5-year-select small">
-                  <select v-model.number="leavesYear" class="select-input">
-                    <option v-for="y in leavesYears" :key="y" :value="y">{{ y }}</option>
-                  </select>
+              <!-- 1. 标题与导语 -->
+              <div class="lv-hero">
+                <div class="lv-hero-kicker">叶片·新生</div>
+                <div class="lv-hero-sub">2010—2024 中国茶消费长期变化与新表达</div>
+                <div class="lv-hero-intro">十五年间，中国茶消费从规模扩张走向量稳、价变与场景分化。沿着总量、价值、渠道与产品形态，观察一片茶叶如何进入新的日常。</div>
+              </div>
+
+              <!-- 2. 先看结论：3张分析卡 -->
+              <div class="lv-conclusion-list">
+                <div v-for="c in leavesConclusions" :key="c.id" class="lv-conclusion-card">
+                  <div class="lv-cc-title">{{ c.title }}</div>
+                  <!-- 规模扩张卡 -->
+                  <template v-if="c.id === 'scale'">
+                    <div class="lv-cc-scale-row">
+                      <div class="lv-cc-scale-val"><span class="lv-cc-num">{{ c.startVal.toFixed(2) }}</span><span class="lv-cc-unit">{{ c.unit }}</span></div>
+                      <div class="lv-cc-arrow">→</div>
+                      <div class="lv-cc-scale-val"><span class="lv-cc-num">{{ c.endVal.toFixed(2) }}</span><span class="lv-cc-unit">{{ c.unit }}</span></div>
+                    </div>
+                    <div class="lv-cc-badge">累计增长约 {{ c.growthPct }}%</div>
+                  </template>
+                  <!-- 增速换挡卡 -->
+                  <template v-else-if="c.id === 'shift'">
+                    <div class="lv-cc-phase-list">
+                      <div v-for="(p, i) in c.phases" :key="i" class="lv-cc-phase">
+                        <span class="lv-cc-phase-period">{{ p.period }}</span>
+                        <span class="lv-cc-phase-cagr">{{ p.cagr }}%</span>
+                      </div>
+                    </div>
+                  </template>
+                  <!-- 近两年量稳价变卡 -->
+                  <template v-else-if="c.id === 'recent'">
+                    <div class="lv-cc-metrics">
+                      <div v-for="(m, i) in c.metrics" :key="i" class="lv-cc-metric">
+                        <span class="lv-cc-metric-label">{{ m.label }}</span>
+                        <span class="lv-cc-metric-change" :class="{ neg: m.change.startsWith('-') }">{{ m.change }}</span>
+                      </div>
+                    </div>
+                  </template>
+                  <div class="lv-cc-desc">{{ c.desc }}</div>
                 </div>
               </div>
 
-              <div class="wf-overview-grid">
-                <div class="ch5-overview-card small-card">
-                  <div class="ov-label">出口总额</div>
-                  <div class="ov-value"><span class="ch5-stat-num">{{ fmt(leavesOverview.totalExport / 1e8, 2) }}</span><span class="ov-unit">亿</span></div>
+              <!-- 3. 图1：内销总量趋势 -->
+              <div class="lv-chart-block">
+                <div class="lv-chart-title">图1　中国茶叶内销总量趋势图（2010—2024年）</div>
+                <div class="ch5-card small-card">
+                  <div class="chart-container" style="height:260px">
+                    <EChart :option="leavesVolumeTrendOption" />
+                  </div>
                 </div>
-                <div class="ch5-overview-card small-card">
-                  <div class="ov-label">首类茶种</div>
-                  <div class="ov-value"><span class="ch5-stat-num">{{ leavesOverview.topType || '—' }}</span></div>
-                </div>
-                <div class="ch5-overview-card small-card">
-                  <div class="ov-label">茶种类</div>
-                  <div class="ov-value"><span class="ch5-stat-num">{{ leavesOverview.typeCount }}</span><span class="ov-unit">类</span></div>
-                </div>
-                <div class="ch5-overview-card small-card">
-                  <div class="ov-label">总产量</div>
-                  <div class="ov-value"><span class="ch5-stat-num">{{ fmt(leavesOverview.latestOutput, 2) }}</span><span class="ov-unit">万吨</span></div>
+                <div class="lv-chart-note">2010—2024年中国茶叶内销量长期增长，但增长速度逐步放缓。2022—2024年总量接近平台期，市场观察重点开始由单纯扩量转向产品、价格带与消费场景的结构变化。</div>
+              </div>
+
+              <!-- 4. 三阶段读图 -->
+              <div class="lv-stages">
+                <div class="lv-stages-title">三阶段读图</div>
+                <div class="lv-stage-list">
+                  <div v-for="(s, i) in leavesStages" :key="s.id" class="lv-stage-card" :style="{ '--stage-color': stageColors[i] }">
+                    <div class="lv-stage-num">{{ i + 1 }}</div>
+                    <div class="lv-stage-body">
+                      <div class="lv-stage-period">{{ s.period }}</div>
+                      <div class="lv-stage-name">{{ s.name }}</div>
+                      <div class="lv-stage-metrics">
+                        <span class="lv-stage-metric">期初 {{ s.startVolume.toFixed(2) }} → 期末 {{ s.endVolume.toFixed(2) }} 万吨</span>
+                        <span class="lv-stage-cagr">CAGR {{ s.cagr }}%</span>
+                      </div>
+                      <div class="lv-stage-conclusion">{{ s.conclusion }}</div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <!-- 饼图（茶种出口结构） -->
-              <div class="ch5-card small-card">
-                <div class="card-title-sm">茶种出口结构</div>
-                <div class="chart-container chart-pie small">
-                  <EChart :option="leavesPieOption" style="height:260px" />
+              <!-- 5. 图2：内销总额与均价趋势 -->
+              <div class="lv-chart-block">
+                <div class="lv-chart-title">图2　中国茶叶内销总额与均价趋势图（2013—2024年）</div>
+                <div class="ch5-card small-card">
+                  <div class="chart-container" style="height:300px">
+                    <EChart :option="leavesValuePriceOption" />
+                  </div>
+                </div>
+                <div class="lv-chart-note lv-chart-note-approx">注：2013—2015年金额为公开图表数字化约数，以"≈"或浅色柱标注。</div>
+                <div class="lv-chart-note">内销量保持稳定，但内销总额和平均单价在2022年后回落，说明市场并非简单持续上扬，更适合进一步观察价格带、产品形态和消费场景的重新分配。</div>
+              </div>
+
+              <!-- 6. 图3：线上交易规模 -->
+              <div class="lv-chart-block">
+                <div class="lv-chart-title">图3　中国茶叶线上交易规模变化图（2016—2024年）</div>
+                <div class="ch5-card small-card">
+                  <div class="chart-container" style="height:260px">
+                    <EChart :option="leavesOnlineOption" />
+                  </div>
+                </div>
+                <!-- 注意：已删除"线上渠道总体保持扩张..."原文及对应空白占位 -->
+              </div>
+
+              <!-- 7. 一片茶叶的六种新表达（入口卡，点击打开详情弹层） -->
+              <div class="lv-products">
+                <div class="lv-products-title">一片茶叶的六种新表达</div>
+                <div class="lv-product-grid">
+                  <div
+                    v-for="p in leavesProductsSorted"
+                    :key="p.order"
+                    class="lv-product-card"
+                    @click="openProductDetail(p.order)">
+                    <div class="lv-prod-head">
+                      <div class="lv-prod-ord">{{ p.order }}</div>
+                      <div class="lv-prod-type">{{ p.type }}</div>
+                    </div>
+                    <div class="lv-prod-subtitle">{{ p.subtitle }}</div>
+                    <div class="lv-prod-repr">
+                      <span v-for="(prod, i) in p.entryProducts" :key="i" class="lv-prod-chip">{{ prod }}</span>
+                    </div>
+                    <div class="lv-prod-tap-hint">点击查看详情 →</div>
+                  </div>
                 </div>
               </div>
 
-              <!-- 茶种产量趋势 -->
-              <div class="ch5-card small-card">
-                <div class="card-title-sm">茶种产量趋势</div>
-                <div class="chart-container chart-trend small">
-                  <EChart :option="leavesTrendOption" style="height:240px" />
-                </div>
+              <!-- 8. 总结与数据来源 -->
+              <div class="lv-summary">
+                <div class="lv-summary-quote">从盖碗中的一片叶，到街头的一杯茶，再到食品、健康与日化产品，茶正在以新的方式进入当代生活。</div>
+                <div class="lv-source-note">{{ leavesDataSource }}</div>
               </div>
 
-              <!-- 堆叠面积图（茶种出口演变） -->
-              <div class="ch5-card small-card">
-                <div class="card-title-sm">茶种出口演变 15—24</div>
-                <div class="chart-container chart-stacked small">
-                  <EChart :option="leavesStackedOption" style="height:260px" />
+              <!-- ==== 六表达详情卡：手机内弹层（不超出手机外壳）==== -->
+              <transition name="lv-fade">
+                <div v-if="detailProduct" class="lv-detail-modal" @click.self="closeProductDetail">
+                  <div class="lv-detail-card">
+                    <button class="lv-detail-close" @click="closeProductDetail" type="button" aria-label="关闭">×</button>
+                    <div class="lv-detail-body" v-if="detailProductData">
+                      <!-- 头部 -->
+                      <div class="lv-detail-head">
+                        <div class="lv-detail-ord">{{ detailProductData.order }}</div>
+                        <div class="lv-detail-type">{{ detailProductData.type }}</div>
+                      </div>
+                      <div class="lv-detail-subtitle">{{ detailProductData.subtitle }}</div>
+                      <!-- 核心数字 -->
+                      <div class="lv-detail-core">
+                        <div class="lv-detail-core-num">
+                          <span class="lv-detail-core-val">{{ detailProductData.coreNum }}</span>
+                          <span v-if="detailProductData.coreUnit" class="lv-detail-core-unit">{{ detailProductData.coreUnit }}</span>
+                        </div>
+                        <div class="lv-detail-core-index">{{ detailProductData.indexName }}</div>
+                      </div>
+                      <!-- 元信息行：年份 + 范围 -->
+                      <div class="lv-detail-meta">
+                        <div class="lv-detail-meta-item">
+                          <span class="lv-detail-meta-label">年份</span>
+                          <span class="lv-detail-meta-value">{{ detailProductData.year }}</span>
+                        </div>
+                        <div class="lv-detail-meta-item">
+                          <span class="lv-detail-meta-label">统计范围</span>
+                          <span class="lv-detail-meta-value">{{ detailProductData.range }}</span>
+                        </div>
+                      </div>
+                      <!-- 辅助数据 -->
+                      <div class="lv-detail-aux">
+                        <span class="lv-detail-aux-label">辅助数据：</span>
+                        <span class="lv-detail-aux-value">{{ detailProductData.aux }}</span>
+                      </div>
+                      <!-- 代表产品 -->
+                      <div class="lv-detail-products">
+                        <div class="lv-detail-sec-label">代表产品</div>
+                        <div class="lv-detail-product-chips">
+                          <span v-for="(prod, i) in detailProductData.products" :key="i" class="lv-prod-chip">{{ prod }}</span>
+                        </div>
+                      </div>
+                      <!-- 解读 -->
+                      <div class="lv-detail-explain">
+                        <div class="lv-detail-sec-label">解读</div>
+                        <div class="lv-detail-explain-text">{{ detailProductData.explain }}</div>
+                      </div>
+                      <!-- 来源 -->
+                      <div class="lv-detail-source">
+                        <span class="lv-detail-source-label">来源：</span>
+                        <span class="lv-detail-source-name">{{ detailProductData.source }}</span>
+                      </div>
+                      <!-- 统一底部说明 -->
+                      <div class="lv-detail-footer">
+                        数据年份与统计范围见卡片，六类指标不作横向比较。
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              </transition>
+
             </div>
 
-            <!-- ========== 枝条：出口流向（瀑布流） ========== -->
+            <!-- ========== 枝条：枝远拓（瀑布流） ========== -->
             <div v-if="activePhonePanel === 'branches'" class="waterfall-panel panel-branches">
+
+              <!-- 1. 标题与导语 -->
+              <div class="lv-hero">
+                <div class="lv-hero-kicker">枝条·远拓</div>
+                <div class="lv-hero-sub">中国茶叶出口、市场连接与全球流动</div>
+                <div class="lv-hero-intro">枝条向外延展，连接产地与世界。从出口规模、目的地分布到省—市流动，看中国茶如何走向全球市场。</div>
+              </div>
 
               <div class="wf-controls wf-ctrl-inline">
                 <div class="ch5-year-select small">
@@ -299,15 +460,17 @@
 
               <!-- 桑基图 -->
               <div class="ch5-card small-card wf-sankey-card">
-                <div class="card-title-sm">省→目的地 桑基图</div>
+                <div class="card-title-sm">{{ branchesYear }}年 中国茶叶出口省→目的地流向图</div>
                 <div class="chart-container chart-sankey small">
                   <EChart :option="branchesSankeyOption" style="height:320px" />
                 </div>
+                <div class="lv-chart-note">图示说明：左侧为出口省份，右侧为出口目的地；连线方向代表出口流向；连线越粗、节点越高，对应出口额（亿元）越大。</div>
               </div>
 
               <!-- TOP 10 目的地 -->
               <div class="ch5-card small-card">
-                <div class="card-title-sm">TOP 10 目的地</div>
+                <div class="card-title-sm">{{ branchesYear }}年 中国茶叶出口目的地TOP 10</div>
+                <div class="ch5-chart-unit">单位：亿元</div>
                 <div class="chart-container chart-country-rank small">
                   <EChart :option="branchesCountryRankOption" style="height:260px" />
                 </div>
@@ -315,7 +478,7 @@
 
               <!-- 出口趋势 -->
               <div class="ch5-card small-card">
-                <div class="card-title-sm">出口趋势</div>
+                <div class="card-title-sm">中国茶叶出口总额趋势（{{ branchesYears[0] }}—{{ branchesYears[branchesYears.length - 2] ?? branchesYears[branchesYears.length - 1] }}年）</div>
                 <div class="chart-container chart-branch-trend small">
                   <EChart :option="branchesTrendOption" style="height:240px" />
                 </div>
@@ -355,6 +518,13 @@ import {
   getNational,
   getProvince,
   LATEST_EXPORT_YEAR,
+  // 叶片·新生 局部数据（2010—2024 长期趋势）
+  LEAVES_CONCLUSIONS,
+  LEAVES_DOMESTIC_TREND,
+  LEAVES_ONLINE_TREND,
+  LEAVES_STAGES,
+  LEAVES_PRODUCT_APPS,
+  LEAVES_DATA_SOURCE,
 } from '../config/ch5.js'
 
 const props = defineProps({ id: { type: String, required: true } })
@@ -448,15 +618,332 @@ const allProvinceYears = computed(() => {
 })
 const rootsYear = ref(latestProvinceYear('gardenArea'))
 
+// 当前选中省份 + 当前指标的有效首尾年份范围（用于省份详情标题）
+const provinceYearRange = computed(() => {
+  const detail = rootsProvinceDetail.value
+  if (!detail || !detail.years || detail.years.length < 2) return ''
+  return `${detail.years[0]}—${detail.years[detail.years.length - 1]}年`
+})
+
 function setMetric(key) {
   metric.value = key
   const y = latestProvinceYear(key)
   if (y) rootsYear.value = y
 }
 
-// ---- Leaves state ----
+// ---- Leaves state (老茶种贸易数据变量保留，避免破坏模板其他引用) ----
 const leavesYears = teaTypeData.map(d => d.year)
 const leavesYear = ref(LATEST_EXPORT_YEAR)
+
+// ---- 叶片·新生：交互状态（详情卡弹层）----
+const detailProduct = ref(null) // order number or null
+const detailProductData = computed(() => {
+  if (!detailProduct.value) return null
+  return LEAVES_PRODUCT_APPS.find(p => p.order === detailProduct.value) || null
+})
+function openProductDetail(order) {
+  detailProduct.value = order
+}
+function closeProductDetail() {
+  detailProduct.value = null
+}
+
+// 叶片·新生：数据引用
+const leavesConclusions = computed(() => LEAVES_CONCLUSIONS)
+const leavesStages = computed(() => LEAVES_STAGES)
+const leavesProductsSorted = computed(() =>
+  LEAVES_PRODUCT_APPS.slice().sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+)
+const leavesDataSource = LEAVES_DATA_SOURCE
+
+// 三阶段配色（由浅到深的茶绿色）
+const stageColors = ['#C3D6AC', '#8BA667', '#516D33']
+
+// ---- 图1：内销总量趋势（折线+面积，2010—2024全15年）----
+const leavesVolumeTrendOption = computed(() => {
+  const data = LEAVES_DOMESTIC_TREND
+  const years = data.map(d => d.year)
+  const volumes = data.map(d => d.volume)
+  // 来源简称用于tooltip，不暴露"口径"字段
+  const sourceShort = {}
+  data.forEach(d => {
+    const name = d.sourceUrl
+    if (name && name.includes('news.cn')) sourceShort[d.year] = '新华社/行业公开'
+    else if (name && name.includes('ctma')) sourceShort[d.year] = '中国茶叶流通协会'
+    else if (name && name.includes('mofcom')) sourceShort[d.year] = '商务部'
+    else if (name && name.includes('sciopen')) sourceShort[d.year] = '流通协会公开'
+    else if (name && name.includes('cnwinenews')) sourceShort[d.year] = '行业公开资料'
+    else if (name && name.includes('ipucha')) sourceShort[d.year] = '行业公开'
+    else if (name && name.includes('chinadaily')) sourceShort[d.year] = 'China Daily公开'
+    else if (name && name.includes('aticoc')) sourceShort[d.year] = '行业公开'
+    else if (name && name.includes('hunan.gov')) sourceShort[d.year] = '政府公开数据'
+    else sourceShort[d.year] = '公开行业资料'
+  })
+  return {
+    tooltip: {
+      ...tooltipBase,
+      trigger: 'axis',
+      formatter: ps => {
+        if (!ps || !ps.length) return ''
+        const yr = ps[0].axisValue
+        const item = data.find(x => String(x.year) === String(yr))
+        if (!item) return `${yr}年`
+        const s = sourceShort[item.year] || '公开资料'
+        return `<b>${yr}年</b><br/>内销量：${fmt(item.volume, 2)} 万吨<br/><span style="font-size:10px;color:#8A8270">${s}</span>`
+      },
+      confine: true,
+      extraCssText: 'max-width:240px; white-space:pre-wrap;',
+    },
+    grid: { containLabel: true, left: 38, right: 16, top: 26, bottom: 34 },
+    xAxis: {
+      type: 'category',
+      data: years,
+      axisLine: axisLineStyle,
+      boundaryGap: false,
+      axisLabel: {
+        ...axisLabelStyle,
+        interval: 2,
+        fontSize: 10,
+      },
+    },
+    yAxis: {
+      type: 'value',
+      name: '万吨',
+      nameGap: 10,
+      nameLocation: 'end',
+      nameTextStyle: { color: '#5C7C3A', fontSize: 10, align: 'right' },
+      axisLine: { lineStyle: { color: '#5C7C3A' } },
+      axisLabel: { ...axisLabelStyle, color: '#5C7C3A', fontSize: 10 },
+      splitLine: splitLineStyle,
+      max: 270,
+    },
+    series: [{
+      name: '内销量',
+      type: 'line',
+      data: volumes,
+      smooth: true,
+      symbol: 'circle',
+      symbolSize: 7,
+      showSymbol: true,
+      lineStyle: { color: '#5C7C3A', width: 2.5 },
+      itemStyle: { color: '#5C7C3A', borderWidth: 0 },
+      areaStyle: {
+        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+          { offset: 0, color: 'rgba(92,124,58,0.22)' },
+          { offset: 1, color: 'rgba(92,124,58,0.04)' },
+        ]),
+      },
+      markPoint: {
+        symbol: 'circle',
+        symbolSize: 54,
+        data: [{ name: '2024峰值', value: '241.27', xAxis: 2024, yAxis: 241.27 }],
+        itemStyle: { color: 'rgba(178,143,76,0.15)', borderColor: '#B28F4C', borderWidth: 1 },
+        label: {
+          formatter: '{c}',
+          color: '#B28F4C',
+          fontSize: 10,
+          fontWeight: 700,
+        },
+      },
+    }],
+  }
+})
+
+// ---- 共享颜色变量（柱状图金色、折线茶绿色）供图例与系列统一引用，避免图例与实际图形颜色不一致 ----
+const salesAmountColor = '#C8A155'
+const salesAmountColorDark = '#B28F4C'
+const avgPriceColor = '#5C7C3A'
+
+// ---- 图2：内销总额（柱）+ 均价（线），2013—2024 双Y轴 ----
+const leavesValuePriceOption = computed(() => {
+  const data = LEAVES_DOMESTIC_TREND.filter(d => d.year >= 2013)
+  const years = data.map(d => d.year)
+  // 约数柱用透明度更低的金色，但仍保持金色主色
+  const barData = data.map(d => ({
+    value: d.value,
+    _valueQualifier: d.valueQualifier || '精确',
+    itemStyle: {
+      color: d.valueQualifier === '约数'
+        ? `rgba(178,143,76,0.55)`
+        : new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: salesAmountColor },
+            { offset: 1, color: salesAmountColorDark },
+          ]),
+      borderRadius: [4, 4, 0, 0],
+    },
+  }))
+  const lineData = data.map(d => d.avgPrice)
+  return {
+    tooltip: {
+      ...tooltipBase,
+      trigger: 'axis',
+      formatter: ps => {
+        if (!ps || !ps.length) return ''
+        const yr = ps[0].axisValue
+        const item = data.find(x => String(x.year) === String(yr))
+        if (!item) return `${yr}年`
+        const valQual = item.valueQualifier === '约数' ? '（约）' : ''
+        return `<b>${yr}年</b><br/>内销总额：${fmt(item.value, 2)} 亿元${valQual}<br/>平均单价：${fmt(item.avgPrice, 2)} 元/千克`
+      },
+      confine: true,
+      extraCssText: 'max-width:240px; white-space:pre-wrap;',
+    },
+    legend: {
+      top: 8,
+      left: 'center',
+      itemWidth: 12,
+      itemHeight: 8,
+      textStyle: { color: '#5A6655', fontSize: 10 },
+      data: [
+        { name: '内销总额（亿元）', itemStyle: { color: salesAmountColorDark, borderWidth: 0 } },
+        { name: '平均单价（元/千克）', itemStyle: { color: avgPriceColor, borderWidth: 0 } },
+      ],
+    },
+    grid: { containLabel: true, left: 42, right: 42, top: 46, bottom: 38 },
+    color: [salesAmountColorDark, avgPriceColor],
+    xAxis: {
+      type: 'category',
+      data: years,
+      axisLine: axisLineStyle,
+      axisLabel: { ...axisLabelStyle, fontSize: 10 },
+    },
+    yAxis: [
+      {
+        type: 'value',
+        name: '亿元',
+        nameGap: 12,
+        nameLocation: 'end',
+        nameTextStyle: { color: salesAmountColorDark, fontSize: 10, align: 'right' },
+        axisLine: { lineStyle: { color: salesAmountColorDark } },
+        axisLabel: { ...axisLabelStyle, color: salesAmountColorDark, fontSize: 10 },
+        splitLine: splitLineStyle,
+        // 2022年高点3395，max扩大到4000以容纳标注
+        max: 4000,
+      },
+      {
+        type: 'value',
+        name: '元/千克',
+        nameGap: 12,
+        nameLocation: 'end',
+        nameTextStyle: { color: avgPriceColor, fontSize: 10, align: 'right' },
+        axisLine: { lineStyle: { color: avgPriceColor } },
+        axisLabel: { ...axisLabelStyle, color: avgPriceColor, fontSize: 10 },
+        splitLine: { show: false },
+        max: 170,
+      },
+    ],
+    series: [
+      {
+        name: '内销总额（亿元）',
+        type: 'bar',
+        yAxisIndex: 0,
+        data: barData,
+        barWidth: '50%',
+        itemStyle: { color: salesAmountColorDark }, // series默认色与图例一致
+        markLine: {
+          silent: true,
+          symbol: ['none', 'arrow'],
+          lineStyle: { color: '#A8453A', type: 'dashed', width: 1.2 },
+          label: {
+            formatter: '2022阶段高点',
+            color: '#A8453A',
+            fontSize: 10,
+            position: 'insideEndTop',
+          },
+          data: [{ name: '2022阶段高点', xAxis: 9 }],
+        },
+      },
+      {
+        name: '平均单价（元/千克）',
+        type: 'line',
+        yAxisIndex: 1,
+        data: lineData,
+        smooth: true,
+        symbol: 'circle',
+        symbolSize: 5,
+        lineStyle: { color: avgPriceColor, width: 2.2 },
+        itemStyle: { color: avgPriceColor, borderWidth: 0 },
+      },
+    ],
+  }
+})
+
+// ---- 图3：线上交易规模（柱状图，2021缺失显示断点）----
+const leavesOnlineOption = computed(() => {
+  const data = LEAVES_ONLINE_TREND
+  const years = data.map(d => d.year)
+  return {
+    tooltip: {
+      ...tooltipBase,
+      trigger: 'axis',
+      formatter: ps => {
+        const p = ps?.[0]
+        if (!p) return ''
+        const item = data.find(x => String(x.year) === String(p.axisValue))
+        if (!item) return `${p.axisValue}年`
+        if (item.qualifier === '缺失') {
+          return `<b>${p.axisValue}年</b><br/><span style="color:#A8453A">数据缺失</span>`
+        }
+        return `<b>${p.axisValue}年</b><br/>线上交易额：${item.displayValue}`
+      },
+      confine: true,
+      extraCssText: 'max-width:220px; white-space:pre-wrap;',
+    },
+    grid: { containLabel: true, left: 38, right: 16, top: 26, bottom: 34 },
+    legend: { show: false },
+    xAxis: {
+      type: 'category',
+      data: years,
+      axisLine: axisLineStyle,
+      axisLabel: { ...axisLabelStyle, fontSize: 10 },
+    },
+    yAxis: {
+      type: 'value',
+      name: '亿元',
+      nameGap: 10,
+      nameLocation: 'end',
+      nameTextStyle: { color: '#5A6655', fontSize: 10, align: 'right' },
+      axisLine: axisLineStyle,
+      axisLabel: { ...axisLabelStyle, fontSize: 10 },
+      splitLine: splitLineStyle,
+      // 420容柱顶标签不溢出
+      max: 420,
+    },
+    series: [{
+      type: 'bar',
+      barWidth: '52%',
+      data: data.map(d => {
+        if (d.value === null) {
+          return {
+            value: null,
+            _displayValue: '数据缺失',
+            itemStyle: { color: 'rgba(168,69,58,0.08)', borderColor: 'rgba(168,69,58,0.3)', borderWidth: 1, borderType: 'dashed' },
+          }
+        }
+        // 所有有效柱体使用统一茶绿色
+        return {
+          value: d.value,
+          _displayValue: d.displayValue,
+          itemStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: '#8BA667' },
+              { offset: 1, color: '#5C7C3A' },
+            ]),
+            borderRadius: [4, 4, 0, 0],
+          },
+        }
+      }),
+      label: {
+        show: true,
+        position: 'top',
+        color: '#3A4D38',
+        fontSize: 9,
+        fontWeight: 600,
+        formatter: p => p.data?._displayValue ?? '',
+      },
+    }],
+  }
+})
 
 // ---- Branches state ----
 const branchesYears = countryData.map(d => d.year)
@@ -476,6 +963,13 @@ const homeExportYearData = countryData.find(y => y.year === LATEST_EXPORT_YEAR)
 const exportTotal = homeExportYearData
   ? homeExportYearData.countries.reduce((s, c) => s + c.value, 0)
   : 0
+
+// 叶片茶树标注框使用：LEAVES_DOMESTIC_TREND最后一条有有效内销量的年份
+const leavesDomesticLatest = (() => {
+  const list = LEAVES_DOMESTIC_TREND.slice().reverse()
+  const hit = list.find(d => d.volume != null && !Number.isNaN(Number(d.volume)))
+  return hit || { year: null, volume: 0 }
+})()
 
 // ============================================================
 //  中国各省面积常量表（单位：km²）
@@ -608,6 +1102,7 @@ const rootsMapData = computed(() => {
 
 const rootsMapOption = computed(() => {
   const data = rootsMapData.value
+  const yr = rootsYear.value
 
   // =================== 茶园面积 Tab：气泡图方案（geo 米色底图 + 散点） ===================
   if (metric.value === 'gardenArea') {
@@ -640,18 +1135,20 @@ const rootsMapOption = computed(() => {
 
     // 气泡大小映射（基于茶园面积绝对值，开方缩放使视觉更合理）
     const areaMaxRef = Math.max(areaMax, 1)
-    const sizeMax = 24 // 最大气泡像素（整体调小，原 36）
-    const sizeMin = 4  // 最小气泡像素（整体调小，原 6）
+    const sizeMax = 22 // 最大气泡像素（整体调小，避免遮挡图例）
+    const sizeMin = 4  // 最小气泡像素
 
     return {
       tooltip: {
         ...tooltipBase,
         trigger: 'item',
+        confine: true,
+        extraCssText: 'max-width:220px; white-space:pre-wrap;',
         formatter: p => {
           if (p.componentType === 'geo') return `${p.name}<br/>（点击气泡查看省份详情）`
           const d = p.data
           if (!d || !d.gardenArea) return `${p.name}<br/>暂无数据`
-          return `<b>${d.name}</b><br/>茶园面积：${fmt(d.gardenArea, 2)} 千公顷<br/>覆盖率：${fmt(d.coverage, 3)} %`
+          return `<b>${d.name}</b>（${yr}年）<br/>茶园面积：${fmt(d.gardenArea, 2)} 千公顷<br/>覆盖率：${fmt(d.coverage, 3)} %`
         },
       },
       geo: {
@@ -672,13 +1169,15 @@ const rootsMapOption = computed(() => {
       visualMap: {
         min: 0,
         max: coverageMax,
-        left: 16,
-        bottom: 24,
-        text: [`${coverageMax}%`, '0%'],
-        textStyle: { color: '#5A6655', fontSize: 10 },
+        left: 12,
+        bottom: 14,
+        text: [`覆盖率高（≥${coverageMax}%）`, '覆盖率低（0%）'],
+        textStyle: { color: '#5A6655', fontSize: 9 },
         inRange: { color: ['#F0F4E6', '#C5D6AC', '#8BA667', '#5C7C3A', '#3A4D38'] },
         calculable: true,
-        formatter: v => `${v.toFixed(1)}%`,
+        itemWidth: 10,
+        itemHeight: 60,
+        formatter: v => `覆盖率${v.toFixed(1)}%`,
         show: true,
         dimension: 2, // ★ 核心修复：绑定 value[2]=coverage，避免误取经度导致全白
         seriesIndex: 0, // 只作用于散点系列，不影响 geo
@@ -722,9 +1221,11 @@ const rootsMapOption = computed(() => {
     tooltip: {
       ...tooltipBase,
       trigger: 'item',
+      confine: true,
+      extraCssText: 'max-width:220px; white-space:pre-wrap;',
       formatter: p => {
         if (p.value == null || isNaN(p.value)) return `${p.name}<br/>暂无数据`
-        return `<b>${p.name}</b><br/>${metricLabel.value}：${fmt(p.value, 2)} ${metricUnit.value}`
+        return `<b>${p.name}</b>（${yr}年）<br/>${metricLabel.value}：${fmt(p.value, 2)} ${metricUnit.value}`
       },
     },
     geo: {
@@ -745,12 +1246,15 @@ const rootsMapOption = computed(() => {
     visualMap: {
       min: 0,
       max: maxVal || 1,
-      left: 20,
-      bottom: 30,
-      text: ['高', '低'],
-      textStyle: { color: '#5A6655', fontSize: 11 },
+      left: 12,
+      bottom: 18,
+      text: [`${metricLabel.value}高`, `${metricLabel.value}低`],
+      textStyle: { color: '#5A6655', fontSize: 9 },
       inRange: { color: ['#F0F4E6', '#C5D6AC', '#8BA667', '#5C7C3A', '#3A4D38'] },
       calculable: true,
+      itemWidth: 10,
+      itemHeight: 60,
+      formatter: v => `${fmt(v, 0)} ${metricUnit.value}`,
     },
     series: [{
       type: 'map',
@@ -796,27 +1300,59 @@ const rootsProvinceDetail = computed(() => {
 const rootsProvinceTrendOption = computed(() => {
   const detail = rootsProvinceDetail.value
   if (!detail || !detail.years.length) return {}
+  // 估算合适的 Y 轴 max（给数据点和顶部留白）
+  const values = detail.values.filter(v => typeof v === 'number' && !Number.isNaN(v))
+  const vmax = values.length ? Math.max(...values) : 0
+  const ymax = vmax > 0 ? Math.ceil(vmax * 1.18) : null
+  // 标签较多时做间隔显示：≥12个年份才按间隔+旋转
+  const yearCount = detail.years.length
+  const interval = yearCount > 12 ? Math.floor(yearCount / 6) : 0
   return {
     tooltip: {
       ...tooltipBase,
       trigger: 'axis',
+      confine: true,
+      extraCssText: 'max-width:220px; white-space:pre-wrap;',
       formatter: ps => {
         const v = ps[0]?.value
-        return `${v.axisValue ?? ps[0]?.axisValue}年<br/>${metricLabel.value}：${fmt(v.value ?? v.data, 2)} ${metricUnit.value}`
+        const y = ps[0]?.axisValue ?? v?.axisValue
+        return `<b>${y}年</b><br/>${metricLabel.value}：${fmt(v?.value ?? v?.data ?? ps[0]?.value, 2)} ${metricUnit.value}`
       },
     },
-    grid: { left: 48, right: 16, top: 16, bottom: 28 },
-    xAxis: { type: 'category', data: detail.years, axisLine: axisLineStyle, axisLabel: axisLabelStyle },
-    yAxis: { type: 'value', axisLine: axisLineStyle, axisLabel: axisLabelStyle, splitLine: splitLineStyle },
+    grid: { containLabel: true, left: 52, right: 20, top: 24, bottom: 36 },
+    xAxis: {
+      type: 'category',
+      data: detail.years,
+      axisLine: axisLineStyle,
+      axisLabel: {
+        ...axisLabelStyle,
+        fontSize: 10,
+        interval: interval === 0 ? 'auto' : interval,
+        rotate: yearCount > 10 ? 25 : 0,
+        margin: 12,
+      },
+    },
+    yAxis: {
+      type: 'value',
+      name: metricUnit.value,
+      nameGap: 10,
+      nameLocation: 'end',
+      nameTextStyle: { color: '#5A6655', fontSize: 10, align: 'right' },
+      max: ymax,
+      axisLine: axisLineStyle,
+      axisLabel: { ...axisLabelStyle, fontSize: 10 },
+      splitLine: splitLineStyle,
+    },
     series: [{
       type: 'line',
       data: detail.values,
       connectNulls: false,
       smooth: true,
       symbol: 'circle',
-      symbolSize: 6,
-      lineStyle: { color: metricColor.value, width: 2.5 },
-      itemStyle: { color: metricColor.value },
+      symbolSize: 5,
+      showSymbol: true,
+      lineStyle: { color: metricColor.value, width: 2.2 },
+      itemStyle: { color: metricColor.value, borderWidth: 0 },
       areaStyle: {
         color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
           { offset: 0, color: metricColor.value + '55' },
@@ -833,15 +1369,31 @@ const rootsRankingOption = computed(() => {
     .sort((a, b) => b.value - a.value)
     .slice(0, 10)
     .reverse()
+  const values = data.map(d => d.value)
+  const vmax = values.length ? Math.max(...values) : 0
+  const xmax = vmax > 0 ? Math.ceil(vmax * 1.25) : null // 右端留白容纳柱顶标签
   return {
     tooltip: {
       ...tooltipBase,
       trigger: 'axis',
+      confine: true,
+      extraCssText: 'max-width:220px; white-space:pre-wrap;',
       formatter: ps => `<b>${ps[0].name}</b><br/>${metricLabel.value}：${fmt(ps[0].value, 2)} ${metricUnit.value}`,
     },
-    grid: { left: 90, right: 40, top: 10, bottom: 24 },
-    xAxis: { type: 'value', axisLine: axisLineStyle, axisLabel: axisLabelStyle, splitLine: splitLineStyle },
-    yAxis: { type: 'category', data: data.map(d => d.name), axisLine: axisLineStyle, axisLabel: axisLabelStyle },
+    grid: { containLabel: true, left: 104, right: 60, top: 16, bottom: 26 },
+    xAxis: {
+      type: 'value',
+      max: xmax,
+      axisLine: axisLineStyle,
+      axisLabel: { ...axisLabelStyle, fontSize: 10 },
+      splitLine: splitLineStyle,
+    },
+    yAxis: {
+      type: 'category',
+      data: data.map(d => d.name),
+      axisLine: axisLineStyle,
+      axisLabel: { ...axisLabelStyle, fontSize: 10 },
+    },
     series: [{
       type: 'bar',
       data: data.map(d => ({
@@ -855,7 +1407,14 @@ const rootsRankingOption = computed(() => {
         },
       })),
       barWidth: '60%',
-      label: { show: true, position: 'right', color: '#5A6655', fontSize: 11, formatter: p => fmt(p.value, 1) },
+      label: {
+        show: true,
+        position: 'right',
+        color: '#5A6655',
+        fontSize: 10,
+        fontWeight: 600,
+        formatter: p => fmt(p.value, 1),
+      },
     }],
   }
 })
@@ -867,197 +1426,11 @@ function onMapClick(params) {
 }
 
 // ============================================================
-//  Leaves view computeds
+//  Leaves view computeds — 已迁移至上方叶片·新生区域
+//  （旧 leavesOverview / leavesPieOption / leavesTrendOption /
+//   leavesStackedOption / leavesTeaCards 已删除，
+//   不再使用茶种贸易数据渲染叶片面板）
 // ============================================================
-const leavesOverview = computed(() => {
-  const yd = teaTypeData.find(d => d.year === leavesYear.value)
-  const validTypes = yd ? yd.types.filter(t => !isMissingVal(t.value)) : []
-  const totalExport = validTypes.reduce((s, t) => s + (Number(t.value) || 0), 0)
-  const sorted = validTypes.slice().sort((a, b) => Number(b.value) - Number(a.value))
-  const topType = sorted.length ? sorted[0].type : ''
-  const typeCount = validTypes.length
-  const latestNat = getNational(latestFullYear())
-  return {
-    totalExport,
-    topType,
-    typeCount,
-    latestOutput: latestNat?.totalOutput ?? 0,
-  }
-})
-
-const leavesPieOption = computed(() => {
-  const yd = teaTypeData.find(d => d.year === leavesYear.value)
-  if (!yd) return {}
-  const data = yd.types
-    .filter(t => !isMissingVal(t.value))
-    .map(t => ({
-      name: t.type,
-      value: Number(t.value) || 0,
-      itemStyle: { color: TEA_COLORS[t.type] || '#8A8270' },
-    }))
-  return {
-    tooltip: {
-      ...tooltipBase,
-      trigger: 'item',
-      formatter: p => `<b>${p.name}</b><br/>出口额：${fmt(p.value / 1e8, 2)} 亿元<br/>占比：${p.percent}%`,
-    },
-    legend: {
-      bottom: 5,
-      left: 'center',
-      textStyle: { color: '#5A6655', fontSize: 11 },
-      itemWidth: 12,
-      itemHeight: 12,
-    },
-    series: [{
-      type: 'pie',
-      radius: ['42%', '72%'],
-      center: ['50%', '45%'],
-      avoidLabelOverlap: true,
-      itemStyle: { borderColor: '#FAF7EF', borderWidth: 2, borderRadius: 4 },
-      label: {
-        show: true,
-        formatter: '{b}\n{d}%',
-        fontSize: 11,
-        color: '#3A4D38',
-      },
-      emphasis: {
-        label: { fontSize: 13, fontWeight: 700 },
-        itemStyle: { shadowBlur: 10, shadowColor: 'rgba(0,0,0,0.15)' },
-      },
-      data,
-    }],
-  }
-})
-
-const leavesTrendOption = computed(() => {
-  const years = nationalData.map(d => d.year)
-  const totalSeries = {
-    name: '茶叶总产量',
-    color: '#5C7C3A',
-    data: nationalData.map(d => numOrNull(d.totalOutput)),
-  }
-  const greenSeries = {
-    name: '绿茶',
-    color: '#6F9150',
-    data: nationalData.map(d => numOrNull(d.greenTea)),
-  }
-  const blackSeries = {
-    name: '红茶',
-    color: '#A8453A',
-    data: nationalData.map(d => numOrNull(d.blackTea)),
-  }
-  const allSeries = [totalSeries, greenSeries, blackSeries].filter(s => arrHasAnyValue(s.data))
-  return {
-    tooltip: {
-      ...tooltipBase,
-      trigger: 'axis',
-      formatter: ps => {
-        let html = `<b>${ps[0]?.axisValue ?? ''}年</b>`
-        ps.forEach(p => {
-          if (p.value == null) return
-          html += `<br/>${p.marker}${p.seriesName}：${fmt(p.value, 2)} 万吨`
-        })
-        return html
-      },
-    },
-    legend: {
-      top: 5,
-      textStyle: { color: '#5A6655', fontSize: 11 },
-      data: allSeries.map(s => s.name),
-    },
-    grid: { left: 48, right: 20, top: 40, bottom: 30 },
-    xAxis: { type: 'category', data: years, axisLine: axisLineStyle, axisLabel: axisLabelStyle },
-    yAxis: { type: 'value', name: '万吨', nameTextStyle: { color: '#5A6655', fontSize: 11 }, axisLine: axisLineStyle, axisLabel: axisLabelStyle, splitLine: splitLineStyle },
-    series: allSeries.map(s => ({
-      name: s.name,
-      type: 'line',
-      data: s.data,
-      connectNulls: false,
-      smooth: true,
-      lineStyle: {
-        color: s.color,
-        width: s.name === '茶叶总产量' ? 2.5 : 2,
-      },
-      itemStyle: { color: s.color },
-      areaStyle: s.name === '茶叶总产量' ? { color: 'rgba(92,124,58,0.12)' } : undefined,
-    })),
-  }
-})
-
-const leavesStackedOption = computed(() => {
-  const yearRange = teaTypeData.filter(d => d.year >= 2015 && d.year <= 2024)
-  const years = yearRange.map(d => d.year)
-  const allTypes = TEA_ORDER.filter(t => t !== '其他')
-  // 生成每个茶种的年度数据（0/空 → null，不参与堆叠绘制）
-  const typedSeriesData = allTypes.map(type => {
-    const data = yearRange.map(d => {
-      const t = d.types.find(x => x.type === type)
-      return t ? numOrNull(t.value) : null
-    })
-    return { type, data }
-  }).filter(ts => arrHasAnyValue(ts.data))
-
-  const types = typedSeriesData.map(s => s.type)
-
-  return {
-    tooltip: {
-      ...tooltipBase,
-      trigger: 'axis',
-      formatter: ps => {
-        let html = `<b>${ps[0].axisValue}年</b>`
-        ps.forEach(p => {
-          if (p.value == null) return
-          html += `<br/>${p.marker}${p.seriesName}：${fmt(p.value / 1e8, 2)} 亿元`
-        })
-        return html
-      },
-    },
-    legend: {
-      top: 5,
-      textStyle: { color: '#5A6655', fontSize: 11 },
-      data: types,
-    },
-    grid: { left: 56, right: 20, top: 40, bottom: 30 },
-    xAxis: { type: 'category', boundaryGap: false, data: years, axisLine: axisLineStyle, axisLabel: axisLabelStyle },
-    yAxis: {
-      type: 'value',
-      name: '亿元',
-      nameTextStyle: { color: '#5A6655', fontSize: 11 },
-      axisLine: axisLineStyle,
-      axisLabel: { ...axisLabelStyle, formatter: v => (v / 1e8).toFixed(1) },
-      splitLine: splitLineStyle,
-    },
-    series: typedSeriesData.map(ts => ({
-      name: ts.type,
-      type: 'line',
-      stack: 'total',
-      areaStyle: { opacity: 0.55, color: TEA_COLORS[ts.type] || '#8A8270' },
-      lineStyle: { color: TEA_COLORS[ts.type] || '#8A8270', width: 1.5 },
-      itemStyle: { color: TEA_COLORS[ts.type] || '#8A8270' },
-      connectNulls: false,
-      smooth: true,
-      data: ts.data,
-    })),
-  }
-})
-
-const leavesTeaCards = computed(() => {
-  const yd = teaTypeData.find(d => d.year === leavesYear.value)
-  const valueMap = {}
-  if (yd) yd.types.forEach(t => {
-    if (!isMissingVal(t.value)) valueMap[t.type] = Number(t.value) || 0
-  })
-  // 只返回当前年份有非0/非空数据的茶种，其余从卡片中隐藏
-  return TEA_ORDER
-    .filter(t => t !== '其他')
-    .filter(type => !isMissingVal(valueMap[type]))
-    .map(type => ({
-      type,
-      ...TEA_INFO[type],
-      color: TEA_COLORS[type] || '#8A8270',
-      value: valueMap[type] || 0,
-    }))
-})
 
 // ============================================================
 //  Branches view computeds
@@ -1097,27 +1470,30 @@ const branchesSankeyOption = computed(() => {
     tooltip: {
       ...tooltipBase,
       trigger: 'item',
+      confine: true,
+      extraCssText: 'max-width:240px; white-space:pre-wrap;',
       formatter: p => {
         if (p.dataType === 'edge') {
-          return `${p.data.source} → ${p.data.target}<br/>出口额：${fmt(p.data.value / 1e8, 2)} 亿元`
+          return `<b>${p.data.source} → ${p.data.target}</b><br/>出口额：${fmt(p.data.value / 1e8, 2)} 亿元`
         }
         return `<b>${p.name}</b>`
       },
     },
     series: [{
       type: 'sankey',
-      left: 20,
-      right: 120,
-      top: 20,
-      bottom: 20,
-      nodeWidth: 16,
-      nodeGap: 8,
+      left: 16,
+      right: 96,
+      top: 18,
+      bottom: 18,
+      nodeWidth: 14,
+      nodeGap: 6,
+      nodeAlign: 'justify',
       layoutIterations: 64,
       emphasis: { focus: 'adjacency' },
       data: validNodes.map(n => ({
         name: n.name,
         itemStyle: { color: n.category === 'province' ? '#5C7C3A' : '#C8A155' },
-        label: { color: '#3A4D38', fontSize: 11 },
+        label: { color: '#3A4D38', fontSize: 10, width: 88, overflow: 'truncate' },
       })),
       links: validLinks,
       lineStyle: { curveness: 0.5 },
@@ -1134,15 +1510,35 @@ const branchesCountryRankOption = computed(() => {
     .sort((a, b) => b.value - a.value)
     .slice(0, 10)
     .reverse()
+  const values = sorted.map(c => c.value / 1e8)
+  const vmax = values.length ? Math.max(...values) : 0
+  const xmax = vmax > 0 ? Math.ceil(vmax * 1.28) : null
   return {
     tooltip: {
       ...tooltipBase,
       trigger: 'axis',
+      confine: true,
+      extraCssText: 'max-width:220px; white-space:pre-wrap;',
       formatter: ps => `<b>${ps[0].name}</b><br/>出口额：${fmt(ps[0].value, 2)} 亿元`,
     },
-    grid: { left: 100, right: 50, top: 10, bottom: 24 },
-    xAxis: { type: 'value', axisLine: axisLineStyle, axisLabel: axisLabelStyle, splitLine: splitLineStyle },
-    yAxis: { type: 'category', data: sorted.map(c => c.name), axisLine: axisLineStyle, axisLabel: axisLabelStyle },
+    grid: { containLabel: true, left: 116, right: 68, top: 16, bottom: 28 },
+    xAxis: {
+      type: 'value',
+      max: xmax,
+      name: '亿元',
+      nameGap: 10,
+      nameLocation: 'end',
+      nameTextStyle: { color: '#5A6655', fontSize: 10, align: 'right' },
+      axisLine: axisLineStyle,
+      axisLabel: { ...axisLabelStyle, fontSize: 10 },
+      splitLine: splitLineStyle,
+    },
+    yAxis: {
+      type: 'category',
+      data: sorted.map(c => c.name),
+      axisLine: axisLineStyle,
+      axisLabel: { ...axisLabelStyle, fontSize: 10, width: 96, overflow: 'truncate' },
+    },
     series: [{
       type: 'bar',
       data: sorted.map(c => ({
@@ -1156,7 +1552,14 @@ const branchesCountryRankOption = computed(() => {
         },
       })),
       barWidth: '60%',
-      label: { show: true, position: 'right', color: '#5A6655', fontSize: 11, formatter: p => p.value.toFixed(2) },
+      label: {
+        show: true,
+        position: 'right',
+        color: '#5A6655',
+        fontSize: 10,
+        fontWeight: 600,
+        formatter: p => p.value.toFixed(2),
+      },
     }],
   }
 })
@@ -1181,24 +1584,43 @@ const branchesTrendOption = computed(() => {
   const maxItem = validItems.length
     ? validItems.reduce((m, d) => (d.total > m.total ? d : m), validItems[0])
     : null
+  const maxY = validItems.length ? (maxItem.total / 1e8) * 1.25 : null
+  const yearCount = trend.length
+  const interval = yearCount > 12 ? Math.floor(yearCount / 7) : 0
   return {
     tooltip: {
       ...tooltipBase,
       trigger: 'axis',
+      confine: true,
+      extraCssText: 'max-width:220px; white-space:pre-wrap;',
       formatter: ps => {
         const v = ps[0]?.value
-        if (v == null) return `${ps[0]?.axisValue ?? ''}年<br/>暂无出口数据`
+        if (v == null) return `<b>${ps[0]?.axisValue ?? ''}年</b><br/>暂无出口数据`
         return `<b>${ps[0]?.axisValue ?? ''}年</b><br/>出口总额：${fmt(v, 2)} 亿元`
       },
     },
-    grid: { left: 52, right: 30, top: 30, bottom: 30 },
-    xAxis: { type: 'category', data: trend.map(d => d.year), axisLine: axisLineStyle, axisLabel: axisLabelStyle },
+    grid: { containLabel: true, left: 56, right: 28, top: 46, bottom: 38 },
+    xAxis: {
+      type: 'category',
+      data: trend.map(d => d.year),
+      axisLine: axisLineStyle,
+      axisLabel: {
+        ...axisLabelStyle,
+        fontSize: 10,
+        interval: interval === 0 ? 'auto' : interval,
+        rotate: yearCount > 10 ? 25 : 0,
+        margin: 12,
+      },
+    },
     yAxis: {
       type: 'value',
       name: '亿元',
-      nameTextStyle: { color: '#5A6655', fontSize: 11 },
+      nameGap: 12,
+      nameLocation: 'end',
+      nameTextStyle: { color: '#5A6655', fontSize: 10, align: 'right' },
+      max: maxY,
       axisLine: axisLineStyle,
-      axisLabel: axisLabelStyle,
+      axisLabel: { ...axisLabelStyle, fontSize: 10 },
       splitLine: splitLineStyle,
     },
     series: [{
@@ -1207,9 +1629,9 @@ const branchesTrendOption = computed(() => {
       connectNulls: false,
       smooth: true,
       symbol: 'circle',
-      symbolSize: 7,
-      lineStyle: { color: '#6B4423', width: 2.5 },
-      itemStyle: { color: '#6B4423' },
+      symbolSize: 6,
+      lineStyle: { color: '#6B4423', width: 2.4 },
+      itemStyle: { color: '#6B4423', borderWidth: 0 },
       areaStyle: {
         color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
           { offset: 0, color: 'rgba(107,68,35,0.25)' },
@@ -1218,10 +1640,10 @@ const branchesTrendOption = computed(() => {
       },
       markPoint: maxItem ? {
         symbol: 'pin',
-        symbolSize: 48,
-        data: [{ name: '最大值', value: maxItem.total / 1e8, xAxis: maxItem.year, yAxis: maxItem.total / 1e8 }],
+        symbolSize: 44,
+        data: [{ name: '最大值', value: (maxItem.total / 1e8).toFixed(1), xAxis: maxItem.year, yAxis: maxItem.total / 1e8 }],
         itemStyle: { color: '#B28F4C' },
-        label: { color: '#fff', fontSize: 10, formatter: p => p.value.toFixed(1) },
+        label: { color: '#fff', fontSize: 10 },
       } : undefined,
     }],
   }
@@ -1717,6 +2139,587 @@ onMounted(async () => {
 .ch5-share-card.small .share-name { font-size: 12px; }
 .ch5-share-card.small .share-val { font-size: 10px; margin-bottom: 2px; }
 .ch5-share-card.small .share-bar-wrap { height: 4px; }
+
+/* ============================================================
+   叶片·新生 · 局部样式（仅作用于叶片面板，不影响其他面板）
+   ============================================================ */
+
+/* ---- 1. 标题与导语 ---- */
+.lv-hero {
+  padding: 12px 4px 6px;
+  text-align: center;
+}
+.lv-hero-kicker {
+  display: inline-block;
+  font: 700 15px/1 var(--font-huiwen);
+  letter-spacing: 0.12em;
+  color: #fff;
+  background: linear-gradient(135deg, #5C7C3A 0%, #516D33 100%);
+  padding: 6px 16px;
+  border-radius: 14px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 6px rgba(92,124,58,0.18);
+}
+.panel-roots .lv-hero-kicker {
+  background: linear-gradient(135deg, #B28F4C 0%, #8F7137 100%);
+  box-shadow: 0 2px 6px rgba(178,143,76,0.22);
+}
+.panel-branches .lv-hero-kicker {
+  background: linear-gradient(135deg, #8A5A2E 0%, #6B4423 100%);
+  box-shadow: 0 2px 6px rgba(107,68,35,0.22);
+}
+.lv-hero-sub {
+  font-size: 11px;
+  color: #5A6655;
+  letter-spacing: 0.02em;
+  margin-bottom: 8px;
+}
+.lv-hero-intro {
+  font-size: 12px;
+  line-height: 1.6;
+  color: #3A3428;
+  text-align: justify;
+  padding: 0 4px;
+}
+
+/* ---- 2. 先看结论：3张分析卡 ---- */
+.lv-conclusion-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+}
+.lv-conclusion-card {
+  background: linear-gradient(135deg, rgba(250,247,239,0.96) 0%, rgba(245,241,232,0.96) 100%);
+  border: 1px solid rgba(165,163,122,0.4);
+  border-left: 4px solid #5C7C3A;
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+.lv-cc-title {
+  font: 800 13px/1 var(--font-huiwen);
+  color: #3A4D38;
+  letter-spacing: 0.04em;
+  margin-bottom: 8px;
+}
+.lv-cc-scale-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.lv-cc-scale-val {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+}
+.lv-cc-num {
+  font: 900 18px/1 var(--font-huiwen);
+  color: #516D33;
+}
+.lv-cc-unit {
+  font-size: 10px;
+  color: #8A8270;
+}
+.lv-cc-arrow {
+  font-size: 18px;
+  color: #B28F4C;
+  font-weight: 700;
+}
+.lv-cc-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(135deg, #B28F4C 0%, #C8A155 100%);
+  padding: 2px 8px;
+  border-radius: 6px;
+  margin-bottom: 4px;
+}
+.lv-cc-phase-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+.lv-cc-phase {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 3px 6px;
+  background: rgba(195,214,172,0.2);
+  border-radius: 5px;
+}
+.lv-cc-phase-period { font-size: 10px; color: #5A6655; }
+.lv-cc-phase-cagr {
+  font: 700 12px/1 var(--font-huiwen);
+  color: #516D33;
+}
+.lv-cc-metrics {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 4px;
+}
+.lv-cc-metric {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.lv-cc-metric-label { font-size: 9px; color: #8A8270; }
+.lv-cc-metric-change {
+  font: 700 13px/1 var(--font-huiwen);
+  color: #5C7C3A;
+}
+.lv-cc-metric-change.neg { color: #A8453A; }
+.lv-cc-desc {
+  font-size: 10.5px;
+  color: #5A6655;
+  line-height: 1.5;
+  margin-top: 4px;
+}
+
+/* ---- 3/5/6. 图表区块 ---- */
+.lv-chart-block {
+  margin-top: 10px;
+}
+.lv-chart-title {
+  font: 700 12px/1.4 var(--font-huiwen);
+  color: #3A4D38;
+  letter-spacing: 0.02em;
+  padding: 6px 2px 8px;
+  text-align: center;
+}
+.ch5-chart-unit {
+  margin: 2px 2px 6px;
+  font-size: 10.5px;
+  color: #8A8270;
+  text-align: right;
+  padding-right: 4px;
+  letter-spacing: 0.02em;
+}
+.lv-chart-note {
+  margin-top: 6px;
+  padding: 7px 9px;
+  background: linear-gradient(135deg, rgba(239,233,218,0.5) 0%, rgba(247,244,235,0.5) 100%);
+  border-left: 3px solid #C3C19A;
+  border-radius: 0 6px 6px 0;
+  font-size: 10.5px;
+  line-height: 1.55;
+  color: #3A3428;
+}
+.lv-chart-note-approx {
+  border-left-color: #B28F4C;
+  font-size: 10px;
+  color: #6B5D3A;
+  margin-bottom: 4px;
+}
+
+/* ---- 4. 三阶段读图 ---- */
+.lv-stages { margin-top: 10px; }
+.lv-stages-title {
+  font: 700 13px/1 var(--font-huiwen);
+  color: #3A4D38;
+  letter-spacing: 0.04em;
+  padding: 4px 2px 8px;
+  text-align: center;
+}
+.lv-stage-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.lv-stage-card {
+  display: flex;
+  gap: 8px;
+  background: linear-gradient(135deg, rgba(250,247,239,0.95) 0%, rgba(245,241,232,0.95) 100%);
+  border: 1px solid rgba(165,163,122,0.35);
+  border-left: 4px solid var(--stage-color, #5C7C3A);
+  border-radius: 10px;
+  padding: 8px 10px;
+}
+.lv-stage-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: var(--stage-color, #5C7C3A);
+  color: #fff;
+  font: 800 11px/22px var(--font-huiwen);
+  text-align: center;
+  flex-shrink: 0;
+}
+.lv-stage-body { flex: 1; min-width: 0; }
+.lv-stage-period {
+  font-size: 10px;
+  color: #8A8270;
+  font-weight: 600;
+  margin-bottom: 1px;
+}
+.lv-stage-name {
+  font: 700 12px/1 var(--font-huiwen);
+  color: #3A4D38;
+  margin-bottom: 4px;
+}
+.lv-stage-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+.lv-stage-metric {
+  font-size: 10px;
+  color: #5A6655;
+}
+.lv-stage-cagr {
+  font-size: 10px;
+  font-weight: 700;
+  color: #B28F4C;
+  padding: 1px 5px;
+  background: rgba(178,143,76,0.12);
+  border-radius: 4px;
+}
+.lv-stage-conclusion {
+  font-size: 10px;
+  color: #5A6655;
+  line-height: 1.5;
+}
+
+/* ---- 7. 六种新表达 ---- */
+.lv-products { margin-top: 10px; }
+.lv-products-title {
+  font: 700 13px/1 var(--font-huiwen);
+  color: #3A4D38;
+  letter-spacing: 0.04em;
+  padding: 4px 2px 8px;
+  text-align: center;
+}
+.lv-product-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+.lv-product-card {
+  background: linear-gradient(135deg, rgba(250,247,239,0.95) 0%, rgba(245,241,232,0.95) 100%);
+  border: 1px solid rgba(165,163,122,0.35);
+  border-radius: 10px;
+  padding: 8px 9px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
+}
+.lv-product-card:hover {
+  border-color: rgba(92,124,58,0.5);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(81,109,51,0.08);
+}
+.lv-product-card.expanded {
+  grid-column: 1 / -1;
+  border-color: rgba(92,124,58,0.6);
+  box-shadow: 0 4px 14px rgba(92,124,58,0.14);
+}
+.lv-prod-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 3px;
+}
+.lv-prod-ord {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  background: linear-gradient(135deg, #5C7C3A 0%, #516D33 100%);
+  color: #FFF8E8;
+  font: 700 10px/18px var(--font-huiwen);
+  text-align: center;
+  flex-shrink: 0;
+}
+.lv-prod-type {
+  font: 700 12px/1 var(--font-huiwen);
+  color: #3A4D38;
+}
+.lv-prod-subtitle {
+  font-size: 10px;
+  color: #B28F4C;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.lv-prod-repr {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+.lv-prod-chip {
+  font-size: 9.5px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(195,193,154,0.25);
+  color: #516D33;
+}
+.lv-prod-more {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px dashed rgba(165,163,122,0.4);
+}
+.lv-prod-more-label,
+.lv-prod-explain-label,
+.lv-prod-dims-label {
+  font-size: 9px;
+  color: #8A8270;
+  margin-bottom: 2px;
+}
+.lv-prod-more-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  margin-bottom: 6px;
+}
+.lv-prod-explain {
+  margin-bottom: 4px;
+}
+.lv-prod-explain-text {
+  font-size: 10px;
+  color: #5A6655;
+  line-height: 1.5;
+}
+.lv-prod-dims-text {
+  font-size: 9.5px;
+  color: #5A6655;
+  line-height: 1.4;
+}
+.lv-prod-tap-hint {
+  margin-top: 4px;
+  font-size: 9px;
+  color: #5C7C3A;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  text-align: right;
+}
+
+/* ---- 六表达详情卡弹层（仅手机内遮罩）---- */
+.lv-detail-modal {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  background: rgba(58, 77, 56, 0.55);
+  backdrop-filter: blur(1.5px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 18px 14px 20px;
+  box-sizing: border-box;
+}
+.lv-detail-card {
+  width: 100%;
+  max-height: calc(100% - 2px);
+  background: linear-gradient(135deg, #FDFBF5 0%, #F7F4EB 100%);
+  border: 1px solid rgba(165, 163, 122, 0.55);
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(58, 52, 40, 0.2);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.lv-detail-close {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: rgba(92, 124, 58, 0.12);
+  color: #516D33;
+  border-radius: 50%;
+  font-size: 16px;
+  line-height: 22px;
+  font-weight: 700;
+  cursor: pointer;
+  z-index: 5;
+  transition: all 0.15s ease;
+}
+.lv-detail-close:hover {
+  background: rgba(92, 124, 58, 0.22);
+}
+.lv-detail-body {
+  padding: 16px 16px 14px;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+.lv-detail-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.lv-detail-ord {
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  background: linear-gradient(135deg, #5C7C3A 0%, #516D33 100%);
+  color: #FFF8E8;
+  font: 800 12px/24px var(--font-huiwen);
+  text-align: center;
+}
+.lv-detail-type {
+  font: 800 16px/1 var(--font-huiwen);
+  color: #3A4D38;
+  letter-spacing: 0.04em;
+}
+.lv-detail-subtitle {
+  font-size: 11px;
+  color: #B28F4C;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+.lv-detail-core {
+  background: linear-gradient(135deg, rgba(92,124,58,0.08) 0%, rgba(81,109,51,0.06) 100%);
+  border: 1px solid rgba(92,124,58,0.2);
+  border-left: 4px solid #5C7C3A;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+}
+.lv-detail-core-num {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-bottom: 2px;
+}
+.lv-detail-core-val {
+  font: 900 24px/1 var(--font-huiwen);
+  color: #5C7C3A;
+  letter-spacing: 0.01em;
+}
+.lv-detail-core-unit {
+  font: 700 12px/1 var(--font-huiwen);
+  color: #516D33;
+}
+.lv-detail-core-index {
+  font-size: 10.5px;
+  color: #5A6655;
+  line-height: 1.4;
+}
+.lv-detail-meta {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.lv-detail-meta-item {
+  flex: 1;
+  padding: 5px 8px;
+  background: rgba(195,193,154,0.15);
+  border-radius: 6px;
+}
+.lv-detail-meta-label {
+  display: block;
+  font-size: 9px;
+  color: #8A8270;
+  margin-bottom: 1px;
+}
+.lv-detail-meta-value {
+  font-size: 10.5px;
+  color: #3A4D38;
+  font-weight: 600;
+}
+.lv-detail-aux {
+  padding: 7px 9px;
+  border-left: 3px solid #B28F4C;
+  background: rgba(178,143,76,0.08);
+  border-radius: 0 6px 6px 0;
+  font-size: 10.5px;
+  line-height: 1.5;
+  color: #6B5D3A;
+  margin-bottom: 12px;
+}
+.lv-detail-aux-label { font-weight: 600; }
+.lv-detail-aux-value { color: #3A3428; }
+
+.lv-detail-sec-label {
+  font-size: 9.5px;
+  color: #8A8270;
+  margin-bottom: 3px;
+  letter-spacing: 0.02em;
+}
+.lv-detail-products {
+  margin-bottom: 10px;
+}
+.lv-detail-product-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.lv-detail-explain {
+  margin-bottom: 10px;
+}
+.lv-detail-explain-text {
+  font-size: 11px;
+  color: #3A3428;
+  line-height: 1.65;
+  padding: 7px 9px;
+  background: rgba(247,244,235,0.9);
+  border-radius: 6px;
+  border: 1px solid rgba(165,163,122,0.25);
+}
+.lv-detail-source {
+  margin-bottom: 10px;
+  font-size: 10px;
+  line-height: 1.5;
+  color: #8A8270;
+  padding: 6px 8px;
+  background: rgba(250,247,239,0.7);
+  border-radius: 6px;
+}
+.lv-detail-source-label { font-weight: 500; }
+.lv-detail-source-name { color: #5A6655; }
+.lv-detail-footer {
+  margin-top: 8px;
+  padding: 6px 8px;
+  border-top: 1px dashed rgba(165,163,122,0.4);
+  font-size: 9.5px;
+  color: #8A8270;
+  text-align: center;
+  letter-spacing: 0.01em;
+}
+
+/* 弹层过渡动画 */
+.lv-fade-enter-active, .lv-fade-leave-active {
+  transition: all 0.2s ease;
+}
+.lv-fade-enter-from, .lv-fade-leave-to {
+  opacity: 0;
+}
+.lv-fade-enter-from .lv-detail-card,
+.lv-fade-leave-to .lv-detail-card {
+  transform: translateY(14px) scale(0.98);
+}
+
+/* 确保弹层容器 .panel-leaves 有相对定位 */
+.panel-leaves {
+  position: relative;
+}
+
+/* ---- 8. 总结与数据来源 ---- */
+.lv-summary { margin-top: 10px; }
+.lv-summary-quote {
+  padding: 10px 12px;
+  background: linear-gradient(135deg, rgba(81,109,51,0.08) 0%, rgba(92,124,58,0.12) 100%);
+  border-radius: 10px;
+  font: 500 11px/1.7 var(--font-huiwen);
+  color: #3A4D38;
+  text-align: center;
+  letter-spacing: 0.02em;
+  border: 1px dashed rgba(92,124,58,0.35);
+  margin-bottom: 6px;
+}
+.lv-source-note {
+  font-size: 9.5px;
+  color: #8A8270;
+  line-height: 1.5;
+  padding: 4px 2px;
+  text-align: justify;
+}
 
 /* ============================================================
    响应式：窄屏时上下堆叠
