@@ -29,11 +29,12 @@
               @click="onThumbClick(thumbSlot[slotIdx - 1])"
             >
               <div class="thumb-img-wrap">
-                <img
-                  v-if="thumbSrc(thumbSlot[slotIdx - 1])"
-                  :src="thumbSrc(thumbSlot[slotIdx - 1])"
-                  :alt="FACTORS[thumbSlot[slotIdx - 1]].name"
-                />
+                <div
+                  class="thumbnail-map"
+                  :data-factor-id="thumbSlot[slotIdx - 1]"
+                  :aria-label="FACTORS[thumbSlot[slotIdx - 1]].name + '因子地图缩略图'"
+                  :ref="el => setThumbnailMapContainer(thumbSlot[slotIdx - 1], el)"
+                ></div>
               </div>
               <div class="thumb-label">
                 <span class="thumb-order">{{ slotIdx }}</span>
@@ -619,6 +620,17 @@ async function _getTendashData() {
  * ========================================================= */
 const COORDS_TO_LATLNG = coords => new L.LatLng(coords[1], coords[0], true)
 
+function getFactorLayerConfig(factorKey) {
+  const config = factorKey === 'composite' ? COMPOSITE : FACTORS[factorKey]
+  if (!config) return null
+  return {
+    factorKey,
+    dataUrl: config.png,
+    boundsUrl: config.boundsUrl,
+    opacity: 1,
+  }
+}
+
 async function _addProvFillLayer(m) {
   const data = await _getProvData()
   return L.geoJSON(data, {
@@ -658,25 +670,35 @@ async function _addTendashLayer(m) {
   }).addTo(m)
 }
 async function _addFactorOverlay(m, fid) {
-  const cfg = fid === 'composite' ? COMPOSITE : FACTORS[fid]
+  const cfg = getFactorLayerConfig(fid)
   if (!cfg) return null
   const bounds = await loadFactorBounds(fid)
-  const layer = L.imageOverlay(cfg.png, bounds, {
+  const layer = L.imageOverlay(cfg.dataUrl, bounds, {
     opacity: 1, interactive: false, crossOrigin: true,
-  }).addTo(m)
-  // 等待图片加载完成
-  await new Promise(resolve => {
-    const img = layer.getElement()
-    if (img && img.complete && img.naturalWidth > 0) {
-      resolve()
-    } else if (img) {
-      img.onload = resolve
-      img.onerror = resolve
-      setTimeout(resolve, 3000)
-    } else {
-      setTimeout(resolve, 500)
-    }
   })
+  // 等待真实的图像加载事件，不用固定延迟猜测资源是否就绪。
+  const loaded = new Promise(resolve => {
+    let settled = false
+    const finish = () => {
+      if (settled) return
+      settled = true
+      layer.off('load', finish)
+      layer.off('error', onError)
+      resolve()
+    }
+    const onError = error => {
+      console.warn('[ch2-thumb] factor image failed:', fid, error)
+      finish()
+    }
+    layer.on('load', finish)
+    layer.on('error', onError)
+  })
+  layer.addTo(m)
+  const img = layer.getElement()
+  if (img && img.complete && img.naturalWidth > 0) {
+    layer.fire('load')
+  }
+  await loaded
   return layer
 }
 
@@ -803,7 +825,259 @@ watch([activeFactorId, viewMode], () => {
 })
 
 /* =========================================================
- * 缩略图（完整地图合成图）生成器
+ * 左侧因子缩略图地图
+ *   每个可见因子拥有独立 Leaflet 实例；卡片不再显示 Canvas 截图。
+ *   坐标、图片、Bounds 与主图共用同一配置和 Albers CRS。
+ * ========================================================= */
+const THUMBNAIL_PADDING = 8
+const THUMBNAIL_PROVINCE_STYLE = {
+  color: '#8A956F', weight: 0.45, opacity: 0.75,
+  fillOpacity: 0, interactive: false,
+}
+const THUMBNAIL_OUTLINE_STYLE = {
+  color: '#66784D', weight: 0.9, opacity: 0.9,
+  fillOpacity: 0, interactive: false,
+}
+const THUMBNAIL_TENDASH_STYLE = {
+  color: '#66784D', weight: 0.7, opacity: 0.82,
+  dashArray: '3,2', fillOpacity: 0, interactive: false,
+}
+
+const thumbnailMapInstances = new Map()
+const thumbnailContainers = new Map()
+const thumbnailResizeObservers = new Map()
+const thumbnailInitPending = new Set()
+let thumbnailSyncRaf = 0
+let thumbnailSystemActive = true
+
+function scheduleThumbnailFit(record) {
+  if (!record || !record.map || !record.viewBounds) return
+  if (record.fitRaf) cancelAnimationFrame(record.fitRaf)
+  record.fitRaf = requestAnimationFrame(() => {
+    record.fitRaf = 0
+    if (!record.map || !record.container?.isConnected) return
+    const rect = record.container.getBoundingClientRect()
+    if (rect.width <= 0 || rect.height <= 0) return
+    record.map.invalidateSize({ pan: false, animate: false })
+    record.map.fitBounds(record.viewBounds, {
+      paddingTopLeft: [THUMBNAIL_PADDING, THUMBNAIL_PADDING],
+      paddingBottomRight: [THUMBNAIL_PADDING, THUMBNAIL_PADDING],
+      animate: false,
+    })
+  })
+}
+
+function attachThumbnailResizeObserver(factorKey, container) {
+  const previous = thumbnailResizeObservers.get(factorKey)
+  if (previous) previous.observer.disconnect()
+
+  const state = { observer: null, width: -1, height: -1, raf: 0 }
+  state.observer = new ResizeObserver(entries => {
+    const entry = entries[entries.length - 1]
+    const width = entry?.contentRect?.width || 0
+    const height = entry?.contentRect?.height || 0
+    if (width <= 0 || height <= 0) return
+    if (Math.abs(width - state.width) < 0.5 && Math.abs(height - state.height) < 0.5) return
+    state.width = width
+    state.height = height
+    if (state.raf) cancelAnimationFrame(state.raf)
+    state.raf = requestAnimationFrame(() => {
+      state.raf = 0
+      const record = thumbnailMapInstances.get(factorKey)
+      if (record) scheduleThumbnailFit(record)
+      else scheduleThumbnailInitialization(factorKey)
+    })
+  })
+  state.observer.observe(container)
+  thumbnailResizeObservers.set(factorKey, state)
+}
+
+async function initializeThumbnailMap(factorKey, container) {
+  if (!thumbnailSystemActive || !container?.isConnected) return
+  if (thumbnailMapInstances.has(factorKey) || thumbnailInitPending.has(factorKey)) return
+  const rect = container.getBoundingClientRect()
+  if (rect.width <= 0 || rect.height <= 0) return
+
+  thumbnailInitPending.add(factorKey)
+  let thumbnailMap = null
+  try {
+    const opts = getMapOptions()
+    thumbnailMap = L.map(container, {
+      ...opts,
+      // 主地图 minZoom 为 4；缩略图必须允许继续缩小，才能完整容纳中国全域。
+      minZoom: 0.8,
+      zoomControl: false,
+      attributionControl: false,
+      dragging: false,
+      scrollWheelZoom: false,
+      doubleClickZoom: false,
+      boxZoom: false,
+      keyboard: false,
+      tap: false,
+      touchZoom: false,
+      preferCanvas: true,
+      zoomSnap: 0.1,
+      zoomDelta: 0.1,
+      fadeAnimation: false,
+      zoomAnimation: false,
+      markerZoomAnimation: false,
+    })
+
+    thumbnailMap.createPane('thumbnailFactor')
+    thumbnailMap.getPane('thumbnailFactor').style.zIndex = 400
+    thumbnailMap.createPane('thumbnailProvince')
+    thumbnailMap.getPane('thumbnailProvince').style.zIndex = 450
+    thumbnailMap.createPane('thumbnailOutline')
+    thumbnailMap.getPane('thumbnailOutline').style.zIndex = 460
+
+    const [provinceData, outlineData, tendashData, factorBounds] = await Promise.all([
+      _getProvData(),
+      _getOutlineData(),
+      _getTendashData(),
+      loadFactorBounds(factorKey),
+    ])
+    if (!thumbnailSystemActive || thumbnailContainers.get(factorKey) !== container) {
+      thumbnailMap.remove()
+      return
+    }
+
+    const factorConfig = getFactorLayerConfig(factorKey)
+    if (!factorConfig) throw new Error('未知因子配置: ' + factorKey)
+    const factorOverlay = L.imageOverlay(factorConfig.dataUrl, factorBounds, {
+      pane: 'thumbnailFactor',
+      opacity: factorConfig.opacity,
+      interactive: false,
+      crossOrigin: true,
+    })
+    factorOverlay.on('error', error => {
+      console.warn('[ch2-thumb] factor layer failed:', factorKey, error)
+    })
+    factorOverlay.addTo(thumbnailMap)
+
+    const chinaLayer = L.geoJSON(provinceData, {
+      pane: 'thumbnailProvince',
+      style: () => ({ ...THUMBNAIL_PROVINCE_STYLE }),
+      coordsToLatLng: COORDS_TO_LATLNG,
+      interactive: false,
+    }).addTo(thumbnailMap)
+
+    if (outlineData) {
+      L.geoJSON(outlineData, {
+        pane: 'thumbnailOutline',
+        style: () => ({ ...THUMBNAIL_OUTLINE_STYLE }),
+        coordsToLatLng: COORDS_TO_LATLNG,
+        interactive: false,
+      }).addTo(thumbnailMap)
+    }
+    if (tendashData) {
+      L.geoJSON(tendashData, {
+        pane: 'thumbnailOutline',
+        style: () => ({ ...THUMBNAIL_TENDASH_STYLE }),
+        coordsToLatLng: COORDS_TO_LATLNG,
+        interactive: false,
+      }).addTo(thumbnailMap)
+    }
+
+    const chinaBounds = chinaLayer.getBounds()
+    const viewBounds = L.latLngBounds(THUMBNAIL_DISPLAY_BOUNDS)
+    const record = {
+      factorKey,
+      container,
+      map: thumbnailMap,
+      factorOverlay,
+      chinaLayer,
+      chinaBounds,
+      viewBounds,
+      fitRaf: 0,
+    }
+    thumbnailMapInstances.set(factorKey, record)
+    scheduleThumbnailFit(record)
+  } catch (error) {
+    console.error('[ch2-thumb] initialize failed:', factorKey, error)
+    if (thumbnailMap) thumbnailMap.remove()
+  } finally {
+    thumbnailInitPending.delete(factorKey)
+  }
+}
+
+function scheduleThumbnailInitialization(factorKey) {
+  if (!factorKey || thumbnailInitPending.has(factorKey)) return
+  nextTick(() => {
+    requestAnimationFrame(() => {
+      if (!thumbnailSystemActive || thumbnailMapInstances.has(factorKey)) return
+      const container = thumbnailContainers.get(factorKey)
+      if (container) initializeThumbnailMap(factorKey, container)
+    })
+  })
+}
+
+function destroyThumbnailMap(factorKey) {
+  const resizeState = thumbnailResizeObservers.get(factorKey)
+  if (resizeState) {
+    resizeState.observer.disconnect()
+    if (resizeState.raf) cancelAnimationFrame(resizeState.raf)
+    thumbnailResizeObservers.delete(factorKey)
+  }
+  const record = thumbnailMapInstances.get(factorKey)
+  if (record) {
+    if (record.fitRaf) cancelAnimationFrame(record.fitRaf)
+    record.map.off()
+    record.map.remove()
+    thumbnailMapInstances.delete(factorKey)
+  }
+}
+
+function setThumbnailMapContainer(factorKey, element) {
+  if (!factorKey || !thumbnailSystemActive) return
+  if (element) {
+    const previous = thumbnailContainers.get(factorKey)
+    if (previous === element) return
+    if (previous && previous !== element) destroyThumbnailMap(factorKey)
+    thumbnailContainers.set(factorKey, element)
+    attachThumbnailResizeObserver(factorKey, element)
+    scheduleThumbnailInitialization(factorKey)
+    return
+  }
+
+  requestAnimationFrame(() => {
+    if (!thumbnailSystemActive) return
+    const replacement = document.querySelector('.thumbnail-map[data-factor-id="' + factorKey + '"]')
+    if (replacement) {
+      setThumbnailMapContainer(factorKey, replacement)
+      return
+    }
+    thumbnailContainers.delete(factorKey)
+    destroyThumbnailMap(factorKey)
+  })
+}
+
+function syncThumbnailMaps() {
+  if (!thumbnailSystemActive) return
+  const visible = new Set(thumbSlot.value.filter(Boolean))
+  Array.from(thumbnailMapInstances.keys()).forEach(factorKey => {
+    if (!visible.has(factorKey)) {
+      thumbnailContainers.delete(factorKey)
+      destroyThumbnailMap(factorKey)
+    }
+  })
+  visible.forEach(factorKey => {
+    const element = document.querySelector('.thumbnail-map[data-factor-id="' + factorKey + '"]')
+    if (element) setThumbnailMapContainer(factorKey, element)
+  })
+}
+
+watch(thumbSlot, () => {
+  nextTick(() => {
+    if (thumbnailSyncRaf) cancelAnimationFrame(thumbnailSyncRaf)
+    thumbnailSyncRaf = requestAnimationFrame(() => {
+      thumbnailSyncRaf = 0
+      syncThumbnailMaps()
+    })
+  })
+}, { flush: 'post' })
+
+/* =========================================================
+ * 现有 FLIP 动画的临时快照生成器
  *
  * 使用单个固定尺寸离屏 Leaflet 地图实例生成所有缩略图。
  *   - 容器: 640×400 (16:10), position:fixed, left:-10000px, 不用 display:none
@@ -822,6 +1096,7 @@ const _thumbRenderer = {
   outline: null,
   tendash: null,
   factor: null,
+  chinaBounds: null,
   initialized: false,
 }
 
@@ -881,10 +1156,11 @@ async function _ensureThumbRenderer() {
   _thumbRenderer.provStroke = await _addProvStrokeLayer(m)
   _thumbRenderer.outline = await _addOutlineLayer(m)
   _thumbRenderer.tendash = await _addTendashLayer(m)
+  _thumbRenderer.chinaBounds = _thumbRenderer.provStroke.getBounds()
 
   // 初次定位: invalidateSize + fitBounds + 等待 moveend
   m.invalidateSize(false)
-  await _fitBoundsAndWait(m, THUMBNAIL_DISPLAY_BOUNDS)
+  await _fitBoundsAndWait(m, _thumbRenderer.chinaBounds)
 
   _thumbRenderer.initialized = true
   return _thumbRenderer
@@ -929,22 +1205,21 @@ function _fitBoundsAndWait(m, bounds) {
 
 async function generateThumbnail(fid) {
   if (_hasThumb(fid)) return _getThumb(fid)
-  if (!map) { console.warn('[ch2-thumb] main map not ready'); return null }
-
-  const savedCenter = map.getCenter()
-  const savedZoom = map.getZoom()
-
   try {
-    map.invalidateSize(false)
-    map.fitBounds(THUMBNAIL_DISPLAY_BOUNDS, { animate: false, padding: THUMB_FIT_PADDING })
-    await _waitMapSettled(map)
+    const renderer = await _ensureThumbRenderer()
+    if (renderer.factor) {
+      renderer.map.removeLayer(renderer.factor)
+      renderer.factor = null
+    }
+    renderer.factor = await _addFactorOverlay(renderer.map, fid)
+    await _fitBoundsAndWait(renderer.map, renderer.chinaBounds)
 
-    const container = map.getContainer()
+    const container = renderer.map.getContainer()
     const controls = container.querySelectorAll('.leaflet-control-container')
     const prevDisplay = []
     controls.forEach(c => { prevDisplay.push({ el: c, display: c.style.display }); c.style.display = 'none' })
 
-    const dataUrl = await _captureFromMap(map)
+    const dataUrl = await _captureFromMap(renderer.map)
 
     prevDisplay.forEach(({ el, display }) => { el.style.display = display })
 
@@ -953,8 +1228,8 @@ async function generateThumbnail(fid) {
     } else {
       console.error('[ch2-thumb] capture failed for:', fid)
     }
-  } finally {
-    map.setView(savedCenter, savedZoom, { animate: false })
+  } catch (error) {
+    console.warn('[ch2-thumb] animation snapshot failed:', fid, error)
   }
 
   return _getThumb(fid) || null
@@ -980,9 +1255,11 @@ function _waitMapSettled(m) {
 
 function _generateThumbInBackground(fid) {
   if (_hasThumb(fid)) return
-  setTimeout(async () => {
-    try { await generateThumbnail(fid) } catch (e) { console.warn('[ch2-thumb] bg failed:', fid, e) }
-  }, 600)
+  nextTick(() => {
+    requestAnimationFrame(async () => {
+      try { await generateThumbnail(fid) } catch (e) { console.warn('[ch2-thumb] bg failed:', fid, e) }
+    })
+  })
 }
 
 /**
@@ -1625,8 +1902,17 @@ onBeforeUnmount(() => {
   _bgSwitchTimers = []
   if (_resizeTimer) { clearTimeout(_resizeTimer); _resizeTimer = null }
   window.removeEventListener('resize', _onResize)
+  thumbnailSystemActive = false
+  if (thumbnailSyncRaf) { cancelAnimationFrame(thumbnailSyncRaf); thumbnailSyncRaf = 0 }
+  Array.from(new Set([
+    ...thumbnailMapInstances.keys(),
+    ...thumbnailResizeObservers.keys(),
+  ])).forEach(destroyThumbnailMap)
+  thumbnailContainers.clear()
+  thumbnailInitPending.clear()
   // 清理离屏缩略图渲染器
   if (_thumbRenderer.map) {
+    _thumbRenderer.map.off()
     _thumbRenderer.map.remove()
     _thumbRenderer.map = null
   }
@@ -1634,6 +1920,8 @@ onBeforeUnmount(() => {
     _thumbRenderer.container.remove()
     _thumbRenderer.container = null
   }
+  _thumbRenderer.factor = null
+  _thumbRenderer.chinaBounds = null
   _thumbRenderer.initialized = false
   // 清空缩略图缓存并递增版本号, 下次挂载时旧 key 全部失效
   _clearAllThumbs()
@@ -1721,6 +2009,7 @@ onBeforeUnmount(() => {
 }
 /* 地图图像区域（thumbnail-map-viewport）：严格水平+垂直居中，不裁切 */
 .thumb-img-wrap {
+  position: relative;
   flex: 1 1 auto;
   min-height: 0;
   display: flex;
@@ -1729,16 +2018,18 @@ onBeforeUnmount(() => {
   overflow: hidden;
   background: #EFE9DA;
 }
-.thumb-img-wrap img {
+.thumbnail-map {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: contain;
-  object-position: center center;
-  display: block;
-  transform: none;
-  margin: 0;
-  max-width: 100%;
-  max-height: 100%;
+  overflow: hidden;
+  background: transparent;
+  cursor: pointer;
+}
+.thumbnail-map:deep(.leaflet-container),
+.thumbnail-map :deep(.leaflet-container) {
+  background: transparent;
 }
 .thumb-label {
   flex: 0 0 32px;

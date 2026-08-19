@@ -39,7 +39,7 @@
                  → 无论显示圆点还是胶囊，按钮都占同样空间
                  → 相邻符号边缘间距离保持一致 -->
             <span class="nav-pill nav-pill--spacer" aria-hidden="true">
-              <span class="nav-pill-num">{{ r.idx }}</span>
+              <span v-if="!r.isBookend" class="nav-pill-num">{{ r.idx }}</span>
               <span class="nav-pill-label">{{ r.label }}</span>
             </span>
 
@@ -49,7 +49,7 @@
             </span>
             <!-- 激活/悬浮态：圆角矩形标签（同样位于按钮中心，叠在占位符上） -->
             <span class="nav-pill nav-pill--visible">
-              <span class="nav-pill-num">{{ r.idx }}</span>
+              <span v-if="!r.isBookend" class="nav-pill-num">{{ r.idx }}</span>
               <span class="nav-pill-label">{{ r.label }}</span>
             </span>
 
@@ -83,7 +83,7 @@
         ← {{ prevLabel }}
       </button>
       <div v-else class="switch-btn hidden"></div>
-      <div class="page-indicator">{{ currentIndicator }} / {{ totalIndicator }}</div>
+      <div class="page-indicator">{{ pageIndicatorText }}</div>
       <button
         v-if="nextRoute"
         class="switch-btn next"
@@ -125,6 +125,11 @@ const currentIdx = computed(() => {
 })
 const currentIndicator = computed(() => currentIdx.value === 0 ? '序' : currentIdx.value > 6 ? '终' : currentIdx.value)
 const totalIndicator = computed(() => 6) // 始终 6 章主内容，序言与结语是首尾
+const pageIndicatorText = computed(() => {
+  if (currentIdx.value === 0) return '序'
+  if (currentIdx.value > totalIndicator.value) return '结语'
+  return `${currentIndicator.value} / ${totalIndicator.value}`
+})
 
 const prevRoute = computed(() => {
   const i = navItems.findIndex(n => n.path === route.path)
