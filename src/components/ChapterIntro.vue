@@ -137,8 +137,8 @@ onBeforeUnmount(() => {
 }
 
 .intro-ch-no {
-  font-family: var(--font-qiji, 'Noto Serif SC', serif);
-  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-family: var(--font-kesong, 'Noto Serif SC', serif);
+  font-size: 80px;
   font-weight: 700;
   letter-spacing: 0.15em;
   color: var(--c-gold, #B28F4C);
@@ -156,7 +156,7 @@ onBeforeUnmount(() => {
 
 .intro-char {
   font-family: var(--font-kesong, 'Noto Serif SC', serif);
-  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-size: 100px;
   font-weight: 700;
   color: var(--c-olive, #516D33);
   letter-spacing: 0.15em;
@@ -183,10 +183,10 @@ onBeforeUnmount(() => {
 
 @media (max-width: 600px) {
   .intro-ch-no {
-    font-size: 2.2rem;
+    font-size: 80px;
   }
   .intro-char {
-    font-size: 2.2rem;
+    font-size: 100px;
   }
   .intro-desc {
     font-size: 0.9rem;

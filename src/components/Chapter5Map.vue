@@ -226,7 +226,7 @@
                 <div class="card-title-sm">{{ rootsYear }}年中国{{ metricLabel }} TOP 10</div>
                 <div class="ch5-chart-unit">单位：{{ metricUnit }}</div>
                 <div class="chart-container chart-ranking small">
-                  <EChart :option="rootsRankingOption" style="height:260px" />
+                  <EChart :option="rootsRankingOption" style="height:240px" />
                 </div>
               </div>
             </div>
@@ -472,7 +472,7 @@
                 <div class="card-title-sm">{{ branchesYear }}年 中国茶叶出口目的地TOP 10</div>
                 <div class="ch5-chart-unit">单位：亿元</div>
                 <div class="chart-container chart-country-rank small">
-                  <EChart :option="branchesCountryRankOption" style="height:260px" />
+                  <EChart :option="branchesCountryRankOption" style="height:240px" />
                 </div>
               </div>
 
@@ -793,7 +793,7 @@ const leavesValuePriceOption = computed(() => {
       left: 'center',
       itemWidth: 12,
       itemHeight: 8,
-      textStyle: { color: '#5A6655', fontSize: 10 },
+      textStyle: { color: '#5A6655', fontSize: 14 },
       data: [
         { name: '内销总额（亿元）', itemStyle: { color: salesAmountColorDark, borderWidth: 0 } },
         { name: '平均单价（元/千克）', itemStyle: { color: avgPriceColor, borderWidth: 0 } },
@@ -1061,7 +1061,7 @@ const tooltipBase = {
   backgroundColor: 'rgba(250,247,239,0.96)',
   borderColor: '#A8C18A',
   borderWidth: 1,
-  textStyle: { color: '#3A4D38', fontSize: 12 },
+  textStyle: { color: '#3A4D38', fontSize: 16 },
   extraCssText: 'box-shadow: 0 2px 12px rgba(81,109,51,0.15); border-radius: 6px;',
 }
 const axisLineStyle = { lineStyle: { color: '#A8C18A' } }
@@ -1380,7 +1380,7 @@ const rootsRankingOption = computed(() => {
       extraCssText: 'max-width:220px; white-space:pre-wrap;',
       formatter: ps => `<b>${ps[0].name}</b><br/>${metricLabel.value}：${fmt(ps[0].value, 2)} ${metricUnit.value}`,
     },
-    grid: { containLabel: true, left: 104, right: 60, top: 16, bottom: 26 },
+    grid: { containLabel: true, left: 12, right: 16, top: 12, bottom: 24 },
     xAxis: {
       type: 'value',
       max: xmax,
@@ -1521,7 +1521,7 @@ const branchesCountryRankOption = computed(() => {
       extraCssText: 'max-width:220px; white-space:pre-wrap;',
       formatter: ps => `<b>${ps[0].name}</b><br/>出口额：${fmt(ps[0].value, 2)} 亿元`,
     },
-    grid: { containLabel: true, left: 116, right: 68, top: 16, bottom: 28 },
+    grid: { containLabel: true, left: 12, right: 16, top: 12, bottom: 24 },
     xAxis: {
       type: 'value',
       max: xmax,
@@ -1599,7 +1599,7 @@ const branchesTrendOption = computed(() => {
         return `<b>${ps[0]?.axisValue ?? ''}年</b><br/>出口总额：${fmt(v, 2)} 亿元`
       },
     },
-    grid: { containLabel: true, left: 56, right: 28, top: 46, bottom: 38 },
+    grid: { containLabel: true, left: 12, right: 12, top: 34, bottom: 34 },
     xAxis: {
       type: 'category',
       data: trend.map(d => d.year),
@@ -1970,6 +1970,7 @@ onMounted(async () => {
 }
 .ch5-metric-toggle.small .toggle-btn {
   padding: 4px 8px;
+  font-family: var(--font-body);
   font-size: 11px;
   letter-spacing: 0;
   border: none;
@@ -2044,7 +2045,20 @@ onMounted(async () => {
   border-bottom: 1px dashed rgba(165,163,122,0.4);
 }
 
-.chart-container { width: 100%; }
+.chart-container {
+  width: 100%;
+  min-width: 0;
+  margin-inline: auto;
+}
+
+/* 排名图与出口趋势图始终占满卡片内容宽度，避免绘图区偏向右侧。 */
+.chart-ranking.small,
+.chart-country-rank.small,
+.chart-branch-trend.small {
+  width: 100%;
+  min-width: 0;
+  margin-inline: auto;
+}
 
 .ch5-map-loading {
   display: flex;

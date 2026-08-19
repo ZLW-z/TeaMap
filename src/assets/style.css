@@ -1,5 +1,5 @@
-/* 香萃刻宋体 + 令东齐伋体 + 寒蝉活楷体 + 朝华打字机 + 汇文明朝体 */
-@import url("https://fontsapi.zeoseven.com/21/main/result.css");
+/* 权衡度量体 + 令东齐伋体 + 寒蝉活楷体 + 朝华打字机 + 汇文明朝体 */
+@import url("https://fontsapi.zeoseven.com/954/main/result.css");
 @import url("https://fontsapi.zeoseven.com/81/main/result.css");
 @import url("https://fontsapi.zeoseven.com/874/main/result.css");
 @import url("https://fontsapi.zeoseven.com/2103/main/result.css");
@@ -50,12 +50,18 @@
   --t3: #2F5D3A;         /* 古茶树 栽培型 → 深森林绿 */
   --serif:'Noto Serif SC',Georgia,'Times New Roman',serif;
   --sans:"ChillHuoKai",'Noto Sans SC','Helvetica Neue',Arial,sans-serif;
-  --font-kesong:"Xiangcui Kesong Xiangcui Kesong",var(--serif);
+  --font-kesong:"QuanHengDuLiang",var(--serif);
   --font-qiji:"QIJIC",var(--serif);
   --font-huokai:"ChillHuoKai",var(--sans);
   --font-body:"ChillHuoKai",var(--sans);
   --font-dzji:"ZhaohuaTypeWriter Light",var(--serif);
   --font-huiwen:"Huiwen-mincho",var(--serif);
+
+  /* ---- 全站统一字号：小二 / 小四 / 五号 ---- */
+  --font-size-title: 24px;
+  --font-size-body: 16px;
+  --font-size-nav: 16px;
+  --font-size-legend: 14px;
 }
 
 *{box-sizing:border-box;}
@@ -63,6 +69,7 @@ html,body{margin:0;padding:0;}
 html{scroll-behavior:smooth;}
 body{
   font-family:var(--font-body);
+  font-size:var(--font-size-body);
   color:var(--ink);
   background:var(--c-paper-2);
   line-height:1.75;
@@ -255,4 +262,131 @@ main#story{display:block;}
   .ch-header{padding:90px 24px 28px;}
   .scaffold{grid-template-columns:1fr;}
   .dot-nav{right:10px;gap:12px;}
+}
+
+/* ============================================================
+   全站文字字号规范
+   展示型章节开场大字、序言和结语主视觉标题保留原有视觉比例。
+   ============================================================ */
+
+/* 正文与常用交互文字：小四 */
+#app-root {
+  font-size: var(--font-size-body);
+}
+#app-root :is(p, button, input, select, textarea, label, li, dt, dd, th, td) {
+  font-size: var(--font-size-body) !important;
+}
+#app-root :is(
+  .ch-desc,
+  .intro-desc,
+  .ltp-desc,
+  .factor-info-desc,
+  .panel-subtitle,
+  .section-text,
+  .card-intro,
+  .card-hint,
+  .title-sub,
+  .error-hint,
+  .lv-hero-intro,
+  .lv-cc-desc,
+  .lv-prod-subtitle,
+  .lv-detail-subtitle,
+  .lv-detail-explain-text,
+  .ep-subtitle,
+  .prologue-kicker,
+  .ep-kicker
+) {
+  font-size: var(--font-size-body) !important;
+}
+
+/* 各章地图资料卡、路线卡、详情卡和悬浮信息框正文：小四 */
+#app-root :is(
+  .layer-text-panel,
+  .factor-info,
+  .tea-info-panel,
+  .tea-preview-card,
+  .route-detail-panel,
+  .modern-country-panel,
+  .hover-card,
+  .info-card,
+  .lv-detail-card,
+  .scaffold-note
+) {
+  font-size: var(--font-size-body) !important;
+}
+#app-root :is(
+  .layer-text-panel,
+  .factor-info,
+  .tea-info-panel,
+  .tea-preview-card,
+  .route-detail-panel,
+  .modern-country-panel,
+  .hover-card,
+  .info-card,
+  .lv-detail-card,
+  .scaffold-note
+) :is(div, span, p, button, li) {
+  font-size: var(--font-size-body) !important;
+}
+.leaflet-tooltip,
+.leaflet-tooltip *,
+.leaflet-popup-content,
+.leaflet-popup-content * {
+  font-size: var(--font-size-body) !important;
+}
+
+/* 正文页面标题：小二 */
+#app-root :is(h1, h2, h3, h4, h5, h6, [class*="-title"]) {
+  font-family: var(--font-kesong) !important;
+}
+/* 第五章图表标题沿用正文书体，不使用全站标题行书。 */
+#app-root .chapter-5 :is(.card-title-sm, .lv-chart-title) {
+  font-family: var(--font-body) !important;
+  font-size: var(--font-size-legend) !important;
+}
+/* 各章信息卡内部标题使用正文字体，不继承权衡度量体。 */
+#app-root :is(
+  .layer-text-panel,
+  .factor-info,
+  .tea-info-panel,
+  .tea-preview-card,
+  .route-detail-panel,
+  .modern-country-panel,
+  .hover-card,
+  .phone-screen,
+  .lv-detail-card,
+  .info-card
+) :is(h1, h2, h3, h4, h5, h6, [class*="-title"], .lv-detail-type) {
+  font-family: var(--font-body) !important;
+}
+#app-root :is(
+  .ch-name,
+  .ltp-title,
+  .map-title,
+  .factor-info-title,
+  .panel-title,
+  .preview-title,
+  .card-title,
+  .card-title-sm,
+  .hc-title,
+  .lv-cc-title,
+  .lv-chart-title,
+  .lv-stages-title,
+  .lv-products-title
+) {
+  font-size: var(--font-size-title) !important;
+  line-height: 1.35;
+}
+
+/* 顶部导航和固定翻页控件：小四 */
+#app-root .top-nav :is(.brand-text, .nav-pill, .nav-pill-num, .nav-pill-label),
+#app-root .chapter-switch,
+#app-root .chapter-switch :is(.switch-btn, .page-indicator) {
+  font-size: var(--font-size-nav) !important;
+}
+
+/* 所有地图图例（含图例内部标题、标签和提示）：五号 */
+#app-root :is(.map-legend, .legend-inner, .globe-legend, .modern-legend),
+#app-root :is(.map-legend, .legend-inner, .globe-legend, .modern-legend) * {
+  font-size: var(--font-size-legend) !important;
 }
