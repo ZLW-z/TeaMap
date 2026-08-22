@@ -339,10 +339,13 @@ main#story{display:block;}
 #app-root :is(h1, h2, h3, h4, h5, h6, [class*="-title"]) {
   font-family: var(--font-kesong) !important;
 }
-/* 第五章图表标题沿用正文书体，不使用全站标题行书。 */
+/* 第五章图表标题及第二章适宜性分析标题沿用正文书体，不使用全站标题行书。 */
 #app-root .chapter-5 :is(.card-title-sm, .lv-chart-title) {
   font-family: var(--font-body) !important;
   font-size: var(--font-size-legend) !important;
+}
+#app-root .map-title {
+  font-family: var(--font-body) !important;
 }
 /* 各章信息卡内部标题使用正文字体，不继承权衡度量体。 */
 #app-root :is(

@@ -298,7 +298,7 @@
                   v-for="(f, i) in modernProvinceInfo.flows.slice(0, 10)"
                   :key="f.country"
                   class="country-row"
-                  :style="{ '--w': Math.max(8, Math.min(100, f.value / modernProvinceInfo.flows[0].value * 100)) + '%' }"
+                  :style="getCountryBarStyle(f.value)"
                   @mouseenter="highlightFlowCountry(f.country, true)"
                   @mouseleave="highlightFlowCountry(f.country, false)"
                 >
@@ -1287,7 +1287,8 @@ function onIntroDone() {
 // Part 2: 当代贸易情况
 // ==========================================================================
 var modernMapEl = ref(null)
-var modernYears = MODERN_YEARS.filter(function(y) { return y >= 2015 && y <= 2025 })
+// 2015 年仅作为 2016 年同比计算的内部基期，不在年份选择器中展示。
+var modernYears = MODERN_YEARS.filter(function(y) { return y >= 2016 && y <= 2025 })
 var modernYear = ref(2024)
 var isModernChinaMode = ref(true)
 var selectedModernProvince = ref(null)
@@ -1313,9 +1314,21 @@ var modernProvinceInfo = reactive({
 
 const MIN_LEAF_SIZE = 14
 const MAX_LEAF_SIZE = 50
+const MODERN_FLOW_DRAW_DURATION = 2600
+const MODERN_FLOW_START_DELAY_STEP = 45
+const MODERN_FLOW_INITIAL_DELAY = 140
+// 页面以 0.01 亿元显示出口额；低于 0.005 亿元时会显示为 0.00，
+// 因而按无有效贸易额处理：不绘制、不悬停展示、不可点击进入详情。
+const MIN_VISIBLE_EXPORT_VALUE = 0.005 * 1e8
+
+function hasVisibleExportValue(value) {
+  var number = Number(value)
+  return value != null && Number.isFinite(number) && number >= MIN_VISIBLE_EXPORT_VALUE
+}
+
 const MODERN_GLOBAL_MAX_VALUE = Math.max.apply(null, modernYears.flatMap(function(year) {
   return getProvinceExports(year)
-    .filter(function(item) { return item && item.value != null && Number(item.value) > 0 })
+    .filter(function(item) { return item && hasVisibleExportValue(item.value) })
     .map(function(item) { return Number(item.value) })
 }).concat([0]))
 
@@ -1351,6 +1364,16 @@ function formatYoY(yoy) {
   return (value > 0 ? '+' : '') + value.toFixed(1) + '%'
 }
 
+function getCountryBarStyle(value) {
+  var firstValue = modernProvinceInfo.flows.length ? Number(modernProvinceInfo.flows[0].value) : 0
+  var ratio = firstValue > 0 ? Math.max(0.0001, Math.min(1, Number(value) / firstValue)) : 0.0001
+  return {
+    '--w': (ratio * 100) + '%',
+    // 渐变层始终保持第一名对应的完整宽度，外层按当前数值比例裁切。
+    '--gradient-width': (100 / ratio) + '%',
+  }
+}
+
 function getYoYColor(yoy) {
   if (yoy == null || !Number.isFinite(Number(yoy))) return '#D8D2C2'
   if (yoy >= 20) return '#516D33'
@@ -1361,7 +1384,7 @@ function getYoYColor(yoy) {
 }
 
 function getLeafSize(value, globalMaxValue) {
-  if (value == null || Number(value) <= 0 || Number(globalMaxValue) <= 0) return 0
+  if (!hasVisibleExportValue(value) || Number(globalMaxValue) <= 0) return 0
   return MIN_LEAF_SIZE + Math.sqrt(Number(value) / Number(globalMaxValue)) * (MAX_LEAF_SIZE - MIN_LEAF_SIZE)
 }
 
@@ -1379,7 +1402,7 @@ var provinceBubbleData = computed(function() {
     var previous = findProvinceRecord(previousRecords, provinceName)
     var currentValue = current && current.value != null ? Number(current.value) : null
     var previousValue = previous && previous.value != null ? Number(previous.value) : null
-    var hasData = currentValue != null
+    var hasData = hasVisibleExportValue(currentValue)
     return {
       provinceName: current ? current.name : provinceName,
       currentValue: currentValue,
@@ -1417,7 +1440,6 @@ const leafColorLegendItems = [
   { label: '0—5%', color: '#A8B68D' },
   { label: '-5%—0', color: '#C3C19A' },
   { label: '＜-5%', color: '#B28F4C' },
-  { label: '暂无可比数据', color: '#D8D2C2' },
 ]
 
 function createLeafSvg(color, selected, opacity) {
@@ -1533,10 +1555,11 @@ function ensureModernProvinceLayer() {
         var provinceName = resolveProvinceName(featureName)
         layer.on('mouseover', function() {
           var bubble = getProvinceBubble(provinceName)
-          var clickable = Boolean(bubble && bubble.hasData && bubble.currentValue > 0)
-          hoveredProvince.value = hoverProvinceData(provinceName)
+          var clickable = Boolean(bubble && bubble.hasData)
+          hoveredProvince.value = clickable ? hoverProvinceData(provinceName) : null
           var path = layer.getElement && layer.getElement()
           if (path) path.style.cursor = clickable ? 'pointer' : 'default'
+          if (!clickable) return
           var selected = selectedModernProvince.value &&
             normalizeProvinceName(selectedModernProvince.value) === normalizeProvinceName(provinceName)
           layer.setStyle({ color: selected ? '#B28F4C' : '#516D33', weight: selected ? 2.2 : 1.5 })
@@ -1549,7 +1572,7 @@ function ensureModernProvinceLayer() {
         layer.on('click', function(event) {
           stopModernMapEvent(event)
           var bubble = getProvinceBubble(provinceName)
-          if (!bubble || !bubble.hasData || bubble.currentValue <= 0) return
+          if (!bubble || !bubble.hasData) return
           enterWorldMode(provinceName)
         })
       },
@@ -1570,7 +1593,7 @@ function renderModernProvinceBubbles(options) {
   modernBubbleLayer.clearLayers()
 
   provinceBubbleData.value.forEach(function(item) {
-    if (!item.hasData || item.currentValue == null || item.currentValue <= 0 || !item.center) return
+    if (!item.hasData || !item.center) return
     var selected = selectedProvince &&
       normalizeProvinceName(selectedProvince) === normalizeProvinceName(item.provinceName)
     var baseSize = getLeafSize(item.currentValue, MODERN_GLOBAL_MAX_VALUE)
@@ -1622,7 +1645,7 @@ function renderModernProvinceBubbles(options) {
 function onModernYearChange() {
   hoveredProvince.value = null
   if (isModernChinaMode.value) renderModernChinaProvinces()
-  else if (selectedModernProvince.value) enterWorldMode(selectedModernProvince.value, { preserveView: true })
+  else if (selectedModernProvince.value) enterWorldMode(selectedModernProvince.value, { preserveView: true, allowEmpty: true })
 }
 
 function renderModernChinaProvinces() {
@@ -1634,10 +1657,11 @@ function renderModernChinaProvinces() {
 
 function enterWorldMode(provinceName, options) {
   var opts = options || {}
-  selectedModernProvince.value = provinceName
-  isModernChinaMode.value = false
   var bubble = getProvinceBubble(provinceName)
   var hasData = Boolean(bubble && bubble.hasData)
+  if (!hasData && !opts.allowEmpty) return
+  selectedModernProvince.value = provinceName
+  isModernChinaMode.value = false
   var info = hasData ? estimateProvinceFlows(provinceName, modernYear.value, 20) : null
   Object.assign(modernProvinceInfo, {
     provinceValue: hasData ? bubble.currentValue : null,
@@ -1729,10 +1753,6 @@ function renderModernFlows(provinceName, info) {
     window._ch4FlowAnimTimers = []
   }
 
-  // 动画参数
-  var FLOW_ANIM_DURATION = 900   // 每条线路从起点到终点的伸展时长 (ms)
-  var START_DELAY_STEP = 60      // 每条线路的起始延迟步长 (ms)，按 norm 递减排序
-
   // 按贸易额从大到小排序，大额先绘制（更强烈的发散感）
   var flowIndexList = flows.map(function(f, i) { return { idx: i, f: f, norm: Math.max(0.05, Math.min(1, f.value / maxV)) } })
   flowIndexList.sort(function(a, b) { return b.norm - a.norm })
@@ -1748,18 +1768,19 @@ function renderModernFlows(provinceName, info) {
     var t = itemNorm
     var col = 'rgb(' + Math.round(178 + (200 - 178) * t) + ', ' + Math.round(143 - 143 * t * 0.6) + ', ' + Math.round(76 - 76 * t * 0.9) + ')'
     var w = 1.2 + itemNorm * 8
+    var finalOpacity = 0.45 + itemNorm * 0.45
     var tipHtml = '<b>' + provinceName + ' → ' + f.country + '</b><br/>出口额：' + fmtNum(f.value / 1e8) + ' 亿元'
 
     // ========== 1. 创建线路（初始只含起点，动画中逐点追加）==========
     var startPts = [pts[0]]
     var line = L.polyline(startPts, {
       pane: 'modernFlowPane',
-      color: col, weight: w, opacity: 0.45 + itemNorm * 0.45,
+      color: col, weight: Math.max(0.7, w * 0.35), opacity: finalOpacity * 0.2,
       lineCap: 'round', lineJoin: 'round', interactive: false,
       bubblingMouseEvents: true,
     })
     line._flowData = { country: f.country, value: f.value }
-    line._baseStyle = { weight: w, opacity: 0.45 + itemNorm * 0.45 }
+    line._baseStyle = { weight: w, opacity: finalOpacity }
     line.bindTooltip(tipHtml, { direction: 'top', offset: [0, -6], opacity: 0.96, sticky: true, className: 'route-tip modern-flow-tip' })
     line.on('mouseover', function() {
       highlightFlowCountry(f.country, true)
@@ -1789,7 +1810,7 @@ function renderModernFlows(provinceName, info) {
 
     // ========== 3. 动画：循序渐进生成线路 ==========
     var startTime = null
-    var startDelay = START_DELAY_STEP * sortIdx  // 大额先绘制
+    var startDelay = MODERN_FLOW_INITIAL_DELAY + MODERN_FLOW_START_DELAY_STEP * sortIdx  // 大额先绘制
 
     function animateFlow(timestamp) {
       if (!startTime) startTime = timestamp
@@ -1799,9 +1820,9 @@ function renderModernFlows(provinceName, info) {
         return
       }
       var localElapsed = elapsed - startDelay
-      var progress = Math.min(1, localElapsed / FLOW_ANIM_DURATION)
-      // easeOutCubic: 开头快结尾慢
-      var eased = 1 - Math.pow(1 - progress, 3)
+      var progress = Math.min(1, localElapsed / MODERN_FLOW_DRAW_DURATION)
+      // easeInOutSine：起止柔和，中段匀速，避免线路突然冲出。
+      var eased = 0.5 - Math.cos(Math.PI * progress) / 2
       var targetIndex = Math.floor(eased * (totalPts - 1)) + 1
       if (targetIndex < totalPts) {
         var subPts = pts.slice(0, targetIndex)
@@ -1809,6 +1830,11 @@ function renderModernFlows(provinceName, info) {
       } else {
         line.setLatLngs(pts)
       }
+      // 路线从中心向外舒展时同步由淡变实、由细变粗，形成花瓣绽放感。
+      line.setStyle({
+        weight: Math.max(0.7, w * (0.35 + eased * 0.65)),
+        opacity: finalOpacity * (0.2 + eased * 0.8),
+      })
 
       // marker 动画：最后 35% 进度时显示
       if (progress > 0.65) {
@@ -1825,7 +1851,7 @@ function renderModernFlows(provinceName, info) {
         window._ch4FlowAnimTimers.push(requestAnimationFrame(animateFlow))
       } else {
         // 动画结束：启用交互、添加命中辅助线
-        line.setStyle({ interactive: true })
+        line.setStyle({ interactive: true, weight: w, opacity: finalOpacity })
         marker.setStyle({ interactive: true, radius: r, fillOpacity: 1, opacity: 0.95 })
 
         // 命中辅助线
@@ -2531,14 +2557,14 @@ onBeforeUnmount(function() {
   top: 0;
   left: 50%;
   transform: translateX(-50%);
-  font: 600 9px/1 var(--serif);
+  font: 600 12px/1.15 var(--serif);
   color: #7A7060;
   letter-spacing: 0.05em;
   white-space: nowrap;
   transition: color 0.2s ease;
 }
 
-.dynasty-tick.alternate .tick-label { top: 9px; }
+.dynasty-tick.alternate .tick-label { top: 0; }
 
 .slider-track {
   position: absolute;
@@ -2999,7 +3025,7 @@ onBeforeUnmount(function() {
 }
 .country-row {
   display: grid;
-  grid-template-columns: 22px 80px 1fr auto;
+  grid-template-columns: 22px 108px minmax(48px, 1fr) auto;
   gap: 8px;
   align-items: center;
   padding: 6px 4px;
@@ -3019,9 +3045,17 @@ onBeforeUnmount(function() {
 .country-row:nth-child(1) .cr-rank { background: #C8462E; color: #fff; }
 .country-row:nth-child(2) .cr-rank { background: #B28F4C; color: #fff; }
 .country-row:nth-child(3) .cr-rank { background: #5C7C3A; color: #fff; }
-.cr-name { font: 600 12px/1 var(--serif); color: var(--c-olive); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cr-name { font: 600 12px/1 var(--serif); color: var(--c-olive); white-space: nowrap; overflow: visible; text-overflow: clip; }
 .cr-bar-wrap { height: 7px; background: rgba(178,143,76,0.15); border-radius: 4px; overflow: hidden; }
-.cr-bar { height: 100%; width: var(--w); background: linear-gradient(90deg, #B28F4C, #C8462E); border-radius: 4px; }
+.cr-bar { height: 100%; width: var(--w); border-radius: 4px; overflow: hidden; }
+.cr-bar::before {
+  content: '';
+  display: block;
+  width: var(--gradient-width);
+  height: 100%;
+  background: linear-gradient(90deg, #516D33 0%, #C28B3E 55%, #C8462E 100%);
+  border-radius: 4px;
+}
 .cr-val { font: 800 12px/1 var(--serif); color: var(--c-gold-deep, #8a6f3d); white-space: nowrap; }
 .cr-val .unit { font-weight: 500; color: var(--c-beige-dark); margin-left: 2px; font-size: 10px; }
 

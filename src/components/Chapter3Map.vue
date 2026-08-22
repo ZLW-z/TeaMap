@@ -181,16 +181,100 @@ let fitTy = 0
 let map = null
 let markers = []
 let io = null
+let provinceLayer = null
+let introRevealTimer = null
+let introCameraTimer = null
+let introCameraFrame = null
+let provinceLoadFinished = false
+let introSequenceRequested = false
+let introSequenceStarted = false
+let introCameraAnimating = false
+
+const CHINA_OVERVIEW_HOLD_MS = 800
+const TEA_AREA_FLY_DURATION_MS = 4500
+
+function getChinaOverviewBounds() {
+  const bounds = provinceLayer?.getBounds()
+  return bounds?.isValid?.() ? bounds : MAP_INIT.fitBounds
+}
+
+function setChinaOverview() {
+  if (!map) return
+  map.fitBounds(getChinaOverviewBounds(), {
+    paddingTopLeft: [48, 48],
+    paddingBottomRight: [48, 48],
+    animate: false,
+  })
+}
+
+function easeInOutCubic(progress) {
+  return progress < 0.5
+    ? 4 * progress * progress * progress
+    : 1 - Math.pow(-2 * progress + 2, 3) / 2
+}
+
+function animateToTeaArea() {
+  if (!map) return
+
+  const startCenter = map.getCenter()
+  const startZoom = map.getZoom()
+  const [targetLat, targetLng] = TEA_AREA.center
+  let startedAt = null
+
+  introCameraAnimating = true
+
+  const step = (now) => {
+    if (!map) {
+      introCameraFrame = null
+      introCameraAnimating = false
+      return
+    }
+
+    if (startedAt == null) startedAt = now
+    const progress = Math.min(1, (now - startedAt) / TEA_AREA_FLY_DURATION_MS)
+
+    // 自定义 Albers CRS 下逐帧同步中心和缩放，跟随浏览器刷新率更新。
+    const eased = easeInOutCubic(progress)
+    map.setView([
+      startCenter.lat + (targetLat - startCenter.lat) * eased,
+      startCenter.lng + (targetLng - startCenter.lng) * eased,
+    ], startZoom + (TEA_AREA.zoom - startZoom) * eased, { animate: false })
+
+    if (progress < 1) {
+      introCameraFrame = requestAnimationFrame(step)
+      return
+    }
+
+    introCameraFrame = null
+    introCameraAnimating = false
+    map.setView(TEA_AREA.center, TEA_AREA.zoom, { animate: false })
+    provinceLayer?.eachLayer(layer => layer.redraw?.())
+    requestAnimationFrame(() => layoutLabels())
+  }
+
+  introCameraFrame = requestAnimationFrame(step)
+}
+
+function startIntroCameraSequence() {
+  if (!map || introSequenceStarted || !provinceLoadFinished) return
+
+  introSequenceStarted = true
+  map.invalidateSize({ pan: false, animate: false })
+  setChinaOverview()
+  requestAnimationFrame(() => layoutLabels())
+
+  introCameraTimer = setTimeout(() => {
+    introCameraTimer = null
+    animateToTeaArea()
+  }, CHINA_OVERVIEW_HOLD_MS)
+}
 
 function onIntroDone() {
   introDone.value = true
-  setTimeout(() => {
-    if (map) {
-      map.invalidateSize()
-      // 初始渲染后做一次标签布局
-      requestAnimationFrame(() => layoutLabels())
-    }
-    // 已删除放大动画：直接显示名茶点集中区域
+  introRevealTimer = setTimeout(() => {
+    introRevealTimer = null
+    introSequenceRequested = true
+    startIntroCameraSequence()
   }, 300)
 }
 
@@ -242,10 +326,12 @@ function initMap() {
   const albersCRS = createAlbersCRS()
   map = L.map(mapEl.value, {
     crs: albersCRS,
-    center: TEA_AREA.center,
-    zoom: TEA_AREA.zoom,
+    center: MAP_INIT.center,
+    zoom: MAP_INIT.zoom,
     minZoom: MAP_INIT.minZoom,
     maxZoom: MAP_INIT.maxZoom,
+    // 允许开场镜头使用连续小数缩放，避免每 0.05 级产生一次视觉台阶。
+    zoomSnap: 0,
     zoomControl: false,
     attributionControl: false,
   })
@@ -260,7 +346,7 @@ function initMap() {
   fetch(PROV_BG_URL)
     .then(r => r.json())
     .then(geo => {
-      L.geoJSON(geo, {
+      provinceLayer = L.geoJSON(geo, {
         pane: 'provPane',
         style: () => ({
           color: PROV_STYLE.color,
@@ -269,8 +355,16 @@ function initMap() {
           fillOpacity: PROV_STYLE.fillOpacity,
         }),
       }).addTo(map)
+      provinceLoadFinished = true
+      // 使用省界数据的真实范围，而不是预估坐标，保证完整中国居中显示。
+      setChinaOverview()
+      if (introSequenceRequested) startIntroCameraSequence()
     })
-    .catch(err => console.warn('省份底图加载失败:', err))
+    .catch(err => {
+      provinceLoadFinished = true
+      console.warn('省份底图加载失败:', err)
+      if (introSequenceRequested) startIntroCameraSequence()
+    })
 
   // 添加名茶点（Albers 米坐标: [y_m, x_m]）
   TEAS.forEach(tea => {
@@ -330,6 +424,7 @@ function initMap() {
 
   // 标签布局：避免标签相互遮挡
   map.on('zoomend', () => {
+    if (introCameraAnimating) return
     scheduleLayout()
     if (hoveredTea.value) {
       const m = markers.find(m => {
@@ -340,6 +435,7 @@ function initMap() {
     }
   })
   map.on('moveend', () => {
+    if (introCameraAnimating) return
     scheduleLayout()
     if (hoveredTea.value) {
       const m = markers.find(m => {
@@ -352,6 +448,7 @@ function initMap() {
   map.on('resize', () => {
     scheduleLayout()
   })
+
   // 拖动过程中使用节流
   let layoutTimer = null
   function scheduleLayout() {
@@ -793,8 +890,13 @@ function onLightboxPointerUp(e) {
 }
 
 onBeforeUnmount(() => {
+  if (introRevealTimer) { clearTimeout(introRevealTimer); introRevealTimer = null }
+  if (introCameraTimer) { clearTimeout(introCameraTimer); introCameraTimer = null }
+  if (introCameraFrame) { cancelAnimationFrame(introCameraFrame); introCameraFrame = null }
+  introCameraAnimating = false
   if (io) { io.disconnect(); io = null }
-  if (map) { map.remove(); map = null }
+  if (map) { map.stop(); map.remove(); map = null }
+  provinceLayer = null
   window.removeEventListener('keydown', onLightboxKeydown)
   window.removeEventListener('pointermove', onLightboxPointerMove)
   window.removeEventListener('pointerup', onLightboxPointerUp)
@@ -1150,8 +1252,8 @@ onBeforeUnmount(() => {
   backdrop-filter: blur(4px);
   color: #3A4D38;
   font-family: var(--font-dzji, var(--serif));
-  font-size: 0.78rem;
-  font-weight: 500;
+  font-size: 0.8rem;
+  font-weight: 600;
   padding: 3px 10px;
   border-radius: 12px;
   border: 1px solid rgba(178, 143, 76, 0.35);
@@ -1174,8 +1276,6 @@ onBeforeUnmount(() => {
 
 :deep(.tea-label--top10 .tea-label-text) {
   font-family: var(--font-dzji, var(--serif));
-  font-weight: 700;
-  font-size: 0.82rem;
   background: rgba(250, 247, 239, 0.95);
   border-color: rgba(178, 143, 76, 0.55);
   color: #5C4A1F;
@@ -1209,7 +1309,7 @@ onBeforeUnmount(() => {
   color: #fff;
   border-color: var(--tea-color);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
-  font-weight: 700;
+  font-weight: 600;
 }
 
 /* 响应式 */

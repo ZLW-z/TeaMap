@@ -22,6 +22,18 @@
           <h2 class="ltp-title">{{ currentTextItem.title }}</h2>
           <p class="ltp-desc">{{ currentTextItem.desc }}</p>
         </div>
+        <div
+          v-if="currentTextItem && stage < LAYER_TEXTS.length - 1"
+          class="layer-scroll-guide"
+          role="note"
+        >
+          <span class="layer-scroll-chevrons" aria-hidden="true">
+            <i class="layer-scroll-chevron"></i>
+            <i class="layer-scroll-chevron"></i>
+            <i class="layer-scroll-chevron"></i>
+          </span>
+          <span class="layer-scroll-hint">滚动查看其他图层</span>
+        </div>
       </div>
 
       <!-- 图例 -->
@@ -111,6 +123,69 @@ const LAYER_TEXTS = [
     desc: '华夏各处山谷还散落着许多不知名的古老茶树，它们远离主脉，或藏身于人迹罕至的深山幽谷，或静立在村寨边的无名坡地。这一株株散落的古木，作为历史遗珍静静守望，记录着茶树迁徙与岁月流逝的别样印记，也补足了从野生茶树走向人工名茶的完整演化脉络。'
   },
 ]
+
+const MIN_ZOOM_EPSILON = 0.001
+const LAYER_WHEEL_THRESHOLD = 36
+const LAYER_WHEEL_IDLE_MS = 220
+let layerWheelAccumulator = 0
+let layerWheelGestureTriggered = false
+let layerWheelIdleTimer = null
+let mapWheelTarget = null
+
+function resetLayerWheelGesture() {
+  layerWheelAccumulator = 0
+  layerWheelGestureTriggered = false
+  if (layerWheelIdleTimer) {
+    clearTimeout(layerWheelIdleTimer)
+    layerWheelIdleTimer = null
+  }
+}
+
+function scheduleLayerWheelReset() {
+  if (layerWheelIdleTimer) clearTimeout(layerWheelIdleTimer)
+  layerWheelIdleTimer = setTimeout(() => {
+    layerWheelAccumulator = 0
+    layerWheelGestureTriggered = false
+    layerWheelIdleTimer = null
+  }, LAYER_WHEEL_IDLE_MS)
+}
+
+function onMapWheel(event) {
+  if (!map) return
+
+  const atMinZoom = map.getZoom() <= map.getMinZoom() + MIN_ZOOM_EPSILON
+  const scrollingDown = event.deltaY > 0
+
+  // 未到最小缩放时不接管滚轮，继续使用 Leaflet 原有的放大/缩小交互。
+  // 最小缩放下向上滚动同样交给 Leaflet，以便重新放大地图。
+  if (!atMinZoom || !scrollingDown) {
+    resetLayerWheelGesture()
+    return
+  }
+
+  // 最小缩放后继续向下滚动：阻止 Leaflet 的鼠标定点缩放和页面滚动，避免地图位移。
+  event.preventDefault()
+  event.stopPropagation()
+  event.stopImmediatePropagation()
+  scheduleLayerWheelReset()
+
+  if (!stageFlowStarted || layerWheelGestureTriggered) return
+  if (stage.value >= LAYER_TEXTS.length - 1) return
+
+  const deltaScale = event.deltaMode === 1
+    ? 16
+    : event.deltaMode === 2
+      ? Math.max(mapEl.value?.clientHeight || 1, 1)
+      : 1
+  layerWheelAccumulator += Math.abs(event.deltaY) * deltaScale
+  if (layerWheelAccumulator < LAYER_WHEEL_THRESHOLD) return
+
+  layerWheelAccumulator = 0
+  layerWheelGestureTriggered = true
+  const nextStage = stage.value + 1
+  applyStage(nextStage)
+  switchTextTo(nextStage)
+}
 
 const currentTextItem = computed(() => {
   if (currentTextIdx.value < 0 || currentTextIdx.value >= LAYER_TEXTS.length) return null
@@ -228,7 +303,7 @@ function onIntroDone() {
   }, 300)
 }
 
-// 只有 Intro 完成 且 地图加载全部完成 两个条件同时满足时才启动 6 阶段流程
+// 只有 Intro 完成且地图图层全部加载完成后，才启用滚轮驱动的五阶段流程。
 // 防止 initMap 比 intro duration 慢时，setTimeout 已经触发但图层还没加载 → 看起来卡住
 function startStageFlow() {
   if (stageFlowStarted) return
@@ -247,39 +322,6 @@ function startStageFlow() {
 
   applyStage(0, true)
   nextTick(() => switchTextTo(0, true))
-
-  // =============== 阶段时间轴 ===============
-  // 图层顺序（共 5 阶段）: 地形图 → 唐代产茶区 → 野生型 → 栽培型 → 其他/过渡型
-  // Stage 0 开始（T+0）：地形图 + 文字「山河底色」
-  // Stage 1 开始（T+2s）：产茶区淡入；之后每 ~6s 进入下一 stage
-  const S0_TO_S1_DELAY_MS  = 2000   // 2s 后进入 Stage 1
-  const S1_HOLD_MS         = 6000   // 产茶区展示 + 文字浮现 6 秒
-  const S2_HOLD_MS         = 6000   // 野生型展示 6 秒
-  const S3_HOLD_MS         = 6000   // 栽培型展示 6 秒
-
-  // Stage 1: 产茶区淡入 + 切换文字
-  autoTimers.push(setTimeout(() => {
-    applyStage(1)
-    switchTextTo(1)
-  }, S0_TO_S1_DELAY_MS))
-
-  // Stage 2: 野生型古茶树（type 1）淡入 + 切换文字
-  autoTimers.push(setTimeout(() => {
-    applyStage(2)
-    switchTextTo(2)
-  }, S0_TO_S1_DELAY_MS + S1_HOLD_MS))
-
-  // Stage 3: 栽培型古茶树（type 3）淡入 + 切换文字
-  autoTimers.push(setTimeout(() => {
-    applyStage(3)
-    switchTextTo(3)
-  }, S0_TO_S1_DELAY_MS + S1_HOLD_MS + S2_HOLD_MS))
-
-  // Stage 4: 其他/过渡型古茶树（type 2）淡入 + 切换文字
-  autoTimers.push(setTimeout(() => {
-    applyStage(4)
-    switchTextTo(4)
-  }, S0_TO_S1_DELAY_MS + S1_HOLD_MS + S2_HOLD_MS + S3_HOLD_MS))
 }
 
 // 切换右上角图层文字：先退出再进入
@@ -299,7 +341,6 @@ function switchTextTo(idx, immediate = false) {
 let animRAF = null
 let tangRAF = null
 let maskRAF = null
-let autoTimers = []
 
 // ----------- 初始化地图 -----------
 async function initMap() {
@@ -309,10 +350,14 @@ async function initMap() {
   map = L.map(mapEl.value, {
     crs: albersCRS,
     center: MAP_INIT.center,
-    zoom: MAP_INIT.zoom,
+    zoom: MAP_INIT.minZoom,
     minZoom: MAP_INIT.minZoom,
     maxZoom: MAP_INIT.maxZoom,
-    scrollWheelZoom: true,
+    // 第一章使用 0.5 级缩放，确保配置中的最小等级 3.5 能被准确采用。
+    zoomSnap: 0.5,
+    zoomDelta: 0.5,
+    // 围绕地图中心缩放，不再根据鼠标所在位置向东或向西偏移地图。
+    scrollWheelZoom: 'center',
     zoomControl: true,
     attributionControl: false,
     dragging: true,
@@ -321,6 +366,10 @@ async function initMap() {
     keyboard: false,
     renderer: svgRenderer
   })
+
+  // 捕获阶段优先于 Leaflet 处理滚轮，确保最小缩放时不会再产生地图位移。
+  mapWheelTarget = map.getContainer()
+  mapWheelTarget.addEventListener('wheel', onMapWheel, { capture: true, passive: false })
 
   // 注入 SVG <defs> 高斯模糊滤镜: 两个 blur radius
   // 1. tang-blur-big:   σ=14px —— 模糊扩展的底晕 (向外扩张大)
@@ -440,7 +489,8 @@ async function initMap() {
     })
   } catch (e) { console.warn('load tea trees failed:', e) }
 
-  map.fitBounds(MAP_INIT.fitBounds, { animate: false })
+  // 页面首次进入时明确保持最小缩放等级，不再由 fitBounds 重新计算缩放值。
+  map.setView(MAP_INIT.center, MAP_INIT.minZoom, { animate: false })
   setTimeout(() => map && map.invalidateSize(), 300)
 
   // 地图所有图层（轮廓/十段线/唐代茶区/古茶树点）均已加载完成
@@ -669,8 +719,11 @@ onBeforeUnmount(() => {
   cancelAnimationFrame(animRAF)
   cancelAnimationFrame(tangRAF)
   cancelAnimationFrame(maskRAF)
-  autoTimers.forEach(t => clearTimeout(t))
-  autoTimers = []
+  resetLayerWheelGesture()
+  if (mapWheelTarget) {
+    mapWheelTarget.removeEventListener('wheel', onMapWheel, true)
+    mapWheelTarget = null
+  }
   if (textTL) { textTL.kill(); textTL = null }
   if (map) { map.remove(); map = null }
 })
@@ -845,6 +898,73 @@ onBeforeUnmount(() => {
   text-align: justify;
 }
 
+.layer-scroll-guide {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: fit-content;
+  max-width: 100%;
+  margin: 14px 8px 0 auto;
+}
+
+.layer-scroll-hint {
+  display: block;
+  padding: 8px 16px 8px 11px;
+  border: 1px solid rgba(178, 143, 76, 0.32);
+  border-radius: 999px;
+  background: rgba(247, 244, 235, 0.9);
+  box-shadow: 0 5px 18px rgba(81, 109, 51, 0.1);
+  color: #516D33;
+  font: 500 15px/1.2 var(--font-body);
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.layer-scroll-chevrons {
+  display: flex;
+  flex: 0 0 22px;
+  height: 32px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.layer-scroll-chevron {
+  display: block;
+  width: 9px;
+  height: 9px;
+  margin-top: -3px;
+  border-right: 2px solid #B28F4C;
+  border-bottom: 2px solid #B28F4C;
+  opacity: 0.2;
+  transform: translateY(-2px) rotate(45deg);
+  animation: layer-scroll-chevron-pulse 1.35s ease-in-out infinite;
+  will-change: opacity, transform;
+}
+
+.layer-scroll-chevron:first-child { margin-top: 0; }
+.layer-scroll-chevron:nth-child(2) { animation-delay: 0.16s; }
+.layer-scroll-chevron:nth-child(3) { animation-delay: 0.32s; }
+
+@keyframes layer-scroll-chevron-pulse {
+  0%, 62%, 100% {
+    opacity: 0.18;
+    transform: translateY(-2px) rotate(45deg);
+  }
+  28% {
+    opacity: 1;
+    transform: translateY(2px) rotate(45deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .layer-scroll-chevron {
+    animation: none;
+    opacity: 0.8;
+  }
+}
+
 @media (max-width: 880px) {
   .layer-text-panel {
     top: 12px;
@@ -863,6 +983,23 @@ onBeforeUnmount(() => {
   .ltp-desc {
     font-size: 12px;
     line-height: 1.8;
+  }
+  .layer-scroll-guide {
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .layer-scroll-hint {
+    padding: 6px 12px 6px 8px;
+    font-size: 12px;
+  }
+  .layer-scroll-chevrons {
+    flex-basis: 18px;
+    height: 27px;
+  }
+  .layer-scroll-chevron {
+    width: 7px;
+    height: 7px;
+    border-width: 0 1.5px 1.5px 0;
   }
 }
 

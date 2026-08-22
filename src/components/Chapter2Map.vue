@@ -12,8 +12,8 @@
       class="chapter-body"
       :class="{ 'ready': layoutReady }"
     >
-      <!-- ========= 左侧：固定六宫格（2列3行，顶部开始排列） ========= -->
-      <aside class="left-panel">
+      <!-- ========= 左侧：悬浮六宫格（直接叠放在全屏底图上） ========= -->
+      <aside ref="leftPanelRef" class="left-panel">
         <div class="six-grid">
           <!-- 槽位 1~5：缩略图卡槽（永远存在 5 个 slot，内部 thumb-card 按是否有内容挂载；用于动画前测量位置） -->
           <div
@@ -43,24 +43,10 @@
             </div>
           </div>
 
-          <!-- 槽位 6：图例（第三行第二列，固定位置） -->
-          <div class="grid-slot legend-slot">
-            <div v-if="showLegend" class="legend-inner">
-              <div class="legend-title">{{ legendTitle }}</div>
-              <div
-                v-for="lv in legendLevels"
-                :key="lv.value"
-                class="legend-row"
-              >
-                <span class="sw" :style="{ background: lv.color }"></span>
-                <span>{{ lv.label }}</span>
-              </div>
-            </div>
-          </div>
         </div>
       </aside>
 
-      <!-- ========= 中间：主地图区（整幅画布，不单独加框） ========= -->
+      <!-- ========= 全屏主地图区：作为整个页面统一底图 ========= -->
       <main class="main-panel">
         <div
           class="map-title-bar"
@@ -88,8 +74,21 @@
       </main>
 
       <!-- ========= 右侧工具组：说明卡（上） + 转盘/溯回（下），固定在右下角 ========= -->
-      <div class="tool-group">
-        <!-- 因子说明卡：绝对定位在转盘正上方 -->
+      <div ref="toolGroupRef" class="tool-group">
+        <!-- 图例：与说明卡、转盘共用右侧纵向工具列 -->
+        <div v-if="showLegend" class="legend-inner">
+          <div class="legend-title">{{ legendTitle }}</div>
+          <div
+            v-for="lv in legendLevels"
+            :key="lv.value"
+            class="legend-row"
+          >
+            <span class="sw" :style="{ background: lv.color }"></span>
+            <span>{{ lv.label }}</span>
+          </div>
+        </div>
+
+        <!-- 因子说明卡：位于图例与转盘之间 -->
         <transition name="info-fade">
           <div
             v-if="showInfoCard"
@@ -107,6 +106,16 @@
           v-if="viewMode === 'detail'"
           class="wheel-area"
         >
+          <transition name="wheel-guide-fade">
+            <div
+              v-if="!isDrawComplete && drawPhase !== 'spinning' && drawPhase !== 'committing'"
+              class="wheel-guide"
+              aria-hidden="true"
+            >
+              <span class="wheel-guide-text">点击转盘抽取因子</span>
+              <span class="wheel-guide-arrow">→</span>
+            </div>
+          </transition>
           <div class="wheel-wrap">
             <div class="wheel">
               <svg viewBox="-110 -110 220 220" class="wheel-svg">
@@ -135,7 +144,7 @@
                   />
                   <path
                     v-if="lockedFactor === fid"
-                    :d="sectorPath(i, 10, 90)"
+                    :d="sectorPath(i, 10, 88)"
                     fill="url(#ch2-lock-highlight)"
                     stroke="#EACF78"
                     stroke-width="1.6"
@@ -225,11 +234,12 @@ import { getMapOptions } from '../utils/crs.js'
 
 const WHEEL_ORDER = ['ph', 'precip', 'temp', 'accum', 'rad']
 const WHEEL_SECTOR_COLORS = {
-  ph:     '#516D33',
-  precip: '#5C7C3A',
-  temp:   '#5C9EAF',
-  accum:  '#B28F4C',
-  rad:    '#C3C19A',
+  // 低饱和自然色：保持茶系页面气质，同时用色相建立因子语义。
+  ph:     '#6E6B70', // 冷灰紫：土壤酸碱度
+  precip: '#708A91', // 茶灰蓝：降水与水分
+  temp:   '#9A6657', // 砖陶赭：气温
+  accum:  '#A88B55', // 柔茶金：积温累积
+  rad:    '#7C895C', // 灰橄榄绿：光照与植被生长
 }
 
 /* =========================================================
@@ -703,9 +713,23 @@ async function _addFactorOverlay(m, fid) {
 }
 
 /* =========================================================
- * 右侧安全区宽度计算
+ * 地图安全区宽度计算
  * ========================================================= */
+const leftPanelRef = ref(null)
+const toolGroupRef = ref(null)
+
+function _getSafetyLeft() {
+  const rect = leftPanelRef.value?.getBoundingClientRect()
+  if (rect && rect.width > 0) return Math.ceil(rect.right + 24)
+  const vw = window.innerWidth
+  if (vw <= 900) return 320
+  if (vw <= 1200) return 390
+  return 500
+}
+
 function _getSafetyRight() {
+  const rect = toolGroupRef.value?.getBoundingClientRect()
+  if (rect && rect.width > 0) return Math.ceil(window.innerWidth - rect.left + 24)
   const vw = window.innerWidth
   if (vw <= 900) return 260
   if (vw <= 1200) return 300
@@ -745,10 +769,10 @@ async function initMapAndFit() {
   try { tendashLayer = await _addTendashLayer(map) } catch (e) { console.warn('[ch2] tendash failed:', e) }
 
   map.invalidateSize(false)
-  // 使用统一全国范围 + 右侧安全区 padding
+  // 使用统一全国范围，并为底图上的左右悬浮控件预留安全区。
   map.fitBounds(FULL_CHINA_BOUNDS, {
-    paddingTopLeft: [50, 50],
-    paddingBottomRight: [_getSafetyRight(), 60],
+    paddingTopLeft: [_getSafetyLeft(), 64],
+    paddingBottomRight: [_getSafetyRight(), 72],
     animate: false,
   })
   setTimeout(() => { mapReady.value = true }, 80)
@@ -763,8 +787,8 @@ function _onResize() {
     if (!map) return
     map.invalidateSize(false)
     map.fitBounds(FULL_CHINA_BOUNDS, {
-      paddingTopLeft: [50, 50],
-      paddingBottomRight: [_getSafetyRight(), 60],
+      paddingTopLeft: [_getSafetyLeft(), 64],
+      paddingBottomRight: [_getSafetyRight(), 72],
       animate: false,
     })
   }, 250)
@@ -830,10 +854,6 @@ watch([activeFactorId, viewMode], () => {
  *   坐标、图片、Bounds 与主图共用同一配置和 Albers CRS。
  * ========================================================= */
 const THUMBNAIL_PADDING = 8
-const THUMBNAIL_PROVINCE_STYLE = {
-  color: '#8A956F', weight: 0.45, opacity: 0.75,
-  fillOpacity: 0, interactive: false,
-}
 const THUMBNAIL_OUTLINE_STYLE = {
   color: '#66784D', weight: 0.9, opacity: 0.9,
   fillOpacity: 0, interactive: false,
@@ -923,10 +943,12 @@ async function initializeThumbnailMap(factorKey, container) {
       markerZoomAnimation: false,
     })
 
+    // 与主图保持一致：浅米色中国区域位于因子栅格下方，
+    // 既明确完整版图轮廓，也不会遮盖缩略图中的因子数据。
+    thumbnailMap.createPane('thumbnailBase')
+    thumbnailMap.getPane('thumbnailBase').style.zIndex = 350
     thumbnailMap.createPane('thumbnailFactor')
     thumbnailMap.getPane('thumbnailFactor').style.zIndex = 400
-    thumbnailMap.createPane('thumbnailProvince')
-    thumbnailMap.getPane('thumbnailProvince').style.zIndex = 450
     thumbnailMap.createPane('thumbnailOutline')
     thumbnailMap.getPane('thumbnailOutline').style.zIndex = 460
 
@@ -943,6 +965,14 @@ async function initializeThumbnailMap(factorKey, container) {
 
     const factorConfig = getFactorLayerConfig(factorKey)
     if (!factorConfig) throw new Error('未知因子配置: ' + factorKey)
+
+    const chinaFillLayer = L.geoJSON(provinceData, {
+      pane: 'thumbnailBase',
+      style: () => ({ ...PROV_FILL_STYLE }),
+      coordsToLatLng: COORDS_TO_LATLNG,
+      interactive: false,
+    }).addTo(thumbnailMap)
+
     const factorOverlay = L.imageOverlay(factorConfig.dataUrl, factorBounds, {
       pane: 'thumbnailFactor',
       opacity: factorConfig.opacity,
@@ -953,13 +983,6 @@ async function initializeThumbnailMap(factorKey, container) {
       console.warn('[ch2-thumb] factor layer failed:', factorKey, error)
     })
     factorOverlay.addTo(thumbnailMap)
-
-    const chinaLayer = L.geoJSON(provinceData, {
-      pane: 'thumbnailProvince',
-      style: () => ({ ...THUMBNAIL_PROVINCE_STYLE }),
-      coordsToLatLng: COORDS_TO_LATLNG,
-      interactive: false,
-    }).addTo(thumbnailMap)
 
     if (outlineData) {
       L.geoJSON(outlineData, {
@@ -978,14 +1001,15 @@ async function initializeThumbnailMap(factorKey, container) {
       }).addTo(thumbnailMap)
     }
 
-    const chinaBounds = chinaLayer.getBounds()
+    // 缩略图只显示浅米色国土填充与国界，不绘制省级边界。
+    const chinaBounds = chinaFillLayer.getBounds()
     const viewBounds = L.latLngBounds(THUMBNAIL_DISPLAY_BOUNDS)
     const record = {
       factorKey,
       container,
       map: thumbnailMap,
+      chinaFillLayer,
       factorOverlay,
-      chinaLayer,
       chinaBounds,
       viewBounds,
       fitRaf: 0,
@@ -1425,20 +1449,19 @@ function sectorPath(index, innerR, outerR) {
 function sectorCenterAngle(index) { return (index * 72 - 90 + 36) * Math.PI / 180 }
 function SectorClass(fid) {
   const isScan = drawPhase.value === 'spinning' && WHEEL_ORDER[scanIndex.value] === fid
+  const isLocked = lockedFactor.value === fid
   const isPicked = drawOrder.value.includes(fid)
   return {
     'sec-scan':   isScan,
+    'sec-locked': isLocked,
     'sec-picked': isPicked && lockedFactor.value !== fid,
   }
 }
-function LockedSectorStyle(i) {
-  const ang = sectorCenterAngle(i)
-  const tx = Math.cos(ang) * 8
-  const ty = Math.sin(ang) * 8
+function LockedSectorStyle() {
   return {
-    transform: `translate(${tx.toFixed(2)}px, ${ty.toFixed(2)}px) scale(1.03)`,
+    transform: 'none',
     transformOrigin: '0 0',
-    animation: 'sector-lock-bounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both',
+    animation: 'sector-lock-fade 0.26s ease-out both',
   }
 }
 function labelStyle(index) {
@@ -1725,13 +1748,26 @@ async function runSpinAnimation() {
 
   try {
     const steps = buildScanSequence(targetIndex)
+    // 减速段会因目标扇区不同而改变总时长。保护时限必须跟随真实
+    // 动画时长，否则较远目标会在扫描结束前被提前提交，形成跳格。
+    const spinDuration = steps.reduce((sum, step) => sum + step.delay, 0) + 80
+    const hardKillDelay = Math.max(5500, spinDuration + 1200)
     const hardKillPromise = new Promise(res => {
       _hardKillTimer = setTimeout(() => {
-        if (_currentOpId === myOpId) { console.warn('[ch2] draw hard-kill (5.5s): force commit'); res('timeout') }
-      }, 5500)
+        if (_currentOpId === myOpId) { console.warn('[ch2] draw hard-kill: force commit'); res('timeout') }
+      }, hardKillDelay)
     })
     const raceRes = await Promise.race([runSpinSequence(steps, myOpId), hardKillPromise])
     if (_currentOpId !== myOpId) return
+    clearHardKill()
+
+    // 正常路径中扫描已经精确落在 targetIndex；仅在异常保护触发时
+    // 才兜底对齐，避免提交到错误扇区。
+    if (raceRes === 'timeout') {
+      clearSpinTimers()
+      scanIndex.value = targetIndex
+      await new Promise(r => setTimeout(r, 180))
+    }
 
     drawPhase.value = 'committing'
     lockedFactor.value = newFid
@@ -1932,33 +1968,36 @@ onBeforeUnmount(() => {
 
 <style scoped>
 /* =========================================================
- * 章节整体：统一米白浅茶色背景
+ * 章节整体：主地图底图铺满页面，其余组件作为悬浮层叠放其上
  * ========================================================= */
 .chapter-2 { position: relative; background: #EFE9DA; }
 
 .chapter-body {
+  --ch2-page-edge: clamp(16px, 2vw, 28px);
+  --ch2-left-panel-width: clamp(440px, 25vw, 560px);
+  --ch2-right-safe-width: clamp(300px, 19vw, 360px);
   position: fixed;
   top: 60px;
   left: 0; right: 0; bottom: 0;
-  display: grid;
-  grid-template-columns: clamp(420px, 24vw, 520px) 1fr;
-  grid-template-areas: "left main";
-  padding: 20px clamp(20px, 3vw, 32px) 16px 20px;
-  gap: clamp(16px, 2vw, 24px);
+  display: block;
+  padding: 0;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.8s ease;
   background: #EFE9DA;
+  overflow: hidden;
 }
 .chapter-body.ready { opacity: 1; pointer-events: auto; }
 
-/* ===== 左侧：六宫格（2列 × 3行，顶部对齐；行宽相等，缩略图地图区域比例 16:10） ===== */
+/* ===== 左侧悬浮层：六宫格直接位于底图上，不再划分独立栏区 ===== */
 .left-panel {
-  grid-area: left;
-  display: flex;
-  align-items: flex-start;
-  min-height: 0;
-  padding-top: 4px;
+  position: absolute;
+  top: var(--ch2-page-edge);
+  left: var(--ch2-page-edge);
+  width: var(--ch2-left-panel-width);
+  z-index: 700;
+  min-width: 0;
+  padding: 0;
 }
 .six-grid {
   width: 100%;
@@ -1968,7 +2007,7 @@ onBeforeUnmount(() => {
   grid-template-areas:
     "thumb1 thumb2"
     "thumb3 thumb4"
-    "thumb5 legend";
+    "thumb5 .";
   column-gap: 14px;
   row-gap: 14px;
   align-content: start;
@@ -1978,14 +2017,14 @@ onBeforeUnmount(() => {
   position: relative;
   min-width: 0;
   width: 100%;
-  aspect-ratio: 16 / 10;
+  /* 统一加高缩略图卡片；名称栏固定，新增高度主要留给地图画面。 */
+  aspect-ratio: 16 / 11;
 }
 .thumb-slot-1 { grid-area: thumb1; }
 .thumb-slot-2 { grid-area: thumb2; }
 .thumb-slot-3 { grid-area: thumb3; }
 .thumb-slot-4 { grid-area: thumb4; }
 .thumb-slot-5 { grid-area: thumb5; }
-.legend-slot   { grid-area: legend; }
 
 /* 缩略图卡片（地图区域 16:10 + 名称栏 32px） */
 .thumb-card {
@@ -1993,13 +2032,15 @@ onBeforeUnmount(() => {
   inset: 0;
   display: flex;
   flex-direction: column;
-  background: rgba(255, 253, 247, 0.40);
-  border: 1px solid rgba(81, 109, 51, 0.10);
+  background: rgba(255, 253, 247, 0.78);
+  border: 1px solid rgba(81, 109, 51, 0.16);
   border-radius: 10px;
   overflow: hidden;
   cursor: pointer;
   transition: transform 0.22s ease, border-color 0.22s ease, background 0.22s ease, box-shadow 0.22s ease;
-  box-shadow: 0 1px 3px rgba(81,109,51,0.05);
+  box-shadow: 0 3px 12px rgba(81,109,51,0.09);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
 }
 .thumb-card:hover {
   transform: translateY(-1px);
@@ -2016,7 +2057,7 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background: #EFE9DA;
+  background: rgba(239, 233, 218, 0.76);
 }
 .thumbnail-map {
   position: absolute;
@@ -2037,7 +2078,7 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 6px;
   padding: 0 10px;
-  background: rgba(255, 253, 247, 0.45);
+  background: rgba(255, 253, 247, 0.8);
   border-top: 1px solid rgba(81, 109, 51, 0.06);
 }
 .thumb-order {
@@ -2057,18 +2098,24 @@ onBeforeUnmount(() => {
   letter-spacing: 0.5px;
 }
 
-/* 图例：嵌入固定 16:10 槽位 */
+/* 图例：右侧工具列最上方的独立悬浮卡片 */
 .legend-inner {
-  position: absolute;
-  left: 0; right: 0; top: 0; bottom: 0;
-  padding: 12px 14px;
-  background: rgba(255, 253, 247, 0.45);
-  border: 1px solid rgba(81, 109, 51, 0.10);
-  border-radius: 10px;
+  position: relative;
+  width: clamp(270px, 15.5vw, 320px);
+  min-width: 270px;
+  max-width: 320px;
+  box-sizing: border-box;
+  padding: 16px 20px;
+  background: rgba(255, 253, 247, 0.84);
+  border: 1px solid rgba(81, 109, 51, 0.16);
+  border-radius: 15px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
+  box-shadow: 0 3px 12px rgba(81,109,51,0.09);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
 }
 .legend-title {
   font-size: 12px;
@@ -2097,36 +2144,41 @@ onBeforeUnmount(() => {
   border: 0.5px solid rgba(0,0,0,0.06);
 }
 
-/* ===== 中间主地图区 ===== */
+/* ===== 主地图：填满整个章节内容区，作为所有组件共同底图 ===== */
 .main-panel {
-  grid-area: main;
-  position: relative;
-  display: flex;
-  flex-direction: column;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: block;
   min-width: 0;
   min-height: 0;
-  /* 还原为整体米色底, 主题图只出现在 Leaflet 内部 (pane z-index 150) */
-  background: #F7F4EB;
+  background: transparent;
 }
 
 .map-title-bar {
-  padding: 2px 0 8px;
+  position: absolute;
+  top: 14px;
+  left: calc(var(--ch2-page-edge) + var(--ch2-left-panel-width) + 24px);
+  right: calc(var(--ch2-right-safe-width) + 24px);
+  z-index: 720;
+  padding: 0;
   text-align: center;
   background: transparent;
-  flex: none;
+  pointer-events: none;
 }
 .map-title {
-  font-size: 15px;
+  font-size: 20px;
   color: #4b5d2b;
   font-weight: 400;
   letter-spacing: 2px;
+  text-shadow: 0 1px 8px rgba(247, 244, 235, 0.95);
 }
 .map-title strong { font-weight: 700; color: #3D5428; }
 
 .map-stage {
-  flex: 1 1 auto;
-  position: relative;
-  border-radius: 2px;
+  position: absolute;
+  inset: 0;
+  border-radius: 0;
   overflow: hidden;
   background: transparent;
   border: none;
@@ -2186,6 +2238,12 @@ onBeforeUnmount(() => {
   z-index: 2;
 }
 
+/* 主图铺满页面后，将缩放控件移到左侧缩略图安全区之外。 */
+.map :deep(.leaflet-top.leaflet-left) {
+  top: 46px;
+  left: calc(var(--ch2-page-edge) + var(--ch2-left-panel-width) + 12px);
+}
+
 .factor-fade-mask {
   position: absolute;
   inset: 0;
@@ -2214,22 +2272,26 @@ onBeforeUnmount(() => {
   max-height: 100%;
 }
 
-/* ===== 右侧工具组：说明卡（上） + 转盘/溯回（下），固定在右下角 ===== */
+/* ===== 右侧工具组：图例、说明卡、转盘/溯回纵向同列 ===== */
 .tool-group {
   position: absolute;
+  top: clamp(24px, 3vw, 42px);
   right: clamp(28px, 3vw, 48px);
-  bottom: clamp(36px, 5vw, 56px);
+  bottom: clamp(28px, 3vw, 44px);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 14px;
   pointer-events: none;
-  z-index: 5;
+  z-index: 700;
 }
 
-/* 说明卡：绝对定位在转盘正上方，米白圆角、柔和阴影、茶绿细边框 */
+/* 说明卡：位于图例与转盘之间，米白圆角、柔和阴影、茶绿细边框 */
 .factor-info {
   pointer-events: auto;
-  position: absolute;
-  bottom: 100%;
-  right: 0;
-  margin-bottom: 20px;
+  position: relative;
+  flex: none;
+  margin-top: auto;
   width: clamp(270px, 15.5vw, 320px);
   max-width: 320px;
   min-width: 270px;
@@ -2277,6 +2339,14 @@ onBeforeUnmount(() => {
   word-break: break-word;
 }
 
+/* 没有说明卡时，转盘/溯回仍固定在工具列底部。 */
+.tool-group > .legend-inner + .wheel-area,
+.tool-group > .legend-inner + .return-area,
+.tool-group > .wheel-area:first-child,
+.tool-group > .return-area:first-child {
+  margin-top: auto;
+}
+
 .info-fade-enter-active,
 .info-fade-leave-active { transition: opacity 240ms ease, transform 240ms ease; }
 .info-fade-enter-from,
@@ -2289,6 +2359,45 @@ onBeforeUnmount(() => {
   padding: 12px;
   overflow: visible;
 }
+.wheel-guide {
+  position: absolute;
+  right: calc(100% + 8px);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  z-index: 12;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.wheel-guide-text {
+  padding: 9px 15px;
+  border: 1px solid rgba(178, 143, 76, 0.38);
+  border-radius: 999px;
+  background: rgba(247, 244, 235, 0.9);
+  color: #516D33;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 14px rgba(81, 109, 51, 0.12);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.wheel-guide-arrow {
+  color: #B28F4C;
+  font-size: 25px;
+  line-height: 1;
+  animation: wheel-guide-nudge 1.35s ease-in-out infinite;
+}
+@keyframes wheel-guide-nudge {
+  0%, 100% { transform: translateX(0); opacity: 0.62; }
+  50% { transform: translateX(5px); opacity: 1; }
+}
+.wheel-guide-fade-enter-active,
+.wheel-guide-fade-leave-active { transition: opacity 180ms ease; }
+.wheel-guide-fade-enter-from,
+.wheel-guide-fade-leave-to { opacity: 0; }
 .wheel-wrap {
   position: relative;
   width: clamp(250px, 16vw, 300px);
@@ -2313,17 +2422,16 @@ onBeforeUnmount(() => {
   stroke: rgba(212, 180, 76, 0.5);
   stroke-width: 0.8;
 }
-.sector.sec-scan {
+.sector.sec-scan,
+.sector.sec-locked {
   opacity: 1;
   filter: brightness(1.22) saturate(1.3) drop-shadow(0 0 4px rgba(255,228,140,0.7)) drop-shadow(0 0 8px rgba(255,210,120,0.42));
   stroke: rgba(255, 230, 160, 0.95);
   stroke-width: 1.2;
 }
 .sector-lock-stroke { transform-origin: 0 0; }
-@keyframes sector-lock-bounce {
+@keyframes sector-lock-fade {
   0%   { opacity: 0; }
-  35%  { opacity: 1; }
-  60%  { opacity: 1; }
   100% { opacity: 1; }
 }
 
@@ -2338,7 +2446,7 @@ onBeforeUnmount(() => {
   transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
 }
 .label-name {
-  font-size: 11.5px;
+  font-size: 15px;
   color: #FBF8EF;
   font-weight: 600;
   letter-spacing: 1px;
@@ -2353,13 +2461,13 @@ onBeforeUnmount(() => {
 .factor-label.lbl-scan {
   background: rgba(255, 248, 225, 0.96);
   box-shadow: 0 2px 8px rgba(212, 180, 76, 0.45);
-  transform: translate(-50%, -50%) scale(1.08);
+  transform: translate(-50%, -50%) scale(1.1);
 }
 .factor-label.lbl-scan .label-name { color: #5A4A15; text-shadow: none; font-weight: 700; }
 .factor-label.lbl-locked {
   background: rgba(255, 252, 238, 0.98);
   box-shadow: 0 2px 10px rgba(212, 180, 76, 0.55), 0 0 0 1.3px rgba(234, 207, 120, 0.75);
-  transform: translate(-50%, -50%) scale(1.12);
+  transform: translate(-50%, -50%) scale(1.1);
 }
 .factor-label.lbl-locked .label-name { color: #3E4F26; text-shadow: none; font-weight: 800; }
 .factor-label.lbl-picked { filter: drop-shadow(0 0 2px rgba(234, 207, 120, 0.42)); }
@@ -2448,21 +2556,34 @@ onBeforeUnmount(() => {
 /* 响应式 */
 @media (max-width: 1200px) {
   .chapter-body {
-    grid-template-columns: clamp(360px, 30vw, 420px) 1fr;
-    padding: 14px;
-    gap: 14px;
+    --ch2-page-edge: 14px;
+    --ch2-left-panel-width: clamp(360px, 34vw, 430px);
+    --ch2-right-safe-width: 300px;
   }
+  .six-grid { column-gap: 10px; row-gap: 10px; }
+  .legend-inner { width: 250px; min-width: 250px; max-width: 250px; }
   .factor-info { width: clamp(250px, 14vw, 290px); padding: 18px 20px; border-radius: 15px; }
   .wheel-wrap { width: 230px; height: 230px; }
   .return-area { width: 230px; height: 230px; }
   .center-btn { width: 62px; height: 62px; }
   .center-text { font-size: 11px; letter-spacing: 1px; }
-  .label-name { font-size: 10.5px; }
+  .label-name { font-size: 13.5px; }
+  .wheel-guide { right: calc(100% + 2px); gap: 5px; }
+  .wheel-guide-text { padding: 7px 11px; font-size: 12px; }
+  .wheel-guide-arrow { font-size: 21px; }
 }
 @media (max-width: 900px) {
   .chapter-body {
-    grid-template-columns: clamp(280px, 36vw, 340px) 1fr;
+    --ch2-page-edge: 10px;
+    --ch2-left-panel-width: clamp(280px, 41vw, 340px);
+    --ch2-right-safe-width: 250px;
   }
+  .six-grid { column-gap: 8px; row-gap: 8px; }
+  .map-title-bar {
+    left: calc(var(--ch2-page-edge) + var(--ch2-left-panel-width) + 12px);
+    right: calc(var(--ch2-right-safe-width) + 12px);
+  }
+  .legend-inner { width: 220px; min-width: 220px; max-width: 220px; padding: 14px 16px; }
   .factor-info { padding: 14px 16px; width: 220px; }
   .factor-info-title { font-size: 13px; }
   .factor-info-desc { font-size: 11.5px; line-height: 1.65; }
@@ -2471,5 +2592,12 @@ onBeforeUnmount(() => {
   .legend-title { font-size: 11px; }
   .legend-row .sw { width: 10px; height: 8px; }
   .thumb-name { font-size: 11px; }
+  .label-name { font-size: 12.5px; }
+  .wheel-guide {
+    right: 50%;
+    top: auto;
+    bottom: calc(100% + 2px);
+    transform: translateX(50%);
+  }
 }
 </style>
