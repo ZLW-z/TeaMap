@@ -36,18 +36,9 @@
         </div>
       </div>
 
-      <!-- 回到开头按钮 -->
+      <!-- 结语底部提示 -->
       <div class="ep-hint" ref="hintRef">
         <span class="ep-hint-text">旅程至此，愿茶香常伴</span>
-        <div class="ep-btn-row">
-          <button class="ep-btn ep-btn-secondary" @click="goBack">
-            <span>← 返回第一章</span>
-          </button>
-          <button class="ep-btn ep-btn-primary" @click="goTop">
-            <span>回到开篇</span>
-            <span class="ep-btn-arrow">↑</span>
-          </button>
-        </div>
       </div>
     </div>
   </section>

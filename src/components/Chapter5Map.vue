@@ -3,7 +3,7 @@
     <ChapterIntro
       ch-no="伍"
       title="今日茶境"
-      desc="千年茶脉绵延至今，国内茶园规模稳步扩张，茶叶外销步履不停，现代产业续写着茶业蓬勃发展的新篇章。"
+      desc="千年茶脉绵延至今，国内茶园规模稳步扩张，茶叶外销步履不停，&#10;现代产业续写着茶业蓬勃发展的新篇章。"
       :duration="2.5"
       @done="onIntroDone"
     />
@@ -207,7 +207,7 @@
                   <EChart v-else :option="rootsMapOption" @ready="onRootsMapReady" @click="onMapClick" style="height:280px" />
                 </div>
                 <div v-if="metric === 'gardenArea'" class="lv-chart-note">图示说明：圆点大小表示各省茶园面积（千公顷），圆点越大，茶园面积越大；颜色深浅表示茶园面积占该省行政区划面积的覆盖率（%），颜色越深，覆盖率越高。</div>
-                <div v-else class="lv-chart-note">图示说明：颜色深浅表示各省{{ metricLabel }}（{{ metricUnit }}），颜色越深，数值越高。</div>
+                <div v-else class="lv-chart-note">图示说明：圆点大小表示各省茶叶产量（万吨），圆点越大，茶叶产量越高；颜色深浅同步表示产量等级，颜色越深，产量越高。</div>
               </div>
 
               <!-- 省份详情 -->
@@ -278,7 +278,7 @@
 
               <!-- 3. 图1：内销总量趋势 -->
               <div class="lv-chart-block">
-                <div class="lv-chart-title">图1　中国茶叶内销总量趋势图（2010—2024年）</div>
+                <div class="lv-chart-title">中国茶叶内销总量趋势图（2010—2024年）</div>
                 <div class="ch5-card small-card">
                   <div class="chart-container" style="height:260px">
                     <EChart :option="leavesVolumeTrendOption" />
@@ -287,9 +287,9 @@
                 <div class="lv-chart-note">2010—2024年中国茶叶内销量长期增长，但增长速度逐步放缓。2022—2024年总量接近平台期，市场观察重点开始由单纯扩量转向产品、价格带与消费场景的结构变化。</div>
               </div>
 
-              <!-- 4. 三阶段读图 -->
+              <!-- 4. 内销趋势三阶段结论 -->
               <div class="lv-stages">
-                <div class="lv-stages-title">三阶段读图</div>
+                <div class="lv-stages-title"><span>茶叶内销增势趋缓，<br>竞争转向结构升级</span></div>
                 <div class="lv-stage-list">
                   <div v-for="(s, i) in leavesStages" :key="s.id" class="lv-stage-card" :style="{ '--stage-color': stageColors[i] }">
                     <div class="lv-stage-num">{{ i + 1 }}</div>
@@ -298,7 +298,7 @@
                       <div class="lv-stage-name">{{ s.name }}</div>
                       <div class="lv-stage-metrics">
                         <span class="lv-stage-metric">期初 {{ s.startVolume.toFixed(2) }} → 期末 {{ s.endVolume.toFixed(2) }} 万吨</span>
-                        <span class="lv-stage-cagr">CAGR {{ s.cagr }}%</span>
+                        <span class="lv-stage-cagr">年均复合增速 {{ s.cagr }}%</span>
                       </div>
                       <div class="lv-stage-conclusion">{{ s.conclusion }}</div>
                     </div>
@@ -308,7 +308,7 @@
 
               <!-- 5. 图2：内销总额与均价趋势 -->
               <div class="lv-chart-block">
-                <div class="lv-chart-title">图2　中国茶叶内销总额与均价趋势图（2013—2024年）</div>
+                <div class="lv-chart-title">中国茶叶内销总额与均价趋势图（2013—2024年）</div>
                 <div class="ch5-card small-card">
                   <div class="chart-container" style="height:300px">
                     <EChart :option="leavesValuePriceOption" />
@@ -320,7 +320,7 @@
 
               <!-- 6. 图3：线上交易规模 -->
               <div class="lv-chart-block">
-                <div class="lv-chart-title">图3　中国茶叶线上交易规模变化图（2016—2024年）</div>
+                <div class="lv-chart-title">中国茶叶线上交易规模变化图（2016—2024年）</div>
                 <div class="ch5-card small-card">
                   <div class="chart-container" style="height:260px">
                     <EChart :option="leavesOnlineOption" />
@@ -337,6 +337,7 @@
                     v-for="p in leavesProductsSorted"
                     :key="p.order"
                     class="lv-product-card"
+                    :class="{ 'is-active': detailProduct === p.order }"
                     @click="openProductDetail(p.order)">
                     <div class="lv-prod-head">
                       <div class="lv-prod-ord">{{ p.order }}</div>
@@ -346,7 +347,6 @@
                     <div class="lv-prod-repr">
                       <span v-for="(prod, i) in p.entryProducts" :key="i" class="lv-prod-chip">{{ prod }}</span>
                     </div>
-                    <div class="lv-prod-tap-hint">点击查看详情 →</div>
                   </div>
                 </div>
               </div>
@@ -360,59 +360,56 @@
               <!-- ==== 六表达详情卡：手机内弹层（不超出手机外壳）==== -->
               <transition name="lv-fade">
                 <div v-if="detailProduct" class="lv-detail-modal" @click.self="closeProductDetail">
-                  <div class="lv-detail-card">
+                  <div v-if="detailProductData" class="lv-detail-card">
                     <button class="lv-detail-close" @click="closeProductDetail" type="button" aria-label="关闭">×</button>
-                    <div class="lv-detail-body" v-if="detailProductData">
-                      <!-- 头部 -->
-                      <div class="lv-detail-head">
-                        <div class="lv-detail-ord">{{ detailProductData.order }}</div>
+
+                    <!-- 六张统一 3:2 横构图以顶部通栏方式完整显示 -->
+                    <div class="lv-detail-media">
+                      <img
+                        class="lv-detail-image"
+                        :src="detailProductData.image"
+                        :alt="detailProductData.imageAlt"
+                      />
+                    </div>
+
+                    <div class="lv-detail-heading">
+                      <div class="lv-detail-ord">{{ detailProductData.order }}</div>
+                      <div class="lv-detail-title-group">
                         <div class="lv-detail-type">{{ detailProductData.type }}</div>
+                        <div class="lv-detail-subtitle">{{ detailProductData.subtitle }}</div>
                       </div>
-                      <div class="lv-detail-subtitle">{{ detailProductData.subtitle }}</div>
-                      <!-- 核心数字 -->
-                      <div class="lv-detail-core">
-                        <div class="lv-detail-core-num">
-                          <span class="lv-detail-core-val">{{ detailProductData.coreNum }}</span>
-                          <span v-if="detailProductData.coreUnit" class="lv-detail-core-unit">{{ detailProductData.coreUnit }}</span>
-                        </div>
-                        <div class="lv-detail-core-index">{{ detailProductData.indexName }}</div>
-                      </div>
-                      <!-- 元信息行：年份 + 范围 -->
-                      <div class="lv-detail-meta">
-                        <div class="lv-detail-meta-item">
-                          <span class="lv-detail-meta-label">年份</span>
-                          <span class="lv-detail-meta-value">{{ detailProductData.year }}</span>
-                        </div>
-                        <div class="lv-detail-meta-item">
-                          <span class="lv-detail-meta-label">统计范围</span>
-                          <span class="lv-detail-meta-value">{{ detailProductData.range }}</span>
-                        </div>
-                      </div>
-                      <!-- 辅助数据 -->
-                      <div class="lv-detail-aux">
-                        <span class="lv-detail-aux-label">辅助数据：</span>
-                        <span class="lv-detail-aux-value">{{ detailProductData.aux }}</span>
-                      </div>
+                    </div>
+
+                    <div class="lv-detail-body">
+                      <!-- 数据、年份和统计范围改写为连贯文字 -->
+                      <section class="lv-detail-summary">
+                        <div class="lv-detail-sec-label">数据概览</div>
+                        <p>{{ detailProductData.summary }}</p>
+                      </section>
+
                       <!-- 代表产品 -->
-                      <div class="lv-detail-products">
+                      <section class="lv-detail-products">
                         <div class="lv-detail-sec-label">代表产品</div>
                         <div class="lv-detail-product-chips">
                           <span v-for="(prod, i) in detailProductData.products" :key="i" class="lv-prod-chip">{{ prod }}</span>
                         </div>
-                      </div>
+                      </section>
+
                       <!-- 解读 -->
-                      <div class="lv-detail-explain">
+                      <section class="lv-detail-explain">
                         <div class="lv-detail-sec-label">解读</div>
                         <div class="lv-detail-explain-text">{{ detailProductData.explain }}</div>
-                      </div>
+                      </section>
+
                       <!-- 来源 -->
                       <div class="lv-detail-source">
-                        <span class="lv-detail-source-label">来源：</span>
-                        <span class="lv-detail-source-name">{{ detailProductData.source }}</span>
-                      </div>
-                      <!-- 统一底部说明 -->
-                      <div class="lv-detail-footer">
-                        数据年份与统计范围见卡片，六类指标不作横向比较。
+                        <span class="lv-detail-source-label">资料来源：</span>
+                        <a
+                          class="lv-detail-source-name"
+                          :href="detailProductData.sourceUrl"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >{{ detailProductData.source }}</a>
                       </div>
                     </div>
                   </div>
@@ -445,22 +442,22 @@
                   <div class="ov-value"><span class="ch5-stat-num">{{ fmt(branchesOverview.totalExport / 1e8, 2) }}</span><span class="ov-unit">亿</span></div>
                 </div>
                 <div class="ch5-overview-card small-card">
-                  <div class="ov-label">首位目的</div>
+                  <div class="ov-label">首位目的地</div>
                   <div class="ov-value"><span class="ch5-stat-num">{{ branchesOverview.topCountry || '—' }}</span></div>
                 </div>
                 <div class="ch5-overview-card small-card">
-                  <div class="ov-label">目的数</div>
+                  <div class="ov-label">目的地总数</div>
                   <div class="ov-value"><span class="ch5-stat-num">{{ branchesOverview.countryCount }}</span><span class="ov-unit">国</span></div>
                 </div>
                 <div class="ch5-overview-card small-card">
-                  <div class="ov-label">出口省份</div>
+                  <div class="ov-label">出口省份数量</div>
                   <div class="ov-value"><span class="ch5-stat-num">{{ branchesOverview.provinceCount }}</span><span class="ov-unit">省</span></div>
                 </div>
               </div>
 
               <!-- 桑基图 -->
               <div class="ch5-card small-card wf-sankey-card">
-                <div class="card-title-sm">{{ branchesYear }}年 中国茶叶出口省→目的地流向图</div>
+                <div class="card-title-sm">{{ branchesYear }}年 中国茶叶出口省至目的地流向图</div>
                 <div class="chart-container chart-sankey small">
                   <EChart :option="branchesSankeyOption" style="height:320px" />
                 </div>
@@ -469,7 +466,7 @@
 
               <!-- TOP 10 目的地 -->
               <div class="ch5-card small-card">
-                <div class="card-title-sm">{{ branchesYear }}年 中国茶叶出口目的地TOP 10</div>
+                <div class="card-title-sm">{{ branchesYear }}年 中国茶叶出口目的地前十</div>
                 <div class="ch5-chart-unit">单位：亿元</div>
                 <div class="chart-container chart-country-rank small">
                   <EChart :option="branchesCountryRankOption" style="height:240px" />
@@ -501,6 +498,7 @@ import { ref, computed, onMounted } from 'vue'
 import EChart from './EChart.vue'
 import ChapterIntro from './ChapterIntro.vue'
 import * as echarts from 'echarts'
+import proj4 from 'proj4'
 import { assetUrl } from '../utils/base.js'
 import {
   nationalData,
@@ -531,6 +529,24 @@ const props = defineProps({ id: { type: String, required: true } })
 
 // 茶树图资源路径
 const TREE_IMG_URL = assetUrl('data/5/茶树.png')
+
+// 根系板块地图统一采用中国 Albers 等积投影。
+// 参考坐标系参数：中央经线 105°E，标准纬线 25°N、47°N；未指定的纬度原点取 0°。
+const CHINA_ALBERS_CRS = '+proj=aea +lat_0=0 +lon_0=105 +lat_1=25 +lat_2=47 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs'
+const chinaAlbersTransformer = proj4('EPSG:4326', CHINA_ALBERS_CRS)
+const CHINA_ALBERS_PROJECTION = {
+  project(point) {
+    const projected = chinaAlbersTransformer.forward(point)
+    // ECharts 画布纵轴向下，因此反转投影坐标的 Y 轴。
+    return [projected[0], -projected[1]]
+  },
+  unproject(point) {
+    return chinaAlbersTransformer.inverse([point[0], -point[1]])
+  },
+}
+const ROOTS_CHINA_MAP_NAME = 'china-roots-albers'
+const SOUTH_CHINA_SEA_MAP_NAME = 'china-south-sea-inset'
+const SOUTH_CHINA_SEA_FRAME_NAME = '南海诸岛示意框'
 
 // ---- 数据辅助：判断值是否为 "空/0/不存在"，为 true 则从可视化中剔除（折线转 null、饼/排名/Sankey过滤）
 function isMissingVal(v) {
@@ -589,10 +605,8 @@ function onRootsMapReady(chart) {
   chart.on('georoam', () => {
     try {
       const opt = chart.getOption()
-      // 茶园面积 tab: opt.geo[0].zoom；产量 tab: opt.series[0].zoom
-      const bubbleZoom = opt.geo?.[0]?.zoom
-      const mapZoom = opt.series?.[0]?.zoom
-      const z = bubbleZoom ?? mapZoom ?? DEFAULT_GEO_ZOOM
+      // 两个指标均复用同一个 Albers geo 与气泡图层。
+      const z = opt.geo?.[0]?.zoom ?? DEFAULT_GEO_ZOOM
       if (typeof z === 'number' && z > 0) {
         currentGeoZoom.value = z
       }
@@ -758,6 +772,8 @@ const avgPriceColor = '#5C7C3A'
 const leavesValuePriceOption = computed(() => {
   const data = LEAVES_DOMESTIC_TREND.filter(d => d.year >= 2013)
   const years = data.map(d => d.year)
+  const doublePeakIndex = years.indexOf(2022)
+  const doublePeakData = doublePeakIndex >= 0 ? data[doublePeakIndex] : null
   // 约数柱用透明度更低的金色，但仍保持金色主色
   const barData = data.map(d => ({
     value: d.value,
@@ -799,7 +815,8 @@ const leavesValuePriceOption = computed(() => {
         { name: '平均单价（元/千克）', itemStyle: { color: avgPriceColor, borderWidth: 0 } },
       ],
     },
-    grid: { containLabel: true, left: 42, right: 42, top: 46, bottom: 38 },
+    // 为图例、双Y轴名称和高点标注预留独立空间，避免相互覆盖。
+    grid: { containLabel: true, left: 42, right: 42, top: 74, bottom: 38 },
     color: [salesAmountColorDark, avgPriceColor],
     xAxis: {
       type: 'category',
@@ -817,7 +834,7 @@ const leavesValuePriceOption = computed(() => {
         axisLine: { lineStyle: { color: salesAmountColorDark } },
         axisLabel: { ...axisLabelStyle, color: salesAmountColorDark, fontSize: 10 },
         splitLine: splitLineStyle,
-        // 2022年高点3395，max扩大到4000以容纳标注
+        // 2022年高点3395，max扩大到4000以容纳双高点标注
         max: 4000,
       },
       {
@@ -840,18 +857,6 @@ const leavesValuePriceOption = computed(() => {
         data: barData,
         barWidth: '50%',
         itemStyle: { color: salesAmountColorDark }, // series默认色与图例一致
-        markLine: {
-          silent: true,
-          symbol: ['none', 'arrow'],
-          lineStyle: { color: '#A8453A', type: 'dashed', width: 1.2 },
-          label: {
-            formatter: '2022阶段高点',
-            color: '#A8453A',
-            fontSize: 10,
-            position: 'insideEndTop',
-          },
-          data: [{ name: '2022阶段高点', xAxis: 9 }],
-        },
       },
       {
         name: '平均单价（元/千克）',
@@ -863,15 +868,46 @@ const leavesValuePriceOption = computed(() => {
         symbolSize: 5,
         lineStyle: { color: avgPriceColor, width: 2.2 },
         itemStyle: { color: avgPriceColor, borderWidth: 0 },
+        markPoint: {
+          silent: true,
+          symbol: 'triangle',
+          symbolRotate: 180,
+          symbolSize: 13,
+          symbolOffset: [0, -7],
+          itemStyle: { color: '#A8453A' },
+          label: {
+            show: true,
+            formatter: '双高点',
+            position: 'top',
+            distance: 6,
+            color: '#A8453A',
+            fontSize: 11,
+            fontWeight: 700,
+          },
+          data: doublePeakData ? [{ name: '平均单价高点', coord: [doublePeakIndex, doublePeakData.avgPrice] }] : [],
+        },
       },
     ],
   }
 })
 
-// ---- 图3：线上交易规模（柱状图，2021缺失显示断点）----
+// ---- 图3：线上交易规模（2021原始值缺失，展示层以相邻年份线性估计补足柱形）----
 const leavesOnlineOption = computed(() => {
   const data = LEAVES_ONLINE_TREND
   const years = data.map(d => d.year)
+  const estimateMissingValue = index => {
+    let previous = null
+    let next = null
+    for (let i = index - 1; i >= 0; i -= 1) {
+      if (data[i].value != null) { previous = data[i]; break }
+    }
+    for (let i = index + 1; i < data.length; i += 1) {
+      if (data[i].value != null) { next = data[i]; break }
+    }
+    if (!previous || !next) return null
+    const yearRatio = (data[index].year - previous.year) / (next.year - previous.year)
+    return Number((previous.value + (next.value - previous.value) * yearRatio).toFixed(1))
+  }
   return {
     tooltip: {
       ...tooltipBase,
@@ -912,12 +948,20 @@ const leavesOnlineOption = computed(() => {
     series: [{
       type: 'bar',
       barWidth: '52%',
-      data: data.map(d => {
+      data: data.map((d, index) => {
         if (d.value === null) {
+          const estimatedValue = estimateMissingValue(index)
           return {
-            value: null,
-            _displayValue: '数据缺失',
-            itemStyle: { color: 'rgba(168,69,58,0.08)', borderColor: 'rgba(168,69,58,0.3)', borderWidth: 1, borderType: 'dashed' },
+            value: estimatedValue,
+            _displayValue: '',
+            _estimatedValue: estimatedValue,
+            itemStyle: {
+              color: 'rgba(139,166,103,0.38)',
+              borderColor: '#7F985D',
+              borderWidth: 1.5,
+              borderType: 'dashed',
+              borderRadius: [4, 4, 0, 0],
+            },
           }
         }
         // 所有有效柱体使用统一茶绿色
@@ -1100,6 +1144,50 @@ const rootsMapData = computed(() => {
     .filter(d => !isMissingVal(d.value) && d.value > 0)
 })
 
+function createRootsGeoOption() {
+  const sharedItemStyle = {
+    areaColor: '#F7F4EB',
+    borderColor: 'rgba(178,143,76,0.45)',
+    borderWidth: 0.8,
+  }
+
+  return [
+    {
+      map: ROOTS_CHINA_MAP_NAME,
+      projection: CHINA_ALBERS_PROJECTION,
+      roam: true,
+      zoom: currentGeoZoom.value,
+      label: { show: false },
+      itemStyle: sharedItemStyle,
+      emphasis: {
+        label: { show: true, color: '#3A4D38', fontWeight: 700 },
+        itemStyle: { areaColor: '#EFE9DA', borderColor: '#B28F4C', borderWidth: 1.2 },
+      },
+    },
+    {
+      // 九段线在原始经纬度坐标中单独绘制，避免随主版图 Albers 投影发生倾斜。
+      map: SOUTH_CHINA_SEA_MAP_NAME,
+      roam: false,
+      silent: true,
+      layoutCenter: ['82%', '69%'],
+      layoutSize: '22%',
+      aspectScale: 1.4,
+      label: { show: false },
+      itemStyle: sharedItemStyle,
+      regions: [{
+        name: SOUTH_CHINA_SEA_FRAME_NAME,
+        itemStyle: {
+          areaColor: 'rgba(247,244,235,0.24)',
+          borderColor: 'rgba(178,143,76,0.55)',
+          borderWidth: 0.8,
+        },
+      }],
+      emphasis: { disabled: true },
+      z: 3,
+    },
+  ]
+}
+
 const rootsMapOption = computed(() => {
   const data = rootsMapData.value
   const yr = rootsYear.value
@@ -1151,21 +1239,7 @@ const rootsMapOption = computed(() => {
           return `<b>${d.name}</b>（${yr}年）<br/>茶园面积：${fmt(d.gardenArea, 2)} 千公顷<br/>覆盖率：${fmt(d.coverage, 3)} %`
         },
       },
-      geo: {
-        map: 'china',
-        roam: true,
-        zoom: currentGeoZoom.value,
-        label: { show: false },
-        itemStyle: {
-          areaColor: '#F7F4EB', // 统一米色底图
-          borderColor: 'rgba(178,143,76,0.45)',
-          borderWidth: 0.8,
-        },
-        emphasis: {
-          label: { show: true, color: '#3A4D38', fontWeight: 700 },
-          itemStyle: { areaColor: '#EFE9DA', borderColor: '#B28F4C', borderWidth: 1.2 },
-        },
-      },
+      geo: createRootsGeoOption(),
       visualMap: {
         min: 0,
         max: coverageMax,
@@ -1214,9 +1288,24 @@ const rootsMapOption = computed(() => {
     }
   }
 
-  // =================== 茶叶产量 Tab：保持原分级设色 choropleth ===================
-  const values = data.map(d => d.value)
-  const maxVal = values.length ? Math.max(...values) : 0
+  // =================== 茶叶产量 Tab：Albers 底图 + 比例气泡 ===================
+  const outputScatterList = data
+    .map(d => {
+      const coord = PROVINCE_COORDS[d.name]
+      if (!coord) return null
+      return {
+        name: d.name,
+        value: [coord[0], coord[1], d.value],
+        totalOutput: d.value,
+      }
+    })
+    .filter(Boolean)
+  const outputMax = outputScatterList.length
+    ? Math.max(...outputScatterList.map(d => d.totalOutput))
+    : 1
+  const outputSizeMin = 4
+  const outputSizeMax = 24
+
   return {
     tooltip: {
       ...tooltipBase,
@@ -1224,51 +1313,55 @@ const rootsMapOption = computed(() => {
       confine: true,
       extraCssText: 'max-width:220px; white-space:pre-wrap;',
       formatter: p => {
-        if (p.value == null || isNaN(p.value)) return `${p.name}<br/>暂无数据`
-        return `<b>${p.name}</b>（${yr}年）<br/>${metricLabel.value}：${fmt(p.value, 2)} ${metricUnit.value}`
+        if (p.componentType === 'geo') return `${p.name}<br/>（点击气泡查看省份详情）`
+        const d = p.data
+        if (!d || !d.totalOutput) return `${p.name}<br/>暂无数据`
+        return `<b>${d.name}</b>（${yr}年）<br/>茶叶产量：${fmt(d.totalOutput, 2)} 万吨`
       },
     },
-    geo: {
-      map: 'china',
-      roam: true,
-      zoom: currentGeoZoom.value,
-      label: { show: false },
-      itemStyle: {
-        areaColor: '#F7F4EB',
-        borderColor: 'rgba(178,143,76,0.45)',
-        borderWidth: 0.8,
-      },
-      emphasis: {
-        label: { show: true, color: '#3A4D38', fontWeight: 700 },
-        itemStyle: { areaColor: '#EFE9DA', borderColor: '#B28F4C', borderWidth: 1.2 },
-      },
-    },
+    geo: createRootsGeoOption(),
     visualMap: {
       min: 0,
-      max: maxVal || 1,
+      max: outputMax,
       left: 12,
       bottom: 18,
-      text: [`${metricLabel.value}高`, `${metricLabel.value}低`],
+      text: [`产量高（${fmt(outputMax, 0)}万吨）`, '产量低'],
       textStyle: { color: '#5A6655', fontSize: 9 },
       inRange: { color: ['#F0F4E6', '#C5D6AC', '#8BA667', '#5C7C3A', '#3A4D38'] },
       calculable: true,
       itemWidth: 10,
       itemHeight: 60,
-      formatter: v => `${fmt(v, 0)} ${metricUnit.value}`,
+      formatter: v => `${fmt(v, 0)} 万吨`,
+      dimension: 2,
+      seriesIndex: 0,
     },
     series: [{
-      type: 'map',
-      map: 'china',
+      type: 'scatter',
+      coordinateSystem: 'geo',
       geoIndex: 0,
-      roam: true,
-      zoom: currentGeoZoom.value,
-      label: { show: false },
-      emphasis: {
-        label: { show: true, color: '#3A4D38', fontWeight: 700 },
-        itemStyle: { borderColor: '#fff', borderWidth: 1.5 },
+      symbol: 'circle',
+      symbolSize: (value, params) => {
+        const outputValue = params.data?.totalOutput || 0
+        const ratio = Math.sqrt(outputValue / outputMax)
+        const base = outputSizeMin + (outputSizeMax - outputSizeMin) * ratio
+        const zoomFactor = currentGeoZoom.value / DEFAULT_GEO_ZOOM
+        return base * zoomFactor
       },
-      itemStyle: { borderColor: 'rgba(255,255,255,0)', borderWidth: 0 },
-      data,
+      itemStyle: {
+        borderColor: 'rgba(255,255,255,0.94)',
+        borderWidth: 1,
+        opacity: 0.9,
+      },
+      emphasis: {
+        itemStyle: {
+          borderColor: '#B28F4C',
+          borderWidth: 2,
+          opacity: 1,
+          shadowBlur: 10,
+          shadowColor: 'rgba(81,109,51,0.35)',
+        },
+      },
+      data: outputScatterList,
     }],
   }
 })
@@ -1462,6 +1555,14 @@ const branchesSankeyOption = computed(() => {
       value: Number(l.value) || 0,
       lineStyle: { color: 'gradient', opacity: 0.35, curveness: 0.5 },
     }))
+  // 节点悬浮时展示与当前节点相连的全部有效贸易线合计：
+  // 省份统计所有出边，目的地统计所有入边。
+  const provinceTotals = new Map()
+  const destinationTotals = new Map()
+  validLinks.forEach(link => {
+    provinceTotals.set(link.source, (provinceTotals.get(link.source) || 0) + link.value)
+    destinationTotals.set(link.target, (destinationTotals.get(link.target) || 0) + link.value)
+  })
   // 只保留出现在有效 links 中的节点（避免孤立节点）
   const usedNames = new Set()
   validLinks.forEach(l => { usedNames.add(l.source); usedNames.add(l.target) })
@@ -1476,7 +1577,9 @@ const branchesSankeyOption = computed(() => {
         if (p.dataType === 'edge') {
           return `<b>${p.data.source} → ${p.data.target}</b><br/>出口额：${fmt(p.data.value / 1e8, 2)} 亿元`
         }
-        return `<b>${p.name}</b>`
+        const isProvince = p.data.category === 'province'
+        const totalLabel = isProvince ? '出口总额' : '进口总额'
+        return `<b>${p.name}</b><br/>${totalLabel}：${fmt(p.data.totalValue / 1e8, 2)} 亿元`
       },
     },
     series: [{
@@ -1492,6 +1595,10 @@ const branchesSankeyOption = computed(() => {
       emphasis: { focus: 'adjacency' },
       data: validNodes.map(n => ({
         name: n.name,
+        category: n.category,
+        totalValue: n.category === 'province'
+          ? (provinceTotals.get(n.name) || 0)
+          : (destinationTotals.get(n.name) || 0),
         itemStyle: { color: n.category === 'province' ? '#5C7C3A' : '#C8A155' },
         label: { color: '#3A4D38', fontSize: 10, width: 88, overflow: 'truncate' },
       })),
@@ -1680,7 +1787,29 @@ onMounted(async () => {
     // 从本地加载省份 GeoJSON（与第3、4章一致）
     const provRes = await fetch(assetUrl('data/2/china-provinces.geojson'))
     const provGeo = await provRes.json()
-    echarts.registerMap('china', provGeo)
+    const provinceFeatures = provGeo.features.filter(feature => feature.properties?.adchar !== 'JD')
+    const southChinaSeaFeatures = provGeo.features.filter(feature => feature.properties?.adchar === 'JD')
+    const southChinaSeaFrame = {
+      type: 'Feature',
+      properties: { name: SOUTH_CHINA_SEA_FRAME_NAME },
+      geometry: {
+        type: 'Polygon',
+        coordinates: [[
+          [107.4, 2.5],
+          [123.6, 2.5],
+          [123.6, 25.5],
+          [107.4, 25.5],
+          [107.4, 2.5],
+        ]],
+      },
+    }
+
+    // 主版图使用 Albers；南海插图保留原始水平坐标，二者分别注册、叠加显示。
+    echarts.registerMap(ROOTS_CHINA_MAP_NAME, { ...provGeo, features: provinceFeatures })
+    echarts.registerMap(SOUTH_CHINA_SEA_MAP_NAME, {
+      ...provGeo,
+      features: [southChinaSeaFrame, ...southChinaSeaFeatures],
+    })
 
     mapReady.value = true
   } catch (e) {
@@ -2022,6 +2151,12 @@ onMounted(async () => {
   margin-bottom: 4px;
   letter-spacing: 0.03em;
 }
+/* 枝条板块概览标题单独增强可读性，不影响根系板块的同类卡片。 */
+.panel-branches .ch5-overview-card.small-card .ov-label {
+  font-size: 13px;
+  line-height: 1.35;
+  font-weight: 600;
+}
 .ch5-overview-card.small-card .ov-unit { font-size: 10px; }
 .ch5-overview-card.small-card .ch5-stat-num {
   font-size: 1.25rem;
@@ -2339,6 +2474,11 @@ onMounted(async () => {
   padding: 4px 2px 8px;
   text-align: center;
 }
+.lv-stages-title span {
+  display: inline-block;
+  text-align: left;
+  line-height: 1.35;
+}
 .lv-stage-list {
   display: flex;
   flex-direction: column;
@@ -2351,7 +2491,7 @@ onMounted(async () => {
   border: 1px solid rgba(165,163,122,0.35);
   border-left: 4px solid var(--stage-color, #5C7C3A);
   border-radius: 10px;
-  padding: 8px 10px;
+  padding: 10px 11px;
 }
 .lv-stage-num {
   width: 22px;
@@ -2359,21 +2499,21 @@ onMounted(async () => {
   border-radius: 6px;
   background: var(--stage-color, #5C7C3A);
   color: #fff;
-  font: 800 11px/22px var(--font-huiwen);
+  font: 800 12px/22px var(--font-huiwen);
   text-align: center;
   flex-shrink: 0;
 }
 .lv-stage-body { flex: 1; min-width: 0; }
 .lv-stage-period {
-  font-size: 10px;
+  font-size: 11px;
   color: #8A8270;
   font-weight: 600;
-  margin-bottom: 1px;
+  margin-bottom: 2px;
 }
 .lv-stage-name {
-  font: 700 12px/1 var(--font-huiwen);
+  font: 700 13px/1.2 var(--font-huiwen);
   color: #3A4D38;
-  margin-bottom: 4px;
+  margin-bottom: 5px;
 }
 .lv-stage-metrics {
   display: flex;
@@ -2382,21 +2522,22 @@ onMounted(async () => {
   margin-bottom: 4px;
 }
 .lv-stage-metric {
-  font-size: 10px;
+  font-size: 11px;
   color: #5A6655;
+  line-height: 1.45;
 }
 .lv-stage-cagr {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   color: #B28F4C;
-  padding: 1px 5px;
+  padding: 2px 6px;
   background: rgba(178,143,76,0.12);
   border-radius: 4px;
 }
 .lv-stage-conclusion {
-  font-size: 10px;
+  font-size: 11px;
   color: #5A6655;
-  line-height: 1.5;
+  line-height: 1.65;
 }
 
 /* ---- 7. 六种新表达 ---- */
@@ -2422,10 +2563,36 @@ onMounted(async () => {
   transition: all 0.25s ease;
   position: relative;
 }
-.lv-product-card:hover {
-  border-color: rgba(92,124,58,0.5);
+.lv-product-card:hover,
+.lv-product-card:active,
+.lv-product-card.is-active {
+  background: linear-gradient(135deg, #5C7C3A 0%, #3F582C 100%);
+  border-color: rgba(247,244,235,0.72);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(81,109,51,0.08);
+  box-shadow: 0 6px 16px rgba(63,88,44,0.24);
+}
+.lv-product-card:hover .lv-prod-ord,
+.lv-product-card:active .lv-prod-ord,
+.lv-product-card.is-active .lv-prod-ord {
+  background: #F7F4EB;
+  color: #516D33;
+}
+.lv-product-card:hover .lv-prod-type,
+.lv-product-card:active .lv-prod-type,
+.lv-product-card.is-active .lv-prod-type {
+  color: #FFFDF7;
+}
+.lv-product-card:hover .lv-prod-subtitle,
+.lv-product-card:active .lv-prod-subtitle,
+.lv-product-card.is-active .lv-prod-subtitle {
+  color: #F0D79A;
+}
+.lv-product-card:hover .lv-prod-chip,
+.lv-product-card:active .lv-prod-chip,
+.lv-product-card.is-active .lv-prod-chip {
+  background: rgba(247,244,235,0.16);
+  color: #FFFDF7;
+  box-shadow: inset 0 0 0 1px rgba(247,244,235,0.2);
 }
 .lv-product-card.expanded {
   grid-column: 1 / -1;
@@ -2501,15 +2668,6 @@ onMounted(async () => {
   color: #5A6655;
   line-height: 1.4;
 }
-.lv-prod-tap-hint {
-  margin-top: 4px;
-  font-size: 9px;
-  color: #5C7C3A;
-  font-weight: 500;
-  letter-spacing: 0.01em;
-  text-align: right;
-}
-
 /* ---- 六表达详情卡弹层（仅手机内遮罩）---- */
 .lv-detail-modal {
   position: absolute;
@@ -2520,15 +2678,15 @@ onMounted(async () => {
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  padding: 18px 14px 20px;
+  padding: 16px 13px 18px;
   box-sizing: border-box;
 }
 .lv-detail-card {
   width: 100%;
   max-height: calc(100% - 2px);
-  background: linear-gradient(135deg, #FDFBF5 0%, #F7F4EB 100%);
+  background: #F9F6ED;
   border: 1px solid rgba(165, 163, 122, 0.55);
-  border-radius: 14px;
+  border-radius: 16px;
   box-shadow: 0 10px 30px rgba(58, 52, 40, 0.2);
   position: relative;
   overflow: hidden;
@@ -2539,162 +2697,141 @@ onMounted(async () => {
   position: absolute;
   top: 8px;
   right: 10px;
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   border: none;
-  background: rgba(92, 124, 58, 0.12);
+  background: rgba(247, 244, 235, 0.92);
   color: #516D33;
   border-radius: 50%;
   font-size: 16px;
-  line-height: 22px;
+  line-height: 24px;
   font-weight: 700;
   cursor: pointer;
   z-index: 5;
-  transition: all 0.15s ease;
+  box-shadow: 0 2px 9px rgba(25, 34, 22, 0.16);
+  transition: transform 0.15s ease, background-color 0.15s ease;
 }
 .lv-detail-close:hover {
-  background: rgba(92, 124, 58, 0.22);
+  background: #FFFDF7;
+  transform: scale(1.05);
+}
+.lv-detail-media {
+  position: relative;
+  flex: 0 0 auto;
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  background: #E9E3D4;
+}
+.lv-detail-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  filter: saturate(0.92) contrast(0.97);
+}
+.lv-detail-heading {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 42px 10px 15px;
+  border-bottom: 1px solid rgba(165, 163, 122, 0.28);
+  background: linear-gradient(90deg, rgba(247, 244, 235, 0.98), rgba(238, 232, 216, 0.94));
+}
+.lv-detail-title-group {
+  min-width: 0;
+}
+.lv-detail-ord {
+  flex: 0 0 27px;
+  width: 27px;
+  height: 27px;
+  border-radius: 8px;
+  background: rgba(81, 109, 51, 0.96);
+  color: #FFF8E8;
+  font: 800 13px/27px var(--font-huiwen);
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(26, 37, 24, 0.2);
+}
+.lv-detail-type {
+  font: 800 17px/1.1 var(--font-huiwen);
+  color: #344B2A;
+  letter-spacing: 0.04em;
+}
+.lv-detail-subtitle {
+  margin-top: 5px;
+  font-size: 11.5px;
+  line-height: 1.2;
+  color: #A57D36;
+  font-weight: 600;
 }
 .lv-detail-body {
-  padding: 16px 16px 14px;
+  padding: 13px 15px 15px;
   overflow-y: auto;
   flex: 1;
   min-height: 0;
 }
-.lv-detail-head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 4px;
-}
-.lv-detail-ord {
-  width: 24px;
-  height: 24px;
-  border-radius: 7px;
-  background: linear-gradient(135deg, #5C7C3A 0%, #516D33 100%);
-  color: #FFF8E8;
-  font: 800 12px/24px var(--font-huiwen);
-  text-align: center;
-}
-.lv-detail-type {
-  font: 800 16px/1 var(--font-huiwen);
-  color: #3A4D38;
-  letter-spacing: 0.04em;
-}
-.lv-detail-subtitle {
-  font-size: 11px;
-  color: #B28F4C;
-  font-weight: 600;
-  margin-bottom: 14px;
-}
-.lv-detail-core {
-  background: linear-gradient(135deg, rgba(92,124,58,0.08) 0%, rgba(81,109,51,0.06) 100%);
-  border: 1px solid rgba(92,124,58,0.2);
-  border-left: 4px solid #5C7C3A;
-  border-radius: 10px;
-  padding: 10px 12px;
-  margin-bottom: 10px;
-}
-.lv-detail-core-num {
-  display: flex;
-  align-items: baseline;
-  gap: 4px;
-  margin-bottom: 2px;
-}
-.lv-detail-core-val {
-  font: 900 24px/1 var(--font-huiwen);
-  color: #5C7C3A;
-  letter-spacing: 0.01em;
-}
-.lv-detail-core-unit {
-  font: 700 12px/1 var(--font-huiwen);
-  color: #516D33;
-}
-.lv-detail-core-index {
-  font-size: 10.5px;
-  color: #5A6655;
-  line-height: 1.4;
-}
-.lv-detail-meta {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 10px;
-}
-.lv-detail-meta-item {
-  flex: 1;
-  padding: 5px 8px;
-  background: rgba(195,193,154,0.15);
-  border-radius: 6px;
-}
-.lv-detail-meta-label {
-  display: block;
-  font-size: 9px;
-  color: #8A8270;
-  margin-bottom: 1px;
-}
-.lv-detail-meta-value {
-  font-size: 10.5px;
-  color: #3A4D38;
-  font-weight: 600;
-}
-.lv-detail-aux {
-  padding: 7px 9px;
-  border-left: 3px solid #B28F4C;
-  background: rgba(178,143,76,0.08);
-  border-radius: 0 6px 6px 0;
-  font-size: 10.5px;
-  line-height: 1.5;
-  color: #6B5D3A;
-  margin-bottom: 12px;
-}
-.lv-detail-aux-label { font-weight: 600; }
-.lv-detail-aux-value { color: #3A3428; }
-
 .lv-detail-sec-label {
+  margin-bottom: 5px;
+  color: #7E755F;
   font-size: 9.5px;
-  color: #8A8270;
-  margin-bottom: 3px;
-  letter-spacing: 0.02em;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+.lv-detail-summary {
+  margin: 0 0 12px;
+  padding: 9px 11px;
+  border-left: 4px solid #5C7C3A;
+  border-radius: 0 9px 9px 0;
+  background: linear-gradient(135deg, rgba(92, 124, 58, 0.1), rgba(216, 205, 175, 0.17));
+}
+.lv-detail-summary p {
+  margin: 0;
+  color: #394235;
+  font-size: 11.5px;
+  font-weight: 500;
+  line-height: 1.72;
 }
 .lv-detail-products {
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 .lv-detail-product-chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: 5px;
+}
+.lv-detail-product-chips .lv-prod-chip {
+  padding: 4px 7px;
+  border: 1px solid rgba(165, 163, 122, 0.22);
+  background: rgba(216, 205, 175, 0.28);
 }
 .lv-detail-explain {
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 .lv-detail-explain-text {
-  font-size: 11px;
+  padding: 8px 10px;
+  border: 1px solid rgba(165, 163, 122, 0.24);
+  border-radius: 8px;
+  background: rgba(255, 253, 247, 0.72);
   color: #3A3428;
+  font-size: 11px;
   line-height: 1.65;
-  padding: 7px 9px;
-  background: rgba(247,244,235,0.9);
-  border-radius: 6px;
-  border: 1px solid rgba(165,163,122,0.25);
 }
 .lv-detail-source {
-  margin-bottom: 10px;
-  font-size: 10px;
-  line-height: 1.5;
+  padding: 0 2px;
   color: #8A8270;
-  padding: 6px 8px;
-  background: rgba(250,247,239,0.7);
-  border-radius: 6px;
+  font-size: 9.5px;
+  line-height: 1.5;
 }
 .lv-detail-source-label { font-weight: 500; }
-.lv-detail-source-name { color: #5A6655; }
-.lv-detail-footer {
-  margin-top: 8px;
-  padding: 6px 8px;
-  border-top: 1px dashed rgba(165,163,122,0.4);
-  font-size: 9.5px;
-  color: #8A8270;
-  text-align: center;
-  letter-spacing: 0.01em;
+.lv-detail-source-name {
+  color: #5A6655;
+  text-decoration-color: rgba(90, 102, 85, 0.34);
+  text-underline-offset: 2px;
+}
+.lv-detail-source-name:hover {
+  color: #516D33;
 }
 
 /* 弹层过渡动画 */

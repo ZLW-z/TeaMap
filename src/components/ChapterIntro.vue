@@ -171,6 +171,7 @@ onBeforeUnmount(() => {
   color: #6B5F45;
   max-width: 560px;
   margin: 0 auto;
+  white-space: pre-line;
 }
 
 /* 过渡 */
