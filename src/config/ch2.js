@@ -24,7 +24,7 @@ const FACTORS = {
     icon: '',
     png: assetUrl('data/2/temp_suitability.png'),
     boundsUrl: assetUrl('data/2/temp_bounds.json'),
-    desc: '茶树喜温暖，中温区最宜生长，低温与高温区为次适宜',
+    desc: '茶树喜温暖：年平均气温 15–25℃ 最适宜，13–15℃ 或 25–35℃ 次适宜，低于 13℃ 或高于 35℃ 不适宜',
     levels: [
       { value: 0, label: '不适宜', color: '#E8E2D0' },
       { value: 1, label: '低温适宜', color: '#9AC4D6' },
@@ -54,7 +54,7 @@ const FACTORS = {
     icon: '',
     png: assetUrl('data/2/rad_suitability.png'),
     boundsUrl: assetUrl('data/2/rad_bounds.json'),
-    desc: '茶树喜光耐阴，年太阳辐射总量适中为最适宜',
+    desc: '茶树喜光耐阴：年日照百分率 35%–45% 最适宜，45%–60% 次适宜，高于 60% 不适宜',
     levels: [
       { value: 0, label: '不适宜', color: '#E8E2D0' },
       { value: 1, label: '限制适宜', color: '#C3C19A' },

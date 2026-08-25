@@ -31,16 +31,31 @@
                 <stop offset="30%" stop-color="#9A9567" />
                 <stop offset="100%" stop-color="#6B5D3A" />
               </linearGradient>
+              <!-- 根系入土遮罩：由浅黄褐过渡到土层深棕 -->
+              <linearGradient id="rootBurialGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#C3A767" stop-opacity="0.12" />
+                <stop offset="16%" stop-color="#B28F4C" stop-opacity="0.38" />
+                <stop offset="50%" stop-color="#8F6F3F" stop-opacity="0.62" />
+                <stop offset="100%" stop-color="#5E4B2E" stop-opacity="0.84" />
+              </linearGradient>
             </defs>
 
             <!-- 背景：天空缩短，深色土壤继续上移60px，覆盖更多茶树根系 -->
             <rect x="0" y="0" width="600" height="490" fill="url(#skyGrad2)" rx="18" />
             <rect x="0" y="470" width="600" height="350" fill="url(#groundGrad2)" rx="18" />
 
-            <!-- 单棵大茶树（放大1.5倍居中，底部与土面对齐并略下移） -->
+            <!-- 单棵茶树：保留舒展留白，底部与土层自然衔接 -->
             <g class="tea-tree single-big-tree" style="transform-origin: 300px 630px;">
-              <image :href="TREE_IMG_URL" x="-90" y="-120" width="780" height="1050" preserveAspectRatio="xMidYEnd meet" />
+              <image :href="TREE_IMG_URL" x="-25" y="-80" width="650" height="920" preserveAspectRatio="xMidYEnd meet" />
             </g>
+
+            <!-- 半透明土层覆盖下半根系，模拟根须逐渐埋入泥土 -->
+            <path
+              class="root-burial-overlay"
+              d="M0 558 C95 547 186 568 286 557 C392 545 498 566 600 554 L600 820 L0 820 Z"
+              fill="url(#rootBurialGrad)"
+              pointer-events="none"
+            />
 
             <!-- ============ 区域1: 叶片（对应茶树右上叶片团） ============ -->
             <g class="click-zone zone-leaves"
@@ -528,7 +543,7 @@ import {
 const props = defineProps({ id: { type: String, required: true } })
 
 // 茶树图资源路径
-const TREE_IMG_URL = assetUrl('data/5/茶树.png')
+const TREE_IMG_URL = assetUrl('data/5/茶树-v4.png')
 
 // 根系板块地图统一采用中国 Albers 等积投影。
 // 参考坐标系参数：中央经线 105°E，标准纬线 25°N、47°N；未指定的纬度原点取 0°。
