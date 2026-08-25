@@ -69,8 +69,12 @@
                 <span>海路</span>
               </div>
               <div class="legend-row">
-                <span class="legend-line historical"></span>
-                <span>历史路线</span>
+                <span class="legend-line digitized"></span>
+                <span>实线：历史路线复原</span>
+              </div>
+              <div class="legend-row">
+                <span class="legend-line inferred"></span>
+                <span>虚线：历史/节点推定路线</span>
               </div>
               <div class="legend-row nodes">
                 <span class="legend-node origin"></span>
@@ -141,6 +145,7 @@
                     <div class="panel-badges">
                       <span class="panel-type-tag" :class="kind(selectedRoute)">{{ selectedRoute.routeType }}</span>
                       <span class="panel-dynasty-tag">{{ selectedRoute.dynasty }}</span>
+                      <span class="panel-dynasty-tag">{{ routeModeLabel }}</span>
                     </div>
                     <button class="panel-back" @click="showDynastyPanel">返回朝代背景</button>
                   </div>
@@ -155,7 +160,7 @@
                       </div>
                       <div class="info-item">
                         <span class="info-label">流向</span>
-                        <span class="info-value">{{ selectedRoute.routeType === '海路' ? '海上航线' : '陆路商道' }}</span>
+                        <span class="info-value">{{ selectedRoute.routeType === '海路' ? '海上航线' : selectedRoute.routeType === '水陆联运' ? '水陆联运' : '陆路商道' }}</span>
                       </div>
                       <div class="info-item info-item-wide">
                         <span class="info-label">途经节点</span>
@@ -378,9 +383,28 @@ function getDynastyByProgress(currentProgress) {
   return active
 }
 
-const kind = r => /海上|海运/.test(r.type) ? 'sea' : 'land'
+const ANCIENT_ROUTE_URL = `${import.meta.env.BASE_URL || '/'}data/4/ancient_tea_routes.geojson`
+const ANCIENT_NODE_URL = `${import.meta.env.BASE_URL || '/'}data/4/ancient_tea_nodes.geojson`
+const DYNASTY_ORDER = dynasties.map(function(item) { return item.name })
+const LEGACY_ROUTE_MATCH = {
+  R01: 135, R02: 135, R03: 134, R04: 134, R05: 133, R06: 136,
+  R07: 91, R08: 52, R09: 1, R10: 10, R11: 23, R12: 39,
+  R13: 45, R14: 50, R15: 95, R16: 108, R17: 142, R18: 139,
+}
+
+var ancientRouteFeatureIndex = new Map()
+var ancientNodeFeatureIndex = new Map()
+var ancientTradeRoutes = []
+
+function routeTypeCode(route) {
+  if (route && route.routeTypeCode) return route.routeTypeCode
+  if (route && route.route_type) return String(route.route_type).toLowerCase()
+  return /海上|海运|海路/.test(route && (route.type || route.routeType)) ? 'sea' : 'land'
+}
+const kind = r => routeTypeCode(r) === 'sea' ? 'sea' : 'land'
 function routePassesFilter(route) {
-  return routeFilter.value === 'all' || kind(route) === routeFilter.value
+  var type = routeTypeCode(route)
+  return routeFilter.value === 'all' || type === routeFilter.value || type === 'mixed'
 }
 function setRouteFilter(value) {
   routeFilter.value = value
@@ -389,36 +413,8 @@ function setRouteFilter(value) {
   }
   renderCurrentProgress()
 }
-const inChina = p => p.lon >= 73 && p.lon <= 135 && p.lat >= 18 && p.lat <= 54
-const capitals = [
-  ['荷兰', '阿姆斯特丹', 4.9041, 52.3676], ['英国', '伦敦', -0.1276, 51.5072], ['美国', '华盛顿', -77.0369, 38.9072],
-  ['法国', '巴黎', 2.3522, 48.8566], ['德国', '柏林', 13.405, 52.52], ['丹麦', '哥本哈根', 12.5683, 55.6761],
-  ['瑞典', '斯德哥尔摩', 18.0686, 59.3293], ['日本', '东京', 139.6917, 35.6895], ['俄国', '莫斯科', 37.6173, 55.7558],
-  ['俄罗斯', '莫斯科', 37.6173, 55.7558], ['敖德萨', '莫斯科', 37.6173, 55.7558], ['印度', '新德里', 77.209, 28.6139],
-  ['尼泊尔', '加德满都', 85.324, 27.7172], ['缅甸', '内比都', 96.0785, 19.7633], ['欧洲', '布鲁塞尔', 4.3517, 50.8503]
-]
-function namedCapital(text) {
-  const hit = capitals.find(function(item) {
-    return String(text).includes(item[0])
-  })
-  return hit ? { name: hit[1], lon: hit[2], lat: hit[3] } : null
-}
 function visualPoints(r) {
-  try {
-    if (kind(r) !== 'sea') return r.points || []
-    var chinese = (r.points || []).find(inChina) || { name: '广州', lon: 113.2644, lat: 23.1291 }
-    var dest = namedCapital(r.destination)
-    if (!dest && r.points && r.points.length && inChina(r.points[r.points.length - 1])) {
-      dest = namedCapital(r.origin)
-    }
-    if (!dest && r.points) {
-      var foreign = r.points.filter(function(p) { return !inChina(p) })
-      dest = foreign.length ? foreign[foreign.length - 1] : null
-    }
-    return dest ? [chinese, dest] : (r.points || [])
-  } catch (e) {
-    return r.points || []
-  }
+  return (r && r.points) || []
 }
 function curved(a, b, steps) {
   if (steps === undefined) steps = 28
@@ -431,7 +427,7 @@ function curved(a, b, steps) {
   }
   return out
 }
-function coords(points) {
+function arcSegmentsFromNodes(points) {
   if (!points || points.length < 2) return []
   var out = []
   for (var i = 1; i < points.length; i++) {
@@ -439,7 +435,210 @@ function coords(points) {
     if (i > 1) seg.shift()
     out.push.apply(out, seg)
   }
-  return out
+  return out.length ? [out] : []
+}
+
+// 保留给当代贸易流向线使用；古代路线只通过 routePathSegments 决定是否调用弧线。
+function coords(points) {
+  return arcSegmentsFromNodes(points)[0] || []
+}
+
+function routePathSegments(route) {
+  if (route && route.routeMode === 'digitized' && Array.isArray(route.geometrySegments)) {
+    return route.geometrySegments
+  }
+  return arcSegmentsFromNodes(visualPoints(route))
+}
+
+function sameCoordinate(a, b) {
+  return a && b && Math.abs(Number(a[0]) - Number(b[0])) < 1e-8 && Math.abs(Number(a[1]) - Number(b[1])) < 1e-8
+}
+
+function extractGeometrySegments(geometry) {
+  if (!geometry) return []
+  if (geometry.type === 'LineString') return [geometry.coordinates]
+  if (geometry.type === 'MultiLineString') return geometry.coordinates
+  return []
+}
+
+function mergeOrderedSegments(features) {
+  var merged = []
+  ;(features || []).forEach(function(feature) {
+    extractGeometrySegments(feature.geometry).forEach(function(rawSegment) {
+      var segment = (rawSegment || []).map(function(coordinate) {
+        return [Number(coordinate[1]), Number(coordinate[0])]
+      }).filter(function(coordinate) {
+        return Number.isFinite(coordinate[0]) && Number.isFinite(coordinate[1])
+      })
+      if (segment.length < 2) return
+      var previous = merged[merged.length - 1]
+      if (previous && sameCoordinate(previous[previous.length - 1], segment[0])) {
+        previous.push.apply(previous, segment.slice(1))
+      } else {
+        merged.push(segment)
+      }
+    })
+  })
+  return merged
+}
+
+function parseDynasties(value) {
+  var tokens = String(value || '').split(/[|｜、,，/]+/).map(function(item) { return item.trim() }).filter(Boolean)
+  var normalized = tokens.filter(function(item) { return DYNASTY_ORDER.includes(item) })
+  return normalized.length ? Array.from(new Set(normalized)) : ['唐代']
+}
+
+function nodeFromFeature(feature) {
+  var properties = (feature && feature.properties) || {}
+  var coordinate = feature && feature.geometry && feature.geometry.coordinates
+  var lon = Array.isArray(coordinate) ? Number(coordinate[0]) : Number(properties['经度_lon'])
+  var lat = Array.isArray(coordinate) ? Number(coordinate[1]) : Number(properties['纬度_lat'])
+  return {
+    id: properties.OBJECTID != null ? String(properties.OBJECTID) : undefined,
+    routeId: String(properties.route_id || ''),
+    seq: Number(properties.seq),
+    name: properties['节点名称'] || properties.node_name || properties.name || '路线节点',
+    role: properties['节点角色'] || properties.node_role || '',
+    dynasty: properties['展示朝代'] || properties.dynasty || '',
+    routeName: properties['路线名称'] || properties.route_name || '',
+    lon,
+    lat,
+    properties,
+  }
+}
+
+function groupRouteFeatures(features) {
+  var index = new Map()
+  ;(features || []).forEach(function(feature) {
+    var routeId = String(feature && feature.properties && feature.properties.route_id || '')
+    if (!routeId) return
+    if (!index.has(routeId)) index.set(routeId, [])
+    index.get(routeId).push(feature)
+  })
+  return index
+}
+
+function groupNodeFeatures(features) {
+  var index = new Map()
+  ;(features || []).forEach(function(feature) {
+    var node = nodeFromFeature(feature)
+    if (!node.routeId || !Number.isFinite(node.lon) || !Number.isFinite(node.lat)) return
+    if (!index.has(node.routeId)) index.set(node.routeId, [])
+    index.get(node.routeId).push(node)
+  })
+  index.forEach(function(nodes) {
+    nodes.sort(function(a, b) { return Number(a.seq) - Number(b.seq) })
+  })
+  return index
+}
+
+function legacyRouteFor(routeId) {
+  var legacyId = LEGACY_ROUTE_MATCH[routeId]
+  return TEA_TRADE_DATA.find(function(route) { return Number(route.id) === Number(legacyId) }) || null
+}
+
+function buildRuntimeRoute(routeId) {
+  var features = ancientRouteFeatureIndex.get(routeId) || []
+  var nodes = ancientNodeFeatureIndex.get(routeId) || []
+  var properties = features.length ? (features[0].properties || {}) : ((nodes[0] && nodes[0].properties) || {})
+  var legacy = legacyRouteFor(routeId)
+  var routeName = properties.route_name || properties['路线名称'] || (nodes[0] && nodes[0].routeName) || routeId
+  var dynastyValue = properties.dynasty || properties['展示朝代'] || (nodes[0] && nodes[0].dynasty) || (legacy && legacy.dynasty)
+  var dynastyNames = parseDynasties(dynastyValue)
+  var firstDynasty = dynastyNames[0]
+  var lastDynasty = dynastyNames[dynastyNames.length - 1]
+  var firstStage = dynasties.find(function(item) { return item.name === firstDynasty }) || dynasties[0]
+  var lastStage = dynasties.find(function(item) { return item.name === lastDynasty }) || firstStage
+  var routeType = String(properties.route_type || '').toLowerCase()
+  if (!['land', 'sea', 'mixed'].includes(routeType)) routeType = legacy ? routeTypeCode(legacy) : 'land'
+  var geometrySegments = mergeOrderedSegments(features)
+  var routeMode = geometrySegments.length ? 'digitized' : 'node_arc'
+  var firstNode = nodes[0]
+  var lastNode = nodes[nodes.length - 1]
+  if ((!firstNode || !lastNode) && geometrySegments.length) {
+    var firstCoordinate = geometrySegments[0][0]
+    var lastSegment = geometrySegments[geometrySegments.length - 1]
+    var lastCoordinate = lastSegment[lastSegment.length - 1]
+    firstNode = firstNode || { name: '起点', lat: firstCoordinate[0], lon: firstCoordinate[1], seq: 1 }
+    lastNode = lastNode || { name: '终点', lat: lastCoordinate[0], lon: lastCoordinate[1], seq: 2 }
+    nodes = [firstNode, lastNode]
+  }
+  var origin = firstNode ? firstNode.name : (legacy && legacy.origin) || '起点'
+  var destination = lastNode ? lastNode.name : (legacy && legacy.destination) || '终点'
+  var via = nodes.slice(1, -1).map(function(node) { return node.name }).filter(Boolean)
+  var modeText = routeMode === 'digitized' ? '历史路线复原' : '节点推定路线'
+  var baseFact = legacy && legacy.note ? legacy.note : (properties.note || '')
+  var sourceRefs = []
+  if (legacy && Array.isArray(legacy.sourceRefs)) sourceRefs.push.apply(sourceRefs, legacy.sourceRefs)
+  if (properties.source_url) sourceRefs.push(properties.source_url)
+  return {
+    ...(legacy || {}),
+    id: routeId,
+    routeId,
+    title: routeName,
+    routeName,
+    type: routeType === 'sea' ? '海上' : routeType === 'mixed' ? '水陆联运' : '陆路',
+    routeType: routeType === 'sea' ? '海路' : routeType === 'mixed' ? '水陆联运' : '陆路',
+    routeTypeCode: routeType,
+    routeMode,
+    routeModeLabel: modeText,
+    geometrySegments,
+    dynasty: dynastyNames.join('至'),
+    dynastyNames,
+    startDynasty: firstDynasty,
+    endDynasty: lastDynasty,
+    startYear: firstStage.start,
+    endYear: lastStage.end,
+    yearText: dynastyNames.join('至'),
+    origin,
+    destination,
+    points: nodes,
+    via,
+    historicalBackground: `${routeName}是${dynastyNames.join('至')}茶叶跨区域流通的重要通道。${baseFact || properties.note || ''}`,
+    routeStory: `茶叶由${origin}出发${via.length ? `，依次经过${via.join('、')}` : ''}，抵达${destination}。地图以${modeText}方式呈现该通道；${routeMode === 'node_arc' ? '线形依据有序历史节点推定，不表示精确历史轨迹。' : '线形保留人工数字化成果的原始折点顺序与行进方向。'}`,
+    tradeSignificance: legacy && legacy.tradeSignificance ? legacy.tradeSignificance : `该路线连接了${origin}与${destination}，反映茶叶贸易带动的区域交流与市场扩展。`,
+    sourceRefs: Array.from(new Set(sourceRefs)),
+    rawIndex: Number(routeId.replace(/\D/g, '')) || 0,
+  }
+}
+
+function rebuildAncientTradeRoutes() {
+  var ids = new Set()
+  ancientRouteFeatureIndex.forEach(function(_, id) { ids.add(id) })
+  ancientNodeFeatureIndex.forEach(function(_, id) { ids.add(id) })
+  ancientTradeRoutes = Array.from(ids).sort(function(a, b) {
+    return Number(a.replace(/\D/g, '')) - Number(b.replace(/\D/g, ''))
+  }).map(buildRuntimeRoute).filter(function(route) {
+    return route.points.length >= 2 || route.geometrySegments.length
+  })
+}
+
+async function loadAncientRouteData() {
+  var routeResult
+  var nodeResult
+  try {
+    var response = await fetch(ANCIENT_ROUTE_URL)
+    if (!response.ok) throw new Error(`HTTP ${response.status}`)
+    routeResult = await response.json()
+  } catch (error) {
+    console.error(`古代数字化路线加载失败（${ANCIENT_ROUTE_URL}）:`, error)
+    routeResult = { features: [] }
+  }
+  try {
+    var nodeResponse = await fetch(ANCIENT_NODE_URL)
+    if (!nodeResponse.ok) throw new Error(`HTTP ${nodeResponse.status}`)
+    nodeResult = await nodeResponse.json()
+  } catch (error) {
+    console.error(`古代路线节点加载失败（${ANCIENT_NODE_URL}）:`, error)
+    nodeResult = { features: [] }
+  }
+  ancientRouteFeatureIndex = groupRouteFeatures(routeResult && routeResult.features)
+  ancientNodeFeatureIndex = groupNodeFeatures(nodeResult && nodeResult.features)
+  rebuildAncientTradeRoutes()
+  if (!ancientTradeRoutes.length) {
+    console.error('古代贸易 GeoJSON 未生成任何有效路线，保留旧数据作为页面降级显示。')
+    ancientTradeRoutes = TEA_TRADE_DATA
+  }
 }
 var sectionEl = ref(null)
 var mapEl = ref(null)
@@ -559,6 +758,10 @@ var routeViaText = computed(function() {
   var via = selectedRoute.value.via || []
   return via.length ? via.join(' → ') : '直达'
 })
+var routeModeLabel = computed(function() {
+  if (!selectedRoute.value) return ''
+  return selectedRoute.value.routeModeLabel || (selectedRoute.value.routeMode === 'node_arc' ? '节点推定路线' : '历史路线复原')
+})
 
 // 五种生命周期状态判断
 function getRouteState(rp, targetProgress) {
@@ -591,7 +794,7 @@ function dynastyStage(name) {
 }
 
 function visualGeometryKey(route) {
-  return visualPoints(route).map(function(point) {
+  return route.routeId || route.id || visualPoints(route).map(function(point) {
     return point.name + ':' + Number(point.lon).toFixed(5) + ':' + Number(point.lat).toFixed(5)
   }).join('|')
 }
@@ -602,7 +805,7 @@ function precomputeRouteProgress() {
   routeProgressData = []
   routeProgressMap = new Map()
   var groups = new Map()
-  TEA_TRADE_DATA.forEach(function(route) {
+  ancientTradeRoutes.forEach(function(route) {
     var key = route.startDynasty + '|' + visualGeometryKey(route)
     var group = groups.get(key)
     if (!group) {
@@ -663,12 +866,20 @@ function precomputeRouteProgress() {
   routeProgressData.sort(function(a, b) { return a.startProgress - b.startProgress })
 }
 
-function getVisiblePath(fullPath, routeProgress) {
-  if (routeProgress <= 0 || !fullPath || fullPath.length < 2) return []
-  if (routeProgress >= 1) return fullPath
-  var totalPoints = fullPath.length
-  var visibleCount = Math.max(2, Math.floor(totalPoints * routeProgress))
-  return fullPath.slice(0, visibleCount)
+function getVisiblePathSegments(fullSegments, routeProgress) {
+  var segments = (fullSegments || []).filter(function(segment) { return segment && segment.length >= 2 })
+  if (routeProgress <= 0 || !segments.length) return []
+  if (routeProgress >= 1) return segments
+  var totalEdges = segments.reduce(function(total, segment) { return total + segment.length - 1 }, 0)
+  var remaining = Math.max(1, Math.floor(totalEdges * routeProgress))
+  var visible = []
+  for (var i = 0; i < segments.length && remaining > 0; i++) {
+    var edgeCount = segments[i].length - 1
+    var take = Math.min(edgeCount, remaining)
+    visible.push(segments[i].slice(0, take + 1))
+    remaining -= take
+  }
+  return visible
 }
 
 var routeFromTo = computed(function() {
@@ -736,18 +947,31 @@ function renderCurrentProgress() {
   drawRoutesAtProgress(progress.value)
 }
 
-function routeNodeFractions(points) {
+function routeNodeFractions(points, pathSegments) {
   if (!points || points.length <= 1) return [0]
-  var cumulative = [0]
+  var samples = []
   var total = 0
-  for (var i = 1; i < points.length; i++) {
-    var prev = L.latLng(points[i - 1].lat, points[i - 1].lon)
-    var next = L.latLng(points[i].lat, points[i].lon)
-    total += prev.distanceTo(next)
-    cumulative.push(total)
-  }
-  return cumulative.map(function(distance, index) {
-    return total > 0 ? distance / total : index / (points.length - 1)
+  ;(pathSegments || []).forEach(function(segment) {
+    segment.forEach(function(coordinate, index) {
+      if (index > 0) total += L.latLng(segment[index - 1]).distanceTo(L.latLng(coordinate))
+      samples.push({ coordinate, distance: total })
+    })
+  })
+  if (!samples.length || total <= 0) return points.map(function(_, index) { return index / (points.length - 1) })
+  var lastIndex = 0
+  return points.map(function(point, pointIndex) {
+    var bestIndex = lastIndex
+    var bestDistance = Infinity
+    for (var i = lastIndex; i < samples.length; i++) {
+      var sampleDistance = L.latLng(point.lat, point.lon).distanceTo(L.latLng(samples[i].coordinate))
+      if (sampleDistance < bestDistance) {
+        bestDistance = sampleDistance
+        bestIndex = i
+      }
+    }
+    lastIndex = bestIndex
+    if (pointIndex === points.length - 1) return 1
+    return Math.max(0, Math.min(1, samples[bestIndex].distance / total))
   })
 }
 
@@ -755,12 +979,13 @@ function buildRouteRegistry() {
   routeLayer.clearLayers()
   routeHitLayer.clearLayers()
   routeProgressData.forEach(function(rp) {
-    var fullPath = coords(visualPoints(rp.route))
-    if (fullPath.length < 2) return
+    var fullPathSegments = routePathSegments(rp.route)
+    if (!fullPathSegments.length) return
     var baseColor = kind(rp.route) === 'sea' ? '#5C7C3A' : '#B28F4C'
     var historicalColor = kind(rp.route) === 'sea' ? '#6B8060' : '#8A8270'
+    var inferred = rp.route.routeMode === 'node_arc'
     var primaryLine = L.polyline([], {
-      pane: 'tradeRoutePane', color: baseColor, weight: 2.8, opacity: 0,
+      pane: 'tradeRoutePane', color: baseColor, weight: 2.8, opacity: 0, dashArray: inferred ? '8 7' : null,
       smoothFactor: 0.5, lineCap: 'round', lineJoin: 'round', interactive: false,
     }).addTo(routeLayer)
     var historicalLine = L.polyline([], {
@@ -771,7 +996,7 @@ function buildRouteRegistry() {
       pane: 'routeHitPane', color: '#000000', weight: 14, opacity: 0.001,
       interactive: true, bubblingMouseEvents: false,
     }).addTo(routeHitLayer)
-    rp.visual = { fullPath, primaryLine, historicalLine, hitLine, hover: false }
+    rp.visual = { fullPathSegments, primaryLine, historicalLine, hitLine, hover: false }
     hitLine.on('click', function(event) { openRouteDetail(routeForVisual(rp), event) })
     hitLine.on('mouseover', function() {
       rp.visual.hover = true
@@ -802,8 +1027,8 @@ function updateRouteVisual(rp, targetProgress) {
   var local = state === 'drawing'
     ? Math.max(0, Math.min(1, (targetProgress - rp.startProgress) / drawSpan))
     : 1
-  var visiblePath = getVisiblePath(visual.fullPath, local)
-  if (visiblePath.length < 2) {
+  var visiblePath = getVisiblePathSegments(visual.fullPathSegments, local)
+  if (!visiblePath.length) {
     visual.primaryLine.setLatLngs([])
     visual.historicalLine.setLatLngs([])
     visual.hitLine.setLatLngs([])
@@ -811,13 +1036,13 @@ function updateRouteVisual(rp, targetProgress) {
   }
   var highlighted = visual.hover || (selectedRoute.value && routeProgressMap.get(String(selectedRoute.value.id)) === rp)
   var weightBoost = highlighted ? 1.5 : 0
-  var primaryOpacity = state === 'historical' ? 0 : 0.9
+  var primaryOpacity = state === 'historical' ? 0 : (rp.route.routeMode === 'node_arc' ? 0.65 : 0.9)
   var historicalOpacity = state === 'historical' ? 0.6 : 0
-  if (state === 'drawing') primaryOpacity = 0.95
+  if (state === 'drawing') primaryOpacity = rp.route.routeMode === 'node_arc' ? 0.72 : 0.95
   if (state === 'retiring') {
     var retireSpan = Math.max(0.000001, rp.retireEndProgress - rp.retireStartProgress)
     var retire = Math.max(0, Math.min(1, (targetProgress - rp.retireStartProgress) / retireSpan))
-    primaryOpacity = (1 - retire) * 0.9
+    primaryOpacity = (1 - retire) * (rp.route.routeMode === 'node_arc' ? 0.65 : 0.9)
     historicalOpacity = retire * 0.6
   }
   if (highlighted) {
@@ -839,7 +1064,7 @@ function buildNodeRegistry() {
   nodeRegistry.clear()
   routeProgressData.forEach(function(rp) {
     var points = visualPoints(rp.route)
-    var fractions = routeNodeFractions(points)
+    var fractions = routeNodeFractions(points, routePathSegments(rp.route))
     points.forEach(function(point, nodeIndex) {
       if (!point || point.lon == null || point.lat == null) return
       var nodeKey = (point.name || '路线节点') + '|' + Number(point.lat).toFixed(6) + '|' + Number(point.lon).toFixed(6)
@@ -859,8 +1084,7 @@ function buildNodeRegistry() {
         }
         hitMarker.bindTooltip(node.name, { direction: 'top', offset: [0, -6], className: 'ch4-node-tip' })
         hitMarker.on('click', function(event) {
-          var route = getRouteForNode(node)
-          if (route) openRouteDetail(route, event)
+          openNodeDetail(node, event)
         })
         nodeRegistry.set(nodeKey, node)
       }
@@ -918,14 +1142,14 @@ function updateNodeMarkers(targetProgress) {
   })
 }
 
-function getRouteForNode(node) {
+function getRoutesForNode(node) {
   var candidates = []
   node.routeIds.forEach(function(routeId) {
     var rp = routeProgressMap.get(String(routeId))
     if (!rp || !routePassesFilter(rp.route) || rp.startProgress > progress.value + 1e-8) return
     candidates.push({ rp, route: routeForVisual(rp) })
   })
-  if (!candidates.length) return null
+  if (!candidates.length) return []
   var current = candidates.filter(function(item) {
     return getDynastyByProgress(item.rp.startProgress).name === dynastyName.value
   })
@@ -933,7 +1157,24 @@ function getRouteForNode(node) {
   list.sort(function(a, b) {
     return b.rp.startProgress - a.rp.startProgress || Number(b.route.startYear) - Number(a.route.startYear)
   })
-  return list[0].route
+  return list.map(function(item) { return item.route }).filter(function(route, index, routes) {
+    return routes.findIndex(function(candidate) { return candidate.id === route.id }) === index
+  })
+}
+
+function openNodeDetail(node, event) {
+  if (event && event.originalEvent) L.DomEvent.stopPropagation(event.originalEvent)
+  var routes = getRoutesForNode(node)
+  if (!routes.length) return
+  pausePlayback()
+  if (routes.length === 1) {
+    openRouteDetail(routes[0], event)
+    return
+  }
+  panelMode.value = 'route'
+  selectedRoute.value = null
+  selectedNodeName.value = node.name
+  nodeRouteOptions.value = routes
 }
 
 function drawRoutesAtProgress(targetProgress) {
@@ -1132,12 +1373,11 @@ function fitToShowAllRoutes() {
   routeProgressData.forEach(function(rp) {
     var route = rp.route
     try {
-      var vp = visualPoints(route)
-      if (!vp || vp.length < 2) return
-      var c = coords(vp)
-      if (!c || c.length < 2) return
-      c.forEach(function(pt) {
-        allLatLngs.push([pt[1], pt[0]]) // L.latLng format
+      var segments = routePathSegments(route)
+      segments.forEach(function(segment) {
+        segment.forEach(function(pt) {
+          allLatLngs.push([pt[0], pt[1]])
+        })
       })
     } catch (e) {}
   })
@@ -1975,6 +2215,7 @@ watch(ch4Tab, function(nv) {
 
 onMounted(async function() {
   await nextTick()
+  await loadAncientRouteData()
   initMap()
 
   window.addEventListener('keydown', onKeydown)
@@ -2239,7 +2480,8 @@ onBeforeUnmount(function() {
 
 .legend-line.land { background: #B28F4C; }
 .legend-line.sea { background: #5C7C3A; }
-.legend-line.historical {
+.legend-line.digitized { background: #7C765F; height: 2px; }
+.legend-line.inferred {
   height: 0;
   background: none;
   border-top: 2px dashed #8A8270;
