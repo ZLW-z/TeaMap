@@ -107,14 +107,14 @@ onMounted(async () => {
     opacity: 1, scaleX: 1, duration: 0.8, ease: 'power3.out'
   }, '-=0.2')
 
-  // 逐段浮现（按时间衔接，每段在前一段末 0.55s 重叠处开始）
+  // 逐段舒缓浮现：每段持续 2.5 秒，相邻段落重叠 0.5 秒。
   paraRefs.forEach((p, i) => {
     tl.to(p, {
       opacity: 1,
       y: 0,
-      duration: 1.0,
+      duration: 2.5,
       ease: 'power2.out'
-    }, `-=${0.55}`)
+    }, `-=${0.5}`)
   })
 
   tl.to(hintRef.value, {

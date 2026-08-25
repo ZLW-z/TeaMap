@@ -1,7 +1,7 @@
 <template>
   <transition name="intro-fade">
     <div v-if="visible" class="chapter-intro" ref="introRef">
-      <div class="intro-overlay"></div>
+      <div class="intro-overlay" ref="overlayRef"></div>
       <div class="intro-content">
         <div class="intro-ch-no" ref="chNoRef">{{ chNo }}</div>
         <div class="intro-title-row" ref="titleRowRef">
@@ -12,7 +12,14 @@
             :ref="el => charRefs[i] = el"
           >{{ ch === ' ' ? '\u00A0' : ch }}</span>
         </div>
-        <div class="intro-desc" ref="descRef">{{ desc }}</div>
+        <div class="intro-desc" ref="descRef">
+          <span
+            v-for="(line, i) in descLines"
+            :key="i"
+            class="intro-desc-line"
+            :ref="el => descLineRefs[i] = el"
+          >{{ line }}</span>
+        </div>
       </div>
     </div>
   </transition>
@@ -26,37 +33,41 @@ const props = defineProps({
   chNo: { type: String, required: true },
   title: { type: String, required: true },
   desc: { type: String, default: '' },
-  duration: { type: Number, default: 2.8 },
+  // 从开场出现到开始切换正文页的时间（秒）
+  duration: { type: Number, default: 7 },
 })
 
 const emit = defineEmits(['done'])
 
 const visible = ref(true)
 const introRef = ref(null)
+const overlayRef = ref(null)
 const chNoRef = ref(null)
 const titleRowRef = ref(null)
 const descRef = ref(null)
 
 const titleChars = props.title.split('')
 const charRefs = []
+const descLines = props.desc.split(/\r?\n/).filter(Boolean)
+const descLineRefs = []
 
 let tl = null
+let doneEmitted = false
 
 onMounted(async () => {
   await nextTick()
 
   // 初始状态
-  gsap.set(charRefs, { opacity: 0, y: 40, rotateX: -90 })
-  gsap.set(chNoRef.value, { opacity: 0, y: -20, scale: 0.6 })
-  gsap.set(descRef.value, { opacity: 0, y: 30 })
+  gsap.set(charRefs, { opacity: 0, y: 32, rotateX: -55, filter: 'blur(3px)' })
+  gsap.set(chNoRef.value, { opacity: 0, y: -18, scale: 0.72, filter: 'blur(3px)' })
+  gsap.set(descLineRefs, { opacity: 0, y: 18, filter: 'blur(3px)' })
 
-  const holdTime = props.duration
-  const charStagger = Math.min(0.08, holdTime * 0.4 / titleChars.length)
+  const transitionAt = Math.max(7, props.duration)
+  const charStagger = Math.min(0.13, 0.6 / Math.max(1, titleChars.length))
 
   tl = gsap.timeline({
     onComplete: () => {
       visible.value = false
-      emit('done')
     }
   })
 
@@ -65,7 +76,8 @@ onMounted(async () => {
     opacity: 1,
     y: 0,
     scale: 1,
-    duration: 0.6,
+    filter: 'blur(0px)',
+    duration: 0.85,
     ease: 'power3.out'
   })
 
@@ -74,36 +86,47 @@ onMounted(async () => {
     opacity: 1,
     y: 0,
     rotateX: 0,
-    duration: 0.5,
+    filter: 'blur(0px)',
+    duration: 0.8,
     stagger: charStagger,
-    ease: 'back.out(1.4)'
-  }, '-=0.2')
+    ease: 'power3.out'
+  }, '-=0.25')
 
-  // 3. 描述渐显
-  tl.to(descRef.value, {
+  // 3. 描述按显式分行依次渐显
+  tl.to(descLineRefs, {
     opacity: 0.85,
     y: 0,
-    duration: 0.8,
+    filter: 'blur(0px)',
+    duration: 0.9,
+    stagger: 0.28,
     ease: 'power2.out'
-  }, '-=0.15')
+  }, '-=0.1')
 
-  // 4. 停留
-  tl.to({}, { duration: holdTime })
+  // 4. 保证开场从出现到开始切换约停留 7 秒
+  tl.to({}, { duration: Math.max(0.6, transitionAt - tl.duration()) })
+
+  // 在淡出开始时让正文页同步淡入，形成较慢的交叉转场。
+  tl.call(() => {
+    if (doneEmitted) return
+    doneEmitted = true
+    emit('done')
+  })
 
   // 5. 整体消散
   tl.to([chNoRef.value, titleRowRef.value, descRef.value], {
     opacity: 0,
-    y: -30,
-    filter: 'blur(8px)',
-    duration: 0.8,
-    stagger: 0.06,
-    ease: 'power2.in'
+    y: -22,
+    filter: 'blur(6px)',
+    duration: 1.2,
+    stagger: 0.08,
+    ease: 'power2.inOut'
   })
-  tl.to(introRef.value, {
+  tl.to(overlayRef.value, {
     opacity: 0,
-    duration: 0.4,
-    ease: 'power2.in'
-  }, '-=0.3')
+    duration: 1.45,
+    ease: 'power2.inOut'
+  }, '<')
+  tl.to(introRef.value, { opacity: 0, duration: 0.25 }, '-=0.2')
 })
 
 onBeforeUnmount(() => {
@@ -171,12 +194,15 @@ onBeforeUnmount(() => {
   color: #6B5F45;
   max-width: 560px;
   margin: 0 auto;
-  white-space: pre-line;
+}
+
+.intro-desc-line {
+  display: block;
 }
 
 /* 过渡 */
 .intro-fade-leave-active {
-  transition: opacity 0.3s ease;
+  transition: opacity 0.6s ease;
 }
 .intro-fade-leave-to {
   opacity: 0;

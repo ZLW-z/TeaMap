@@ -4,7 +4,7 @@
       ch-no="伍"
       title="今日茶境"
       desc="千年茶脉绵延至今，国内茶园规模稳步扩张，茶叶外销步履不停，&#10;现代产业续写着茶业蓬勃发展的新篇章。"
-      :duration="2.5"
+      :duration="7"
       @done="onIntroDone"
     />
 
@@ -694,6 +694,7 @@ const leavesVolumeTrendOption = computed(() => {
     else sourceShort[d.year] = '公开行业资料'
   })
   return {
+    textStyle: chartTextStyle,
     tooltip: {
       ...tooltipBase,
       trigger: 'axis',
@@ -725,7 +726,7 @@ const leavesVolumeTrendOption = computed(() => {
       name: '万吨',
       nameGap: 10,
       nameLocation: 'end',
-      nameTextStyle: { color: '#5C7C3A', fontSize: 10, align: 'right' },
+      nameTextStyle: { ...chartTextStyle, color: '#5C7C3A', fontSize: 10, align: 'right' },
       axisLine: { lineStyle: { color: '#5C7C3A' } },
       axisLabel: { ...axisLabelStyle, color: '#5C7C3A', fontSize: 10 },
       splitLine: splitLineStyle,
@@ -753,6 +754,7 @@ const leavesVolumeTrendOption = computed(() => {
         data: [{ name: '2024峰值', value: '241.27', xAxis: 2024, yAxis: 241.27 }],
         itemStyle: { color: 'rgba(178,143,76,0.15)', borderColor: '#B28F4C', borderWidth: 1 },
         label: {
+          ...chartTextStyle,
           formatter: '{c}',
           color: '#B28F4C',
           fontSize: 10,
@@ -790,6 +792,7 @@ const leavesValuePriceOption = computed(() => {
   }))
   const lineData = data.map(d => d.avgPrice)
   return {
+    textStyle: chartTextStyle,
     tooltip: {
       ...tooltipBase,
       trigger: 'axis',
@@ -809,7 +812,7 @@ const leavesValuePriceOption = computed(() => {
       left: 'center',
       itemWidth: 12,
       itemHeight: 8,
-      textStyle: { color: '#5A6655', fontSize: 14 },
+      textStyle: { ...chartTextStyle, color: '#5A6655', fontSize: 14 },
       data: [
         { name: '内销总额（亿元）', itemStyle: { color: salesAmountColorDark, borderWidth: 0 } },
         { name: '平均单价（元/千克）', itemStyle: { color: avgPriceColor, borderWidth: 0 } },
@@ -830,7 +833,7 @@ const leavesValuePriceOption = computed(() => {
         name: '亿元',
         nameGap: 12,
         nameLocation: 'end',
-        nameTextStyle: { color: salesAmountColorDark, fontSize: 10, align: 'right' },
+        nameTextStyle: { ...chartTextStyle, color: salesAmountColorDark, fontSize: 10, align: 'right' },
         axisLine: { lineStyle: { color: salesAmountColorDark } },
         axisLabel: { ...axisLabelStyle, color: salesAmountColorDark, fontSize: 10 },
         splitLine: splitLineStyle,
@@ -842,7 +845,7 @@ const leavesValuePriceOption = computed(() => {
         name: '元/千克',
         nameGap: 12,
         nameLocation: 'end',
-        nameTextStyle: { color: avgPriceColor, fontSize: 10, align: 'right' },
+        nameTextStyle: { ...chartTextStyle, color: avgPriceColor, fontSize: 10, align: 'right' },
         axisLine: { lineStyle: { color: avgPriceColor } },
         axisLabel: { ...axisLabelStyle, color: avgPriceColor, fontSize: 10 },
         splitLine: { show: false },
@@ -876,6 +879,7 @@ const leavesValuePriceOption = computed(() => {
           symbolOffset: [0, -7],
           itemStyle: { color: '#A8453A' },
           label: {
+            ...chartTextStyle,
             show: true,
             formatter: '双高点',
             position: 'top',
@@ -909,6 +913,7 @@ const leavesOnlineOption = computed(() => {
     return Number((previous.value + (next.value - previous.value) * yearRatio).toFixed(1))
   }
   return {
+    textStyle: chartTextStyle,
     tooltip: {
       ...tooltipBase,
       trigger: 'axis',
@@ -938,7 +943,7 @@ const leavesOnlineOption = computed(() => {
       name: '亿元',
       nameGap: 10,
       nameLocation: 'end',
-      nameTextStyle: { color: '#5A6655', fontSize: 10, align: 'right' },
+      nameTextStyle: { ...chartTextStyle, color: '#5A6655', fontSize: 10, align: 'right' },
       axisLine: axisLineStyle,
       axisLabel: { ...axisLabelStyle, fontSize: 10 },
       splitLine: splitLineStyle,
@@ -978,6 +983,7 @@ const leavesOnlineOption = computed(() => {
         }
       }),
       label: {
+        ...chartTextStyle,
         show: true,
         position: 'top',
         color: '#3A4D38',
@@ -1101,15 +1107,22 @@ const PROVINCE_COORDS = {
 // ============================================================
 //  Shared ECharts style fragments
 // ============================================================
+const chartTextStyle = {
+  fontFamily: 'ChillHuoKai, "Noto Sans SC", "Microsoft YaHei", sans-serif',
+}
 const tooltipBase = {
   backgroundColor: 'rgba(250,247,239,0.96)',
   borderColor: '#A8C18A',
   borderWidth: 1,
-  textStyle: { color: '#3A4D38', fontSize: 16 },
+  textStyle: {
+    ...chartTextStyle,
+    color: '#3A4D38',
+    fontSize: 16,
+  },
   extraCssText: 'box-shadow: 0 2px 12px rgba(81,109,51,0.15); border-radius: 6px;',
 }
 const axisLineStyle = { lineStyle: { color: '#A8C18A' } }
-const axisLabelStyle = { color: '#5A6655', fontSize: 11 }
+const axisLabelStyle = { ...chartTextStyle, color: '#5A6655', fontSize: 11 }
 const splitLineStyle = { lineStyle: { color: 'rgba(168,193,138,0.2)', type: 'dashed' } }
 
 // ============================================================
@@ -1160,7 +1173,7 @@ function createRootsGeoOption() {
       label: { show: false },
       itemStyle: sharedItemStyle,
       emphasis: {
-        label: { show: true, color: '#3A4D38', fontWeight: 700 },
+        label: { ...chartTextStyle, show: true, color: '#3A4D38', fontWeight: 700 },
         itemStyle: { areaColor: '#EFE9DA', borderColor: '#B28F4C', borderWidth: 1.2 },
       },
     },
@@ -1228,6 +1241,7 @@ const rootsMapOption = computed(() => {
     const sizeMin = 4  // 最小气泡像素
 
     return {
+      textStyle: chartTextStyle,
       tooltip: {
         ...tooltipBase,
         trigger: 'item',
@@ -1247,7 +1261,7 @@ const rootsMapOption = computed(() => {
         left: 12,
         bottom: 14,
         text: [`覆盖率高（≥${coverageMax}%）`, '覆盖率低（0%）'],
-        textStyle: { color: '#5A6655', fontSize: 9 },
+        textStyle: { ...chartTextStyle, color: '#5A6655', fontSize: 9 },
         inRange: { color: ['#F0F4E6', '#C5D6AC', '#8BA667', '#5C7C3A', '#3A4D38'] },
         calculable: true,
         itemWidth: 10,
@@ -1308,6 +1322,7 @@ const rootsMapOption = computed(() => {
   const outputSizeMax = 24
 
   return {
+    textStyle: chartTextStyle,
     tooltip: {
       ...tooltipBase,
       trigger: 'item',
@@ -1327,7 +1342,7 @@ const rootsMapOption = computed(() => {
       left: 12,
       bottom: 18,
       text: [`产量高（${fmt(outputMax, 0)}万吨）`, '产量低'],
-      textStyle: { color: '#5A6655', fontSize: 9 },
+      textStyle: { ...chartTextStyle, color: '#5A6655', fontSize: 9 },
       inRange: { color: ['#F0F4E6', '#C5D6AC', '#8BA667', '#5C7C3A', '#3A4D38'] },
       calculable: true,
       itemWidth: 10,
@@ -1402,6 +1417,7 @@ const rootsProvinceTrendOption = computed(() => {
   const yearCount = detail.years.length
   const interval = yearCount > 12 ? Math.floor(yearCount / 6) : 0
   return {
+    textStyle: chartTextStyle,
     tooltip: {
       ...tooltipBase,
       trigger: 'axis',
@@ -1431,7 +1447,7 @@ const rootsProvinceTrendOption = computed(() => {
       name: metricUnit.value,
       nameGap: 10,
       nameLocation: 'end',
-      nameTextStyle: { color: '#5A6655', fontSize: 10, align: 'right' },
+      nameTextStyle: { ...chartTextStyle, color: '#5A6655', fontSize: 10, align: 'right' },
       max: ymax,
       axisLine: axisLineStyle,
       axisLabel: { ...axisLabelStyle, fontSize: 10 },
@@ -1467,6 +1483,7 @@ const rootsRankingOption = computed(() => {
   const vmax = values.length ? Math.max(...values) : 0
   const xmax = vmax > 0 ? Math.ceil(vmax * 1.25) : null // 右端留白容纳柱顶标签
   return {
+    textStyle: chartTextStyle,
     tooltip: {
       ...tooltipBase,
       trigger: 'axis',
@@ -1502,6 +1519,7 @@ const rootsRankingOption = computed(() => {
       })),
       barWidth: '60%',
       label: {
+        ...chartTextStyle,
         show: true,
         position: 'right',
         color: '#5A6655',
@@ -1569,6 +1587,7 @@ const branchesSankeyOption = computed(() => {
   validLinks.forEach(l => { usedNames.add(l.source); usedNames.add(l.target) })
   const validNodes = yd.nodes.filter(n => usedNames.has(n.name))
   return {
+    textStyle: chartTextStyle,
     tooltip: {
       ...tooltipBase,
       trigger: 'item',
@@ -1601,7 +1620,7 @@ const branchesSankeyOption = computed(() => {
           ? (provinceTotals.get(n.name) || 0)
           : (destinationTotals.get(n.name) || 0),
         itemStyle: { color: n.category === 'province' ? '#5C7C3A' : '#C8A155' },
-        label: { color: '#3A4D38', fontSize: 10, width: 88, overflow: 'truncate' },
+        label: { ...chartTextStyle, color: '#3A4D38', fontSize: 10, width: 88, overflow: 'truncate' },
       })),
       links: validLinks,
       lineStyle: { curveness: 0.5 },
@@ -1622,6 +1641,7 @@ const branchesCountryRankOption = computed(() => {
   const vmax = values.length ? Math.max(...values) : 0
   const xmax = vmax > 0 ? Math.ceil(vmax * 1.28) : null
   return {
+    textStyle: chartTextStyle,
     tooltip: {
       ...tooltipBase,
       trigger: 'axis',
@@ -1636,7 +1656,7 @@ const branchesCountryRankOption = computed(() => {
       name: '亿元',
       nameGap: 10,
       nameLocation: 'end',
-      nameTextStyle: { color: '#5A6655', fontSize: 10, align: 'right' },
+      nameTextStyle: { ...chartTextStyle, color: '#5A6655', fontSize: 10, align: 'right' },
       axisLine: axisLineStyle,
       axisLabel: { ...axisLabelStyle, fontSize: 10 },
       splitLine: splitLineStyle,
@@ -1661,6 +1681,7 @@ const branchesCountryRankOption = computed(() => {
       })),
       barWidth: '60%',
       label: {
+        ...chartTextStyle,
         show: true,
         position: 'right',
         color: '#5A6655',
@@ -1696,6 +1717,7 @@ const branchesTrendOption = computed(() => {
   const yearCount = trend.length
   const interval = yearCount > 12 ? Math.floor(yearCount / 7) : 0
   return {
+    textStyle: chartTextStyle,
     tooltip: {
       ...tooltipBase,
       trigger: 'axis',
@@ -1725,7 +1747,7 @@ const branchesTrendOption = computed(() => {
       name: '亿元',
       nameGap: 12,
       nameLocation: 'end',
-      nameTextStyle: { color: '#5A6655', fontSize: 10, align: 'right' },
+      nameTextStyle: { ...chartTextStyle, color: '#5A6655', fontSize: 10, align: 'right' },
       max: maxY,
       axisLine: axisLineStyle,
       axisLabel: { ...axisLabelStyle, fontSize: 10 },
@@ -1751,7 +1773,7 @@ const branchesTrendOption = computed(() => {
         symbolSize: 44,
         data: [{ name: '最大值', value: (maxItem.total / 1e8).toFixed(1), xAxis: maxItem.year, yAxis: maxItem.total / 1e8 }],
         itemStyle: { color: '#B28F4C' },
-        label: { color: '#fff', fontSize: 10 },
+        label: { ...chartTextStyle, color: '#fff', fontSize: 10 },
       } : undefined,
     }],
   }
@@ -1836,7 +1858,7 @@ onMounted(async () => {
   right: 0;
   bottom: 0;
   opacity: 0;
-  transition: opacity 0.8s ease;
+  transition: opacity 1.45s ease-in-out;
   overflow: hidden;
   padding: 0;
   display: grid;

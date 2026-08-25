@@ -4,7 +4,7 @@
       ch-no="陆"
       title="世界共饮"
       desc="茶香跨越山海国界，从中国走向全球各地，融入不同地域生活日常，&#10;多元饮茶习俗共生交融，编织出异彩纷呈的世界茶文化图景。"
-      :duration="2.5"
+      :duration="7"
       @done="onIntroDone"
     />
 
@@ -464,7 +464,7 @@ onBeforeUnmount(() => {
   right: 0;
   bottom: 0;
   opacity: 0;
-  transition: opacity 0.8s ease;
+  transition: opacity 1.45s ease-in-out;
   overflow: hidden;
 }
 .map-fullscreen .bg-layer {

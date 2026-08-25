@@ -4,7 +4,7 @@
       ch-no="叁"
       title="云雾深处"
       desc="云雾藏佳茗，寻访散落山河的传统名茶，看名山滋养珍味、岁月沉淀风味，&#10;深谷氤氲茶香藏着一代代茗茶佳话。"
-      :duration="2.5"
+      :duration="7"
       @done="onIntroDone"
     />
 
@@ -916,7 +916,7 @@ onBeforeUnmount(() => {
   right: 0;
   bottom: 0;
   opacity: 0;
-  transition: opacity 0.8s ease;
+  transition: opacity 1.45s ease-in-out;
 }
 .map-fullscreen.show {
   opacity: 1;

@@ -310,7 +310,7 @@ onBeforeUnmount(() => {
   visibility: hidden;
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 1em;
   padding: 5px 12px;
   border-radius: 14px;
   font: 500 14px var(--sans);
@@ -354,7 +354,7 @@ onBeforeUnmount(() => {
   transform: translate(-50%, -50%) scale(0.6);
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 1em;
   padding: 5px 12px;
   border-radius: 14px;
   background: var(--c-olive, #516D33);

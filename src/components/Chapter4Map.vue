@@ -3,8 +3,8 @@
     <ChapterIntro
       ch-no="肆"
       title="一叶行远"
-      desc="小小一叶茶叶踏出深山，顺着古道、江河辗转流通，从地方风物变成流通四方的货品，开启漫长的远行之路。"
-      :duration="2.5"
+      desc="小小一叶茶叶踏出深山，顺着古道、江河辗转流通，从地方风物变成流通四方的货品，&#10;开启漫长的远行之路。"
+      :duration="7"
       @done="onIntroDone"
     />
 
@@ -219,7 +219,7 @@
         <div class="modern-topbar">
           <div class="modern-title">
             <span class="title-badge" :class="{ world: !isModernChinaMode }">
-              {{ isModernChinaMode ? '🇨🇳 选择省份' : ' ' + (selectedModernProvince || '中国') + ' → 世界' }}
+              {{ isModernChinaMode ? '🇨🇳 选择省份' : (selectedModernProvince || '中国') }}
             </span>
             <span class="title-sub" v-if="isModernChinaMode">点击任意省份，查看该省茶叶出口全球流向</span>
             <span class="title-sub" v-if="!isModernChinaMode && modernProvinceInfo.hasData && modernProvinceInfo.flows.length">{{ modernYear }}年 出口总额 <b class="hl-num">{{ fmtNum(modernProvinceInfo.provinceValue / 1e8) }}</b> 亿元，覆盖 <b class="hl-num">{{ modernProvinceInfo.flows.length }}</b> 个主要国家</span>
@@ -1464,8 +1464,8 @@ function fitModernChinaBounds() {
 function fitModernWorldBounds() {
   if (!modernMap) return
   // 右侧留出面板宽度（320px + 16px外边距 + 24px间距 = 360px）
-  // 左侧留 24px，上下各 40px
-  modernMap.fitBounds([[-45, -40], [55, 150]], { paddingTopLeft: [40, 24], paddingBottomRight: [40, 360], animate: true })
+  // Leaflet 的 padding 坐标顺序为 [横向, 纵向]；上下保持一致，让中国位于地图区的垂直中央。
+  modernMap.fitBounds([[-45, -40], [55, 150]], { paddingTopLeft: [40, 40], paddingBottomRight: [360, 40], animate: true })
 }
 
 // 窗口大小变化时重新调整地图
@@ -2033,7 +2033,7 @@ onBeforeUnmount(function() {
   right: 0;
   bottom: 0;
   opacity: 0;
-  transition: opacity 0.8s ease;
+  transition: opacity 1.45s ease-in-out;
   display: flex;
   flex-direction: column;
 }
@@ -2807,6 +2807,10 @@ onBeforeUnmount(function() {
   z-index: 800;
   flex-wrap: wrap;
 }
+.modern-topbar,
+.modern-topbar :deep(*) {
+  font-family: var(--font-body) !important;
+}
 .modern-title { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .title-badge {
   display: inline-flex;
@@ -2923,6 +2927,10 @@ onBeforeUnmount(function() {
   width: 248px;
   min-width: 0;
   padding: 9px 11px;
+}
+.modern-legend,
+.modern-legend :deep(*) {
+  font-family: var(--font-body) !important;
 }
 .modern-legend-section + .modern-legend-section {
   margin-top: 8px;

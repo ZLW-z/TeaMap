@@ -4,7 +4,7 @@
       ch-no="贰"
       title="何以生茶"
       desc="得天独厚的光照、气候与土壤条件，编织出适配茶树生长的天然温床，&#10;一方水土的禀赋，悄悄决定了茶叶的诞生与品质。"
-      :duration="2.5"
+      :duration="7"
       @done="onIntroDone"
     />
 
@@ -1983,7 +1983,7 @@ onBeforeUnmount(() => {
   padding: 0;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.8s ease;
+  transition: opacity 1.45s ease-in-out;
   background: #EFE9DA;
   overflow: hidden;
 }
