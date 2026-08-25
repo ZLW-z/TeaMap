@@ -1169,8 +1169,9 @@ function createRootsGeoOption() {
       map: SOUTH_CHINA_SEA_MAP_NAME,
       roam: false,
       silent: true,
-      layoutCenter: ['82%', '69%'],
-      layoutSize: '22%',
+      // 缩小并移到右下空白区，避免与华南、东南沿海主版图重叠。
+      layoutCenter: ['89%', '78%'],
+      layoutSize: '17%',
       aspectScale: 1.4,
       label: { show: false },
       itemStyle: sharedItemStyle,

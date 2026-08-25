@@ -8,7 +8,7 @@
       @done="onIntroDone"
     />
 
-    <div class="map-fullscreen" :class="{ show: introDone }">
+    <div class="map-fullscreen" :class="{ show: introDone, 'detail-open': selectedPoint }">
       <div class="bg-layer">
         <div class="bg-image" :style="{ backgroundImage: `url(${bgImageUrl})` }"></div>
         <div class="bg-mask"></div>
@@ -255,8 +255,8 @@ async function initGlobe() {
       event.stopPropagation()
       // 清除拖拽 end 可能已设置的恢复计时器（click 在 mouseup 之后才触发）
       if (resumeTimer) { clearTimeout(resumeTimer); resumeTimer = null }
-      // 点击茶文化点 → 地球立即停止自转（直到关闭信息卡才恢复）
-      autoRotate = false
+      // 点击后仍保持地球缓慢自转；详情态只改变地球的画面位置与比例。
+      autoRotate = true
       selectedPoint.value = d
       hoveredPoint.value = null
       hideTooltip()
@@ -270,7 +270,11 @@ async function initGlobe() {
   const BW = 48, BH = 32, BR = 6
   pts.each(function (d) {
     const g = d3.select(this)
-    const badge = g.append('g')
+    // 地球画布整体倾斜 23.44°；先反向旋转此浮层，使图片标签始终水平。
+    const badgeUpright = g.append('g')
+      .attr('class', 'pt-badge-upright')
+      .attr('transform', 'rotate(-23.44)')
+    const badge = badgeUpright.append('g')
       .attr('class', 'pt-badge')
       .attr('transform', `translate(${-BW / 2}, ${-BH - 14})`)
 
@@ -339,9 +343,8 @@ async function initGlobe() {
       .on('end', () => {
         dragStart = null
         if (resumeTimer) clearTimeout(resumeTimer)
-        // 信息卡仍打开时 → 不恢复自转，直到用户关闭信息卡
-        if (selectedPoint.value) return
-        resumeTimer = setTimeout(() => { autoRotate = true }, 1800)
+        // 拖动时暂缓，松手后继续旋转；详情打开时同样保留自动旋转。
+        resumeTimer = setTimeout(() => { autoRotate = true }, selectedPoint.value ? 700 : 1800)
       })
   )
 
@@ -493,6 +496,18 @@ onBeforeUnmount(() => {
   transform: translate(-50%, -50%);
   width: min(92vw, 880px);
   touch-action: none;
+  transition:
+    left 1.15s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 1.15s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: left, transform;
+}
+
+/* 详情态：将球心移出左侧视口并适度放大，仅保留约半个球面作为动态背景。 */
+@media (min-width: 961px) {
+  .map-fullscreen.detail-open > .globe-wrap {
+    left: -2%;
+    transform: translate(-50%, -50%) scale(1.14);
+  }
 }
 .map-fullscreen > .legend-box,
 .map-fullscreen > .tip-box,
@@ -535,6 +550,9 @@ onBeforeUnmount(() => {
 :deep(.pt-badge) {
   filter: drop-shadow(0 2px 4px rgba(50, 42, 38, 0.28));
   transition: opacity 0.25s ease;
+}
+:deep(.pt-badge-upright) {
+  pointer-events: all;
 }
 :deep(.pt:hover .pt-badge) {
   filter: drop-shadow(0 3px 8px rgba(178, 143, 76, 0.5));
@@ -674,8 +692,19 @@ onBeforeUnmount(() => {
   backdrop-filter: blur(8px);
   display: flex;
   flex-direction: column;
+  transition:
+    width 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+    height 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+    max-height 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+    right 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
 }
 .info-card.pinned {
+  right: 32px;
+  width: min(44vw, 620px);
+  height: 84vh;
+  max-height: 84vh;
   border-color: var(--c-gold);
   box-shadow: 0 12px 40px rgba(178, 143, 76, 0.25);
 }
@@ -712,6 +741,10 @@ onBeforeUnmount(() => {
   overflow-y: auto;
   flex: 1;
   height: 100%;
+  transition: padding 0.5s ease;
+}
+.info-card.pinned .card-body {
+  padding: 26px 30px 28px;
 }
 .card-header {
   display: flex;
@@ -725,6 +758,9 @@ onBeforeUnmount(() => {
   font: 700 1.2rem/1 var(--font-dzji, var(--serif));
   color: var(--c-olive);
 }
+.info-card.pinned .card-country {
+  font-size: 1.38rem;
+}
 .card-import {
   font: 600 0.72rem/1 var(--sans);
   color: #fff;
@@ -734,11 +770,18 @@ onBeforeUnmount(() => {
   flex-shrink: 0;
   margin-left: 10px;
 }
+.info-card.pinned .card-import {
+  font-size: 0.82rem;
+  padding: 5px 10px;
+}
 .card-title {
   font: 700 1.05rem/1.3 var(--font-dzji, var(--serif));
   color: var(--c-olive);
   margin-bottom: 8px;
   margin-top: 4px;
+}
+.info-card.pinned .card-title {
+  font-size: 1.22rem;
 }
 .card-tags {
   display: flex;
@@ -753,6 +796,10 @@ onBeforeUnmount(() => {
   background: rgba(81, 109, 51, 0.1);
   color: var(--c-olive);
 }
+.info-card.pinned .tag {
+  font-size: 0.8rem;
+  padding: 4px 10px;
+}
 .tag.type {
   background: rgba(178, 143, 76, 0.12);
   color: var(--c-gold-deep);
@@ -761,6 +808,11 @@ onBeforeUnmount(() => {
   font: 400 0.85rem/1.75 var(--sans);
   color: #444;
   margin-bottom: 16px;
+}
+.info-card.pinned .card-intro {
+  font-size: 0.98rem;
+  line-height: 1.82;
+  margin-bottom: 20px;
 }
 .card-image-bottom {
   width: 100%;
