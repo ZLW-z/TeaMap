@@ -314,7 +314,7 @@
                     <EChart :option="leavesValuePriceOption" />
                   </div>
                 </div>
-                <div class="lv-chart-note lv-chart-note-approx">注：2013—2015年金额为公开图表数字化约数，以"≈"或浅色柱标注。</div>
+                <div class="lv-chart-note lv-chart-note-approx">注：2013—2015年金额为公开图表数字化约数，以“≈”或浅色柱标注。</div>
                 <div class="lv-chart-note">内销量保持稳定，但内销总额和平均单价在2022年后回落，说明市场并非简单持续上扬，更适合进一步观察价格带、产品形态和消费场景的重新分配。</div>
               </div>
 

@@ -101,6 +101,7 @@ let svgSel = null
 let gSphere, gGraticule, gLand, gPoints
 let autoRotate = true
 let hoverInside = false
+let hoveringPoint = false
 let timerHandle = null
 let dragStart = null
 let resumeTimer = null
@@ -242,12 +243,13 @@ async function initGlobe() {
     .style('cursor', 'pointer')
     .on('mouseenter', (event, d) => {
       hoverInside = true
+      hoveringPoint = true
       hoveredPoint.value = d
       showTooltip(event, d)
     })
     .on('mousemove', (event) => moveTooltip(event))
     .on('mouseleave', () => {
-      hoverInside = false
+      hoveringPoint = false
       if (!selectedPoint.value) hoveredPoint.value = null
       hideTooltip()
     })
@@ -255,8 +257,8 @@ async function initGlobe() {
       event.stopPropagation()
       // 清除拖拽 end 可能已设置的恢复计时器（click 在 mouseup 之后才触发）
       if (resumeTimer) { clearTimeout(resumeTimer); resumeTimer = null }
-      // 点击后仍保持地球缓慢自转；详情态只改变地球的画面位置与比例。
-      autoRotate = true
+      // 点击文化点后停转，关闭详情卡后再恢复。
+      autoRotate = false
       selectedPoint.value = d
       hoveredPoint.value = null
       hideTooltip()
@@ -310,11 +312,12 @@ async function initGlobe() {
   // === 自动旋转 ===
   let lastT = 0
   timerHandle = d3.timer(t => {
-    if (!autoRotate) { lastT = t; return }
+    if (!autoRotate || hoveringPoint || selectedPoint.value) { lastT = t; return }
     const dt = t - lastT
     lastT = t
     const r = projection.rotate()
-    const speed = hoverInside ? 0.0035 : 0.013
+    // 默认转速放缓；悬浮地球空白区域时进一步减速。
+    const speed = hoverInside ? 0.0025 : 0.008
     projection.rotate([r[0] + dt * speed, r[1], r[2]])
     render()
   })
@@ -343,8 +346,9 @@ async function initGlobe() {
       .on('end', () => {
         dragStart = null
         if (resumeTimer) clearTimeout(resumeTimer)
-        // 拖动时暂缓，松手后继续旋转；详情打开时同样保留自动旋转。
-        resumeTimer = setTimeout(() => { autoRotate = true }, selectedPoint.value ? 700 : 1800)
+        // 详情打开时保持停转；未选中文化点时，松手后恢复自动旋转。
+        if (selectedPoint.value) return
+        resumeTimer = setTimeout(() => { autoRotate = true }, 1800)
       })
   )
 
@@ -498,15 +502,17 @@ onBeforeUnmount(() => {
   touch-action: none;
   transition:
     left 1.15s cubic-bezier(0.22, 1, 0.36, 1),
+    top 1.15s cubic-bezier(0.22, 1, 0.36, 1),
     transform 1.15s cubic-bezier(0.22, 1, 0.36, 1);
-  will-change: left, transform;
+  will-change: left, top, transform;
 }
 
-/* 详情态：将球心移出左侧视口并适度放大，仅保留约半个球面作为动态背景。 */
+/* 详情态：放大后把球心移到左下方，保留约三分之一球面。 */
 @media (min-width: 961px) {
   .map-fullscreen.detail-open > .globe-wrap {
-    left: -2%;
-    transform: translate(-50%, -50%) scale(1.14);
+    left: -4%;
+    top: 68%;
+    transform: translate(-50%, -50%) scale(1.6);
   }
 }
 .map-fullscreen > .legend-box,
