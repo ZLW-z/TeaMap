@@ -1179,17 +1179,70 @@ function _animateDomToRect(el, sourceRect, targetRect, {
 
 function _sleep(ms) { return new Promise(r => setTimeout(r, ms)) }
 
-function _getThumbSlotRect(slotIndex0Based) {
-  const el = document.querySelector('.thumb-slot-' + (slotIndex0Based + 1))
-  if (!el) return null
-  return el.getBoundingClientRect()
+/** 空卡槽在业务状态提交前还没有 .thumbnail-map，因此按卡槽中实际的地图图片区
+ *  计算动画终点（排除底部 32px 标签栏）。归档动画只落入地图图片区。 */
+function _getThumbMapRect(slotIndex0Based) {
+  const slot = document.querySelector('.thumb-slot-' + (slotIndex0Based + 1))
+  if (!slot) return null
+  const mapEl = slot.querySelector('.thumbnail-map, .thumb-img-wrap')
+  if (mapEl) return mapEl.getBoundingClientRect()
+  const rect = slot.getBoundingClientRect()
+  return {
+    left: rect.left,
+    top: rect.top,
+    right: rect.right,
+    bottom: rect.bottom - 32,
+    width: rect.width,
+    height: Math.max(1, rect.height - 32),
+    x: rect.x,
+    y: rect.y,
+  }
 }
 
-/** 主图"地图范围"：主图容器 .map 本身就是 Leaflet 容器（L.map 直接复用该 div，
- *  其 class 含 .leaflet-container）。动画缩放的就是这个元素。
- *  注意：.ch2-bgimg-A/B 与 .ch2-bg-mask 也被注入在 .map 内部，动画期间由
- *  _detachBgForAnim() 临时移出，保证只有真实地图内容（省份 SVG、因子图层、
- *  边界、九段线、缩放控件）参与缩放，背景艺术图和米色蒙版留在原位不动。*/
+/** 在切换 activeFactorId 之前冻结当前主图的 Leaflet 图层快照。
+ *  快照只复制 leaflet-map-pane，不复制背景图、纯色蒙版、缩放控件或主图容器，
+ *  因此后续新因子渲染不会把飞行动画的内容替换成新图。 */
+function _createMainMapLayerSnapshot(sourceRect, zIndex = 99999) {
+  const root = mapRef.value
+  const livePane = root?.querySelector?.('.leaflet-map-pane')
+  if (!root || !livePane || !sourceRect) return null
+
+  const flight = document.createElement('div')
+  flight.className = 'ch2-map-flight leaflet-container'
+  Object.assign(flight.style, {
+    position: 'fixed',
+    left: sourceRect.left + 'px',
+    top: sourceRect.top + 'px',
+    width: sourceRect.width + 'px',
+    height: sourceRect.height + 'px',
+    overflow: 'hidden',
+    pointerEvents: 'none',
+    background: 'transparent',
+    transformOrigin: '0 0',
+    transform: 'none',
+    transition: 'none',
+    opacity: '1',
+    willChange: 'transform, opacity',
+    zIndex: String(zIndex),
+  })
+
+  const paneClone = livePane.cloneNode(true)
+  // cloneNode 不复制 canvas 像素；若以后某因子改用 Canvas renderer，仍保留旧图。
+  const sourceCanvases = livePane.querySelectorAll('canvas')
+  const clonedCanvases = paneClone.querySelectorAll('canvas')
+  sourceCanvases.forEach((canvas, index) => {
+    const cloned = clonedCanvases[index]
+    if (!cloned) return
+    cloned.width = canvas.width
+    cloned.height = canvas.height
+    try { cloned.getContext('2d')?.drawImage(canvas, 0, 0) } catch (e) {}
+  })
+  flight.appendChild(paneClone)
+  document.body.appendChild(flight)
+  return flight
+}
+
+/** 主图地图范围。动画快照以这个视口为裁切边界。 */
 function _getMainMapRect() {
   const el = mapRef.value
   if (!el) return null
@@ -1201,54 +1254,24 @@ function _getMainLcEl() {
   return mapRef.value || null
 }
 
-/** 动画期间把主图 .map 内部的全屏背景层（ch2-bgimg-A/B、ch2-bg-mask）临时
- *  移到 .map-stage 下。它们的 CSS 是 position:absolute; inset:0，.map-stage 同样
- *  铺满，因此视觉位置完全不变；但它们不再跟随 .map 的 transform 一起被缩放。
- *  返回 restore() 把节点按原顺序放回 .map 内部。*/
-function _detachBgForAnim() {
-  const root = mapRef.value
-  const stage = root?.closest?.('.map-stage')
-  if (!root || !stage) return () => {}
-  const sels = ['img.ch2-bgimg-A', 'img.ch2-bgimg-B', 'div.ch2-bg-mask']
-  const moved = []
-  for (const s of sels) {
-    const n = root.querySelector(':scope > ' + s)
-    if (n) moved.push(n)
-  }
-  if (!moved.length) return () => {}
-  const restores = moved.map(n => {
-    const parent = n.parentElement
-    const next = n.nextSibling
-    stage.appendChild(n)
-    return () => { try { parent.insertBefore(n, next) } catch (e) {} }
-  })
-  // 恢复必须逆序：正序恢复时，前一个节点的 insertBefore 参考节点（next）还留在
-  // .map-stage 里，insertBefore 会抛 DOMException 被吞掉，节点就永久滞留了
-  return () => { for (let i = restores.length - 1; i >= 0; i--) restores[i]() }
-}
-
-/** 主图归档到第 N 个缩略图卡槽：使用主图内真实 Leaflet DOM 做 CSS transform 缩小。
- *   - 动画期间：主图 .map（即 .leaflet-container）被 fixed 到源矩形，再 transform scale 到目标矩形
- *   - .ch2-bgimg-A/B / .ch2-bg-mask 被 _detachBgForAnim() 临时移到 .map-stage 下——
- *     背景艺术图、米色蒙版留在原位不缩放，动的只是真实地图内容
+/** 主图归档到第 N 个缩略图卡槽：在状态切换前冻结上一因子的 Leaflet 图层快照。
+ *   - 动画主体始终是上一因子，而不会被 activeFactorId 更新为新抽中因子
+ *   - 快照只含 leaflet-map-pane，背景艺术图、纯色蒙版和控件均不参与动画
  *   - 末段 950ms 起透明度渐隐（露出下方真实缩略图卡片），终点不跳变
- *   - 动画结束：Leaflet 容器恢复到原位置，背景节点放回 .map 内，调 invalidateSize
+ *   - 动画结束：仅销毁临时快照，不触碰真实主地图和背景层
  *   - fid 仅作为语义说明：被归档的因子 id（即上一个 activeFactorId） */
 async function playArchiveAnimation({ fid, targetSlotIndex0Based }) {
   const sourceRect = _getMainMapRect()
-  const targetRect = _getThumbSlotRect(targetSlotIndex0Based)
+  const targetRect = _getThumbMapRect(targetSlotIndex0Based)
   if (!sourceRect || !targetRect) return { ok: false }
 
-  const lcEl = _getMainLcEl()
-  if (!lcEl) return { ok: false }
-
-  const detachBg = _detachBgForAnim()
-  const restore = _pinElForAnim(lcEl, sourceRect, 99999)
+  const snapshot = _createMainMapLayerSnapshot(sourceRect, 99999)
+  if (!snapshot) return { ok: false }
   try {
-    // 等两帧，确保 fixed 状态彻底生效，transition 从 transform:none 开始
+    // 快照已在 activeFactorId 提交前生成，后续主地图更新不会改变动画内容。
     await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))
 
-    _animateDomToRect(lcEl, sourceRect, targetRect, {
+    _animateDomToRect(snapshot, sourceRect, targetRect, {
       durationMs: 1400,
       ease: 'cubic-bezier(0.45, 0.05, 0.35, 0.95)',
       fadeOut: true,
@@ -1257,11 +1280,7 @@ async function playArchiveAnimation({ fid, targetSlotIndex0Based }) {
     })
     await _sleep(1500)
   } finally {
-    restore()
-    detachBg()
-    if (map) {
-      try { map.invalidateSize(false) } catch (e) {}
-    }
+    snapshot.remove()
   }
   return { ok: true }
 }
@@ -1288,7 +1307,7 @@ async function playThumbToMainAnimations({ clickedFid, currentActiveFid, futureD
   if (!lcEl) return null
 
   const restores = []
-  let detachBg = () => {}
+  let archiveSnapshot = null
 
   try {
     // === Layer A：被点击缩略图内的真实 Leaflet DOM 放大到主图位置 ===
@@ -1316,16 +1335,14 @@ async function playThumbToMainAnimations({ clickedFid, currentActiveFid, futureD
 
     // === Layer B：主图（.map = .leaflet-container）缩到 futureThumb 对应卡槽（"上一个因子"位，末段淡出） ===
     if (currentActiveTargetIdx >= 0 && currentActiveFid && currentActiveFid !== clickedFid) {
-      const targetRect = _getThumbSlotRect(currentActiveTargetIdx)
+      const targetRect = _getThumbMapRect(currentActiveTargetIdx)
       if (targetRect) {
-        // 背景层（ch2-bgimg/ch2-bg-mask）临时移出 .map，动画只作用于真实地图内容
-        detachBg = _detachBgForAnim()
-        const r = _pinElForAnim(lcEl, mainRect, 99997)
-        restores.push(r)
+        // 在切换 activeFactorId 前冻结当前主图；背景层和纯色底不进入快照。
+        archiveSnapshot = _createMainMapLayerSnapshot(mainRect, 99997)
 
         await new Promise(rs => requestAnimationFrame(() => requestAnimationFrame(rs)))
 
-        _animateDomToRect(lcEl, mainRect, targetRect, {
+        _animateDomToRect(archiveSnapshot, mainRect, targetRect, {
           durationMs: 1400,
           ease: 'cubic-bezier(0.45, 0.05, 0.35, 0.95)',
           fadeOut: true,
@@ -1338,7 +1355,7 @@ async function playThumbToMainAnimations({ clickedFid, currentActiveFid, futureD
     await _sleep(1500)
   } finally {
     restores.forEach(r => { try { r() } catch (e) {} })
-    detachBg()
+    archiveSnapshot?.remove()
     if (map) {
       try { map.invalidateSize(false) } catch (e) {}
     }
@@ -1901,7 +1918,7 @@ onBeforeUnmount(() => {
  * object-fit: cover 保证不变形；750ms ease-in-out 交叉淡入淡出
  * 目标透明度 0.18，再叠加浅米色蒙版使色彩统一
  * 注意：主图↔缩略图动画期间，这些背景节点会被临时 reparent 到 .map-stage 下
- * （见 _detachBgForAnim），因此 .map-stage 下也要应用同样的样式，视觉位置不变。
+ * .map-stage 规则保留用于背景层初始化阶段，正式归档动画只复制地图 pane。
  */
 .map :deep(img.ch2-bgimg),
 .map-stage :deep(img.ch2-bgimg) {

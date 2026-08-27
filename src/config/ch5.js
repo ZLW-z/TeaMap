@@ -50,11 +50,13 @@ export function latestFullYear() {
   return valid.length ? valid[valid.length - 1].year : 2024
 }
 
-// 取分省数据中某指标最新有非零数据的年份
+// 取分省数据中某指标最新有非零数据的年份（2025 年数据不完整，统一不超过 2024 年）
 export function latestProvinceYear(metric) {
   const yearSet = new Set()
   provinceData.forEach(p => p.years.forEach(y => yearSet.add(y.year)))
-  const years = Array.from(yearSet).sort((a, b) => b - a)
+  const years = Array.from(yearSet)
+    .filter(y => y <= 2024)
+    .sort((a, b) => b - a)
   for (const yr of years) {
     const count = provinceData.filter(p => {
       const pt = p.years.find(y => y.year === yr)

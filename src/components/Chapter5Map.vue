@@ -21,41 +21,7 @@
                 <stop offset="60%" stop-color="rgba(255,255,255,0.28)" />
                 <stop offset="100%" stop-color="rgba(255,255,255,0)" />
               </radialGradient>
-              <linearGradient id="skyGrad2" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#F0EBDC" />
-                <stop offset="50%" stop-color="#E0DECC" />
-                <stop offset="100%" stop-color="#D8DCC0" />
-              </linearGradient>
-              <linearGradient id="groundGrad2" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#B8B484" />
-                <stop offset="30%" stop-color="#9A9567" />
-                <stop offset="100%" stop-color="#6B5D3A" />
-              </linearGradient>
-              <!-- 根系入土遮罩：由浅黄褐过渡到土层深棕 -->
-              <linearGradient id="rootBurialGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#C3A767" stop-opacity="0.12" />
-                <stop offset="16%" stop-color="#B28F4C" stop-opacity="0.38" />
-                <stop offset="50%" stop-color="#8F6F3F" stop-opacity="0.62" />
-                <stop offset="100%" stop-color="#5E4B2E" stop-opacity="0.84" />
-              </linearGradient>
             </defs>
-
-            <!-- 背景：天空缩短，深色土壤继续上移60px，覆盖更多茶树根系 -->
-            <rect x="0" y="0" width="600" height="490" fill="url(#skyGrad2)" rx="18" />
-            <rect x="0" y="470" width="600" height="350" fill="url(#groundGrad2)" rx="18" />
-
-            <!-- 单棵茶树：保留舒展留白，底部与土层自然衔接 -->
-            <g class="tea-tree single-big-tree" style="transform-origin: 300px 630px;">
-              <image :href="TREE_IMG_URL" x="-25" y="-80" width="650" height="920" preserveAspectRatio="xMidYEnd meet" />
-            </g>
-
-            <!-- 半透明土层覆盖下半根系，模拟根须逐渐埋入泥土 -->
-            <path
-              class="root-burial-overlay"
-              d="M0 558 C95 547 186 568 286 557 C392 545 498 566 600 554 L600 820 L0 820 Z"
-              fill="url(#rootBurialGrad)"
-              pointer-events="none"
-            />
 
             <!-- ============ 区域1: 叶片（对应茶树右上叶片团） ============ -->
             <g class="click-zone zone-leaves"
@@ -76,7 +42,7 @@
                       :fill="activePhonePanel === 'leaves' ? 'rgba(92,124,58,0.95)' : 'rgba(247,244,235,0.92)'" />
                 <text x="14" y="24"
                       :fill="activePhonePanel === 'leaves' ? '#FFF8E8' : '#5C7C3A'"
-                      style="font-size:12.5px;font-weight:700;letter-spacing:0.05em">叶片 · 新生</text>
+                      style="font-size:12.5px;font-weight:500;letter-spacing:0.05em">叶片 · 新生</text>
                 <text x="14" y="41"
                       :fill="activePhonePanel === 'leaves' ? '#EFE9DA' : '#5A6655'"
                       style="font-size:9px;font-weight:500;letter-spacing:0.02em">茶叶内销量</text>
@@ -84,8 +50,6 @@
                       :fill="activePhonePanel === 'leaves' ? '#FFF8E8' : '#4A4A40'"
                       style="font-size:17px;font-weight:900;font-family:var(--font-huiwen)">{{ fmt(leavesDomesticLatest.volume, 2) }}万吨</text>
               </g>
-              <!-- 引线：标签右下 → 热区中心左下 -->
-              <line x1="176" y1="106" x2="320" y2="232" stroke="#5C7C3A" stroke-width="2" stroke-dasharray="4 4" fill="none" opacity="0.75" />
             </g>
 
             <!-- ============ 区域2: 枝条（对应主干中部） ============ -->
@@ -104,7 +68,7 @@
                       :fill="activePhonePanel === 'branches' ? 'rgba(107,68,35,0.95)' : 'rgba(247,244,235,0.92)'" />
                 <text x="14" y="24"
                       :fill="activePhonePanel === 'branches' ? '#FFF8E8' : '#6B4423'"
-                      style="font-size:12.5px;font-weight:700;letter-spacing:0.05em">枝条 · 远拓</text>
+                      style="font-size:12.5px;font-weight:500;letter-spacing:0.05em">枝条 · 远拓</text>
                 <text x="14" y="41"
                       :fill="activePhonePanel === 'branches' ? '#EFE9DA' : '#5A6655'"
                       style="font-size:9px;font-weight:500;letter-spacing:0.02em">茶叶出口额</text>
@@ -112,7 +76,6 @@
                       :fill="activePhonePanel === 'branches' ? '#FFF8E8' : '#4A4A40'"
                       style="font-size:17px;font-weight:900;font-family:var(--font-huiwen)">{{ fmt(exportTotal / 1e8, 2) }}亿元</text>
               </g>
-              <line x1="208" y1="550" x2="218" y2="520" stroke="#6B4423" stroke-width="2" stroke-dasharray="4 4" fill="none" opacity="0.75" />
             </g>
 
             <!-- ============ 区域3: 根系（对应泥土层根部中心） ============ -->
@@ -131,7 +94,7 @@
                       :fill="activePhonePanel === 'roots' ? 'rgba(178,143,76,0.95)' : 'rgba(247,244,235,0.92)'" />
                 <text x="14" y="24"
                       :fill="activePhonePanel === 'roots' ? '#FFF8E8' : '#B28F4C'"
-                      style="font-size:12.5px;font-weight:700;letter-spacing:0.05em">根系 · 深植</text>
+                      style="font-size:12.5px;font-weight:500;letter-spacing:0.05em">根系 · 深植</text>
                 <text x="14" y="41"
                       :fill="activePhonePanel === 'roots' ? '#EFE9DA' : '#5A6655'"
                       style="font-size:9px;font-weight:500;letter-spacing:0.02em">全国茶园面积</text>
@@ -139,7 +102,6 @@
                       :fill="activePhonePanel === 'roots' ? '#FFF8E8' : '#4A4A40'"
                       style="font-size:17px;font-weight:900;font-family:var(--font-huiwen)">{{ fmt(gardenArea, 2) }}千公顷</text>
               </g>
-              <line x1="224" y1="804" x2="240" y2="752" stroke="#B28F4C" stroke-width="2" stroke-dasharray="4 4" fill="none" opacity="0.75" />
             </g>
           </svg>
         </div>
@@ -180,11 +142,11 @@
                     v-for="m in metricOptions"
                     :key="m.key"
                     :class="['toggle-btn', { active: metric === m.key }]"
-                    :style="metric === m.key ? { background: m.color, borderColor: m.color } : {}"
+                    :style="metric === m.key ? { background: m.color, borderColor: m.color, color: '#FFFFFF' } : { color: '#3A3A2E' }"
                     @click="setMetric(m.key)"
                   >{{ m.label }}</button>
                 </div>
-                <div class="ch5-year-slider small">
+                <div class="ch5-year-slider small" :style="{ '--ch5-slider-accent': metricColor, '--ch5-slider-fill': rootsYearFillPct }">
                   <input type="range" :min="allProvinceYears[0]" :max="allProvinceYears[allProvinceYears.length - 1]" step="1" v-model.number="rootsYear" class="slider-input" />
                   <span class="slider-value">{{ rootsYear }}</span>
                 </div>
@@ -221,13 +183,13 @@
                   <div v-if="!mapReady" class="ch5-map-loading">加载中…</div>
                   <EChart v-else :option="rootsMapOption" @ready="onRootsMapReady" @click="onMapClick" style="height:280px" />
                 </div>
-                <div v-if="metric === 'gardenArea'" class="lv-chart-note">图示说明：圆点大小表示各省茶园面积（千公顷），圆点越大，茶园面积越大；颜色深浅表示茶园面积占该省行政区划面积的覆盖率（%），颜色越深，覆盖率越高。</div>
-                <div v-else class="lv-chart-note">图示说明：圆点大小表示各省茶叶产量（万吨），圆点越大，茶叶产量越高；颜色深浅同步表示产量等级，颜色越深，产量越高。</div>
+                <div v-if="metric === 'gardenArea'" class="lv-chart-note">图示说明：圆盘大小表示各省茶园面积（千公顷），圆盘越大，茶园面积越大；颜色深浅表示茶园面积占该省行政区划面积的覆盖率（%），颜色越深，覆盖率越高。</div>
+                <div v-else class="lv-chart-note">图示说明：圆盘大小表示各省茶叶产量（万吨），圆盘越大，茶叶产量越高；颜色深浅同步表示产量等级，颜色越深，产量越高。</div>
               </div>
 
               <!-- 省份详情 -->
               <div class="ch5-card small-card wf-prov-card">
-                <div class="card-title-sm">{{ selectedProvince }} {{ metricLabel }}变化趋势{{ provinceYearRange ? `（${provinceYearRange}）` : '' }}</div>
+                <div class="card-title-sm">{{ selectedProvince }}{{ metricLabel }}变化趋势</div>
                 <div v-if="rootsProvinceDetail" class="province-detail-body small">
                   <div class="chart-container chart-province-trend small">
                     <EChart :option="rootsProvinceTrendOption" style="height:200px" />
@@ -444,10 +406,9 @@
               </div>
 
               <div class="wf-controls wf-ctrl-inline">
-                <div class="ch5-year-select small">
-                  <select v-model.number="branchesYear" class="select-input">
-                    <option v-for="y in branchesYears" :key="y" :value="y">{{ y }}</option>
-                  </select>
+                <div class="ch5-year-slider small" :style="{ '--ch5-slider-accent': '#6B4423', '--ch5-slider-fill': branchesYearFillPct }">
+                  <input type="range" :min="branchesYears[0]" :max="branchesYears[branchesYears.length - 1]" step="1" v-model.number="branchesYear" class="slider-input" />
+                  <span class="slider-value">{{ branchesYear }}</span>
                 </div>
               </div>
 
@@ -472,7 +433,7 @@
 
               <!-- 桑基图 -->
               <div class="ch5-card small-card wf-sankey-card">
-                <div class="card-title-sm">{{ branchesYear }}年 中国茶叶出口省至目的地流向图</div>
+                <div class="card-title-sm">{{ branchesYear }}年中国茶叶出口省至目的地流向图</div>
                 <div class="chart-container chart-sankey small">
                   <EChart :option="branchesSankeyOption" style="height:320px" />
                 </div>
@@ -481,7 +442,7 @@
 
               <!-- TOP 10 目的地 -->
               <div class="ch5-card small-card">
-                <div class="card-title-sm">{{ branchesYear }}年 中国茶叶出口目的地前十</div>
+                <div class="card-title-sm">{{ branchesYear }}年中国茶叶十大出口目的地</div>
                 <div class="ch5-chart-unit">单位：亿元</div>
                 <div class="chart-container chart-country-rank small">
                   <EChart :option="branchesCountryRankOption" style="height:240px" />
@@ -541,9 +502,6 @@ import {
 } from '../config/ch5.js'
 
 const props = defineProps({ id: { type: String, required: true } })
-
-// 茶树图资源路径
-const TREE_IMG_URL = assetUrl('data/5/茶树-v4.png')
 
 // 根系板块地图统一采用中国 Albers 等积投影。
 // 参考坐标系参数：中央经线 105°E，标准纬线 25°N、47°N；未指定的纬度原点取 0°。
@@ -642,10 +600,25 @@ const metricColor = computed(() => metricOptions.find(m => m.key === metric.valu
 // ---- Roots state ----
 const allProvinceYears = computed(() => {
   const years = new Set()
-  provinceData.forEach(p => p.years.forEach(y => years.add(y.year)))
+  // 只保留当前指标有非零数据的年份——茶园面积2024年全空则自动排除
+  const m = metric.value
+  provinceData.forEach(p => p.years.forEach(y => {
+    if (y[m] > 0) years.add(y.year)
+  }))
   return Array.from(years).sort((a, b) => a - b)
 })
 const rootsYear = ref(latestProvinceYear('gardenArea'))
+
+// 滑块"已填充"百分比：用于自定义双段渐变 (已选段 = 主题色，未选段 = 白)
+const rootsYearFillPct = computed(() => {
+  const a = allProvinceYears.value
+  if (!a || a.length < 2) return '0%'
+  const lo = a[0]
+  const hi = a[a.length - 1]
+  const span = hi - lo
+  if (!span) return '0%'
+  return Math.max(0, Math.min(100, ((rootsYear.value - lo) / span) * 100)) + '%'
+})
 
 // 当前选中省份 + 当前指标的有效首尾年份范围（用于省份详情标题）
 const provinceYearRange = computed(() => {
@@ -1011,8 +984,17 @@ const leavesOnlineOption = computed(() => {
 })
 
 // ---- Branches state ----
-const branchesYears = countryData.map(d => d.year)
-const branchesYear = ref(LATEST_EXPORT_YEAR)
+const branchesYears = countryData.map(d => d.year).filter(y => y <= 2024).sort((a, b) => a - b)
+const branchesYear = ref(LATEST_EXPORT_YEAR <= Math.max(...branchesYears) ? LATEST_EXPORT_YEAR : Math.max(...branchesYears))
+const branchesYearFillPct = computed(() => {
+  const a = branchesYears
+  if (!a || a.length < 2) return '0%'
+  const lo = a[0]
+  const hi = a[a.length - 1]
+  const span = hi - lo
+  if (!span) return '0%'
+  return Math.max(0, Math.min(100, ((branchesYear.value - lo) / span) * 100)) + '%'
+})
 
 // ---- Roots selected province ----
 const selectedProvince = ref('云南省')
@@ -1275,13 +1257,15 @@ const rootsMapOption = computed(() => {
         max: coverageMax,
         left: 12,
         bottom: 14,
-        text: [`覆盖率高（≥${coverageMax}%）`, '覆盖率低（0%）'],
+        text: ['', '覆盖率'],
         textStyle: { ...chartTextStyle, color: '#5A6655', fontSize: 9 },
-        inRange: { color: ['#F0F4E6', '#C5D6AC', '#8BA667', '#5C7C3A', '#3A4D38'] },
-        calculable: true,
+        // 茶金色系：与「茶园面积」按钮主题色 #B28F4C 一致
+        inRange: { color: ['#FBF5E2', '#E8D5A5', '#C9A866', '#8E7038', '#5C4A22'] },
+        calculable: false,
         itemWidth: 10,
         itemHeight: 60,
-        formatter: v => `覆盖率${v.toFixed(1)}%`,
+        // 柱子下方写明"覆盖率"，数值由 hover tooltip 显示，无需在图例上标 min/max
+        formatter: v => `${v.toFixed(1)}%`,
         show: true,
         dimension: 2, // ★ 核心修复：绑定 value[2]=coverage，避免误取经度导致全白
         seriesIndex: 0, // 只作用于散点系列，不影响 geo
@@ -1306,11 +1290,12 @@ const rootsMapOption = computed(() => {
         },
         emphasis: {
           itemStyle: {
-            borderColor: '#B28F4C',
+            borderColor: '#5C4A22',
             borderWidth: 2,
             opacity: 1,
             shadowBlur: 10,
-            shadowColor: 'rgba(92,124,58,0.35)',
+            // 与茶金色视觉一致的金辉光晕
+            shadowColor: 'rgba(178,143,76,0.4)',
           },
         },
         data: scatterList,
@@ -1356,12 +1341,13 @@ const rootsMapOption = computed(() => {
       max: outputMax,
       left: 12,
       bottom: 18,
-      text: [`产量高（${fmt(outputMax, 0)}万吨）`, '产量低'],
+      text: ['', '产量'],
       textStyle: { ...chartTextStyle, color: '#5A6655', fontSize: 9 },
       inRange: { color: ['#F0F4E6', '#C5D6AC', '#8BA667', '#5C7C3A', '#3A4D38'] },
-      calculable: true,
+      calculable: false,
       itemWidth: 10,
       itemHeight: 60,
+      // 柱子下方写明"产量"，数值由 hover tooltip 显示
       formatter: v => `${fmt(v, 0)} 万吨`,
       dimension: 2,
       seriesIndex: 0,
@@ -1880,6 +1866,13 @@ onMounted(async () => {
   grid-template-columns: minmax(580px, 1.1fr) minmax(360px, 440px);
   gap: 16px;
   padding: 1.6rem 3rem 1.6rem 1rem;
+  background-color: #EFE9DA;
+  background-image:
+    linear-gradient(90deg, rgba(239, 233, 218, 0.04) 0%, rgba(239, 233, 218, 0.08) 47%, rgba(239, 233, 218, 0.34) 72%, rgba(239, 233, 218, 0.58) 100%),
+    url('/data/5/today-tea-garden-bg.png');
+  background-size: cover;
+  background-position: left center;
+  background-repeat: no-repeat;
 }
 .map-fullscreen.ch5-redesign.show {
   opacity: 1;
@@ -1891,16 +1884,16 @@ onMounted(async () => {
   align-items: center;
   justify-content: center;
   min-height: 0;
+  position: relative;
+  z-index: 1;
 }
 
 .ch5-tree-scene.single-tree {
-  background: linear-gradient(160deg, rgba(245,240,228,0.6) 0%, rgba(220,228,200,0.55) 100%);
-  border-radius: 24px;
-  border: 1px solid rgba(165,163,122,0.35);
-  overflow: hidden;
-  box-shadow:
-    0 10px 36px rgba(81, 109, 51, 0.14),
-    inset 0 0 120px rgba(255,255,255,0.35);
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  overflow: visible;
+  box-shadow: none;
   width: 100%;
   max-width: 640px;
   aspect-ratio: 600 / 820;
@@ -1911,19 +1904,7 @@ onMounted(async () => {
   display: block;
   width: 100%;
   height: 100%;
-}
-
-.tea-tree.single-big-tree {
-  animation: tree-sway-single 6s ease-in-out infinite;
-  transform-origin: 300px 630px;
-  transform-box: view-box;
-  filter: drop-shadow(0 12px 20px rgba(70, 90, 40, 0.22));
-}
-
-@keyframes tree-sway-single {
-  0%, 100% { transform: rotate(0deg); }
-  30% { transform: rotate(0.3deg); }
-  70% { transform: rotate(-0.3deg); }
+  overflow: visible;
 }
 
 /* ---------- Click zones ---------- */
@@ -1977,6 +1958,8 @@ onMounted(async () => {
   align-items: center;
   justify-content: center;
   min-height: 0;
+  position: relative;
+  z-index: 2;
 }
 
 .phone-frame {
@@ -2152,11 +2135,55 @@ onMounted(async () => {
   gap: 6px;
 }
 .ch5-year-slider.small .slider-input {
+  -webkit-appearance: none;
+  appearance: none;
   width: 120px;
   height: 4px;
+  border-radius: 2px;
+  /* 自定义双段渐变：已选段 = 主题色，未选段 = 白色。
+   * CSS 变量 --ch5-slider-fill 是已选比例（百分比字符串），由模板动态注入。
+   * 这里禁用浏览器 accent-color 默认填充（用 transparent 配合 background-image 完整覆盖）。*/
+  accent-color: transparent;
+  background-image: linear-gradient(
+    to right,
+    var(--ch5-slider-accent, #B28F4C) 0,
+    var(--ch5-slider-accent, #B28F4C) var(--ch5-slider-fill, 0%),
+    #FFFFFF var(--ch5-slider-fill, 0%),
+    #FFFFFF 100%
+  );
+  outline: none;
+  cursor: pointer;
 }
 .ch5-year-slider.small .slider-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
   width: 14px; height: 14px;
+  border-radius: 50%;
+  border: 1.5px solid var(--ch5-slider-accent, #B28F4C);
+  background: #FFFFFF;
+  box-sizing: border-box;
+  cursor: pointer;
+  margin-top: 0; /* 居中于 4px track */
+}
+.ch5-year-slider.small .slider-input::-moz-range-thumb {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  border: 1.5px solid var(--ch5-slider-accent, #B28F4C);
+  background: #FFFFFF;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+.ch5-year-slider.small .slider-input::-moz-range-track {
+  height: 4px;
+  border: none;
+  border-radius: 2px;
+  background: #FFFFFF;
+}
+.ch5-year-slider.small .slider-input::-moz-range-progress {
+  height: 4px;
+  border: none;
+  border-radius: 2px;
+  background: var(--ch5-slider-accent, #B28F4C);
 }
 .ch5-year-slider.small .slider-value {
   font-size: 13px;
