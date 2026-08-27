@@ -70,11 +70,11 @@
               </div>
               <div class="legend-row">
                 <span class="legend-line digitized"></span>
-                <span>实线：历史路线复原</span>
+                <span>实线：当前路线</span>
               </div>
               <div class="legend-row">
                 <span class="legend-line inferred"></span>
-                <span>虚线：历史/节点推定路线</span>
+                <span>虚线：已消失的历史路线</span>
               </div>
               <div class="legend-row nodes">
                 <span class="legend-node origin"></span>
@@ -247,7 +247,7 @@
           <!-- 茶叶形比例符号图例：概览与世界详情共用同一固定尺度 -->
           <div class="map-legend modern-legend">
             <div class="modern-legend-section">
-              <div class="modern-legend-title">茶叶符号大小：出口额（亿元）</div>
+              <div class="modern-legend-title" style="font-family:var(--font-body),KaiTi,STKaiti,serif !important;font-style:normal !important">茶叶符号大小：出口额（亿元）</div>
               <div class="leaf-size-legend">
                 <div v-for="item in leafSizeLegendItems" :key="item.ratio" class="leaf-size-item">
                   <span
@@ -260,7 +260,7 @@
               </div>
             </div>
             <div class="modern-legend-section color-section">
-              <div class="modern-legend-title">茶叶颜色：出口额同比增速</div>
+              <div class="modern-legend-title" style="font-family:var(--font-body),KaiTi,STKaiti,serif !important;font-style:normal !important">茶叶颜色：出口额同比增速</div>
               <div class="leaf-color-legend">
                 <div v-for="item in leafColorLegendItems" :key="item.label" class="leaf-color-item">
                   <span class="legend-leaf color-leaf" v-html="createLeafSvg(item.color, false, 1)"></span>
@@ -385,6 +385,7 @@ function getDynastyByProgress(currentProgress) {
 
 const ANCIENT_ROUTE_URL = `${import.meta.env.BASE_URL || '/'}data/4/ancient_tea_routes.geojson`
 const ANCIENT_NODE_URL = `${import.meta.env.BASE_URL || '/'}data/4/ancient_tea_nodes.geojson`
+const WORLD_COUNTRIES_URL = `${import.meta.env.BASE_URL || '/'}data/4/world_countries_50m.geojson`
 const DYNASTY_ORDER = dynasties.map(function(item) { return item.name })
 const LEGACY_ROUTE_MATCH = {
   R01: 135, R02: 135, R03: 134, R04: 134, R05: 133, R06: 136,
@@ -667,9 +668,11 @@ var isDraggingTimeline = ref(false)
 var isAnimatingProgress = false
 
 var map = null
+var worldCountriesLayer = null
 var routeLayer = null
 var routeHitLayer = null
 var nodeLayer = null
+var nodeLabelLayer = null
 var nodeHitLayer = null
 var nodeRegistry = new Map()
 var lastFrameTime = null
@@ -678,6 +681,15 @@ var animationFrameId = null
 // Pre-computed route data with progress ranges
 var routeProgressData = []
 var routeProgressMap = new Map()
+var cameraInitialized = false
+var cameraUserControlled = false
+var programmaticCameraMove = false
+var lastCameraSignature = ''
+
+const INITIAL_ROUTE_ZOOM = 7
+const MIN_ROUTE_ZOOM = 2.25
+const LABEL_FULL_SCALE = 5000000
+const LABEL_HIDDEN_SCALE = 15000000
 
 // Active routes cache
 var activeRouteLayers = new Map()
@@ -947,6 +959,103 @@ function renderCurrentProgress() {
   drawRoutesAtProgress(progress.value)
 }
 
+function cameraRoutesAtProgress(targetProgress) {
+  if (targetProgress <= 0.000001) return []
+  return routeProgressData.filter(function(rp) {
+    return routePassesFilter(routeForVisual(rp)) && targetProgress + 0.000001 >= rp.startProgress
+  })
+}
+
+function initialRouteCoordinate() {
+  for (var i = 0; i < routeProgressData.length; i++) {
+    var segments = routePathSegments(routeProgressData[i].route)
+    if (segments.length && segments[0].length) return L.latLng(segments[0][0])
+  }
+  return L.latLng(31, 103)
+}
+
+function updateMapViewForProgress(targetProgress) {
+  if (!map || !mapEl.value) return
+  if (cameraUserControlled) return
+
+  var cameraRoutes = cameraRoutesAtProgress(targetProgress)
+  var signature = routeFilter.value + ':' + cameraRoutes.map(function(rp) {
+    return routeForVisual(rp).id
+  }).sort().join('|')
+  if (cameraInitialized && signature === lastCameraSignature) return
+
+  var coordinates = []
+  cameraRoutes.forEach(function(rp) {
+    routePathSegments(routeForVisual(rp)).forEach(function(segment) {
+      segment.forEach(function(coordinate) { coordinates.push(coordinate) })
+    })
+  })
+  var targetCenter
+  var targetZoom
+  if (coordinates.length < 2) {
+    targetCenter = initialRouteCoordinate()
+    targetZoom = INITIAL_ROUTE_ZOOM
+  } else {
+    var bounds = L.latLngBounds(coordinates)
+    targetCenter = bounds.getCenter()
+    targetZoom = map.getBoundsZoom(bounds, false, [420, 180])
+    targetZoom = Math.max(MIN_ROUTE_ZOOM, Math.min(INITIAL_ROUTE_ZOOM, targetZoom))
+    // 右侧资料卡会占用地图空间；轻微向东移动镜头中心，使中国落在可视区中部偏右。
+    var projectedCenter = map.project(targetCenter, targetZoom).add(L.point(90, 0))
+    targetCenter = map.unproject(projectedCenter, targetZoom)
+  }
+
+  if (!cameraInitialized) {
+    programmaticCameraMove = true
+    map.setView(targetCenter, targetZoom, { animate: false })
+    cameraInitialized = true
+    lastCameraSignature = signature
+    programmaticCameraMove = false
+    return
+  }
+
+  lastCameraSignature = signature
+  programmaticCameraMove = true
+  map.stop()
+  map.flyTo(targetCenter, targetZoom, {
+    animate: true,
+    duration: 2.2,
+    easeLinearity: 0.22,
+    noMoveStart: false,
+  })
+  map.once('moveend', function() { programmaticCameraMove = false })
+}
+
+function currentScaleDenominator() {
+  if (!map) return LABEL_HIDDEN_SCALE
+  var latitude = Math.max(-85, Math.min(85, map.getCenter().lat))
+  var metresPerPixel = 156543.03392 * Math.cos(latitude * Math.PI / 180) / Math.pow(2, map.getZoom())
+  return metresPerPixel * 96 * 39.37007874
+}
+
+function labelVisibilityFactor() {
+  var scale = currentScaleDenominator()
+  if (scale <= LABEL_FULL_SCALE) return 1
+  if (scale >= LABEL_HIDDEN_SCALE) return 0
+  return 1 - (scale - LABEL_FULL_SCALE) / (LABEL_HIDDEN_SCALE - LABEL_FULL_SCALE)
+}
+
+function stableLabelRank(name, lat, lng) {
+  var value = String(name || '') + '|' + Number(lat).toFixed(4) + '|' + Number(lng).toFixed(4)
+  var hash = 0
+  for (var i = 0; i < value.length; i++) hash = ((hash << 5) - hash + value.charCodeAt(i)) | 0
+  return (Math.abs(hash) % 1000) / 1000
+}
+
+function escapeNodeLabel(value) {
+  return String(value == null ? '' : value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
 function routeNodeFractions(points, pathSegments) {
   if (!points || points.length <= 1) return [0]
   var samples = []
@@ -983,9 +1092,8 @@ function buildRouteRegistry() {
     if (!fullPathSegments.length) return
     var baseColor = kind(rp.route) === 'sea' ? '#5C7C3A' : '#B28F4C'
     var historicalColor = kind(rp.route) === 'sea' ? '#6B8060' : '#8A8270'
-    var inferred = rp.route.routeMode === 'node_arc'
     var primaryLine = L.polyline([], {
-      pane: 'tradeRoutePane', color: baseColor, weight: 2.8, opacity: 0, dashArray: inferred ? '8 7' : null,
+      pane: 'tradeRoutePane', color: baseColor, weight: 2.8, opacity: 0, dashArray: null,
       smoothFactor: 0.5, lineCap: 'round', lineJoin: 'round', interactive: false,
     }).addTo(routeLayer)
     var historicalLine = L.polyline([], {
@@ -1036,13 +1144,13 @@ function updateRouteVisual(rp, targetProgress) {
   }
   var highlighted = visual.hover || (selectedRoute.value && routeProgressMap.get(String(selectedRoute.value.id)) === rp)
   var weightBoost = highlighted ? 1.5 : 0
-  var primaryOpacity = state === 'historical' ? 0 : (rp.route.routeMode === 'node_arc' ? 0.65 : 0.9)
+  var primaryOpacity = state === 'historical' ? 0 : 0.9
   var historicalOpacity = state === 'historical' ? 0.6 : 0
-  if (state === 'drawing') primaryOpacity = rp.route.routeMode === 'node_arc' ? 0.72 : 0.95
+  if (state === 'drawing') primaryOpacity = 0.95
   if (state === 'retiring') {
     var retireSpan = Math.max(0.000001, rp.retireEndProgress - rp.retireStartProgress)
     var retire = Math.max(0, Math.min(1, (targetProgress - rp.retireStartProgress) / retireSpan))
-    primaryOpacity = (1 - retire) * (rp.route.routeMode === 'node_arc' ? 0.65 : 0.9)
+    primaryOpacity = (1 - retire) * 0.9
     historicalOpacity = retire * 0.6
   }
   if (highlighted) {
@@ -1060,6 +1168,7 @@ function updateRouteVisual(rp, targetProgress) {
 
 function buildNodeRegistry() {
   nodeLayer.clearLayers()
+  nodeLabelLayer.clearLayers()
   nodeHitLayer.clearLayers()
   nodeRegistry.clear()
   routeProgressData.forEach(function(rp) {
@@ -1078,9 +1187,19 @@ function buildNodeRegistry() {
           pane: 'nodeHitPane', radius: 10, color: '#000000', weight: 0,
           opacity: 0, fillOpacity: 0, interactive: true, bubblingMouseEvents: false,
         })
+        var labelMarker = L.marker([point.lat, point.lon], {
+          pane: 'tradeNodeLabelPane', interactive: false, keyboard: false, opacity: 0,
+          icon: L.divIcon({
+            className: 'ch4-node-label-icon',
+            html: '<span>' + escapeNodeLabel(point.name || '路线节点') + '</span>',
+            iconSize: null,
+            iconAnchor: [-9, 13],
+          }),
+        }).addTo(nodeLabelLayer)
         node = {
-          marker, hitMarker, routeIds: new Set(), routeFractions: new Map(),
+          marker, hitMarker, labelMarker, routeIds: new Set(), routeFractions: new Map(),
           name: point.name || '路线节点', lat: Number(point.lat), lng: Number(point.lon), hitEnabled: false,
+          currentOpacity: 0, labelRank: stableLabelRank(point.name, point.lat, point.lon),
         }
         hitMarker.bindTooltip(node.name, { direction: 'top', offset: [0, -6], className: 'ch4-node-tip' })
         hitMarker.on('click', function(event) {
@@ -1113,6 +1232,7 @@ function nodeOpacityForRoute(node, routeId, targetProgress) {
 }
 
 function updateNodeMarkers(targetProgress) {
+  var labelFactor = labelVisibilityFactor()
   nodeRegistry.forEach(function(node) {
     var bestOpacity = 0
     var bestRoute = null
@@ -1128,6 +1248,10 @@ function updateNodeMarkers(targetProgress) {
       fillColor: bestRoute && kind(bestRoute) === 'sea' ? '#5C7C3A' : '#B28F4C',
       fillOpacity: bestOpacity, opacity: bestOpacity,
     })
+    node.currentOpacity = bestOpacity
+    var labelVisible = labelFactor > 0 && node.labelRank <= labelFactor && bestOpacity > 0.12
+    var labelOpacity = labelVisible ? Math.min(1, bestOpacity) * Math.min(1, labelFactor * 1.7) : 0
+    node.labelMarker.setOpacity(labelOpacity)
     var enabled = bestOpacity > 0.05
     if (enabled && !node.hitEnabled) {
       nodeHitLayer.addLayer(node.hitMarker)
@@ -1178,6 +1302,7 @@ function openNodeDetail(node, event) {
 }
 
 function drawRoutesAtProgress(targetProgress) {
+  updateMapViewForProgress(targetProgress)
   routeProgressData.forEach(function(rp) { updateRouteVisual(rp, targetProgress) })
   updateNodeMarkers(targetProgress)
 }
@@ -1235,6 +1360,10 @@ function togglePlay() {
   if (!isPlaying.value) {
     if (progress.value >= 1.0) {
       progress.value = 0
+      cameraInitialized = false
+      cameraUserControlled = false
+      programmaticCameraMove = false
+      lastCameraSignature = ''
     }
     showDynastyPanel()
     isPlaying.value = true
@@ -1250,6 +1379,10 @@ function resetView() {
   isAnimatingProgress = false
   isPlaying.value = false
   progress.value = 0
+  cameraInitialized = false
+  cameraUserControlled = false
+  programmaticCameraMove = false
+  lastCameraSignature = ''
   showDynastyPanel()
   renderCurrentProgress()
 }
@@ -1288,11 +1421,11 @@ function initMap() {
     }
 
     map = L.map(mapEl.value, {
-      center: [32, 88],
-      zoom: 2.5,
+      center: [31, 103],
+      zoom: INITIAL_ROUTE_ZOOM,
       minZoom: 1.5,
       maxZoom: 7,
-      zoomSnap: 0.5,
+      zoomSnap: 0.25,
       zoomDelta: 0.5,
       worldCopyJump: true,
       zoomControl: false,
@@ -1302,6 +1435,8 @@ function initMap() {
 
     map.createPane('chinaProvincePane')
     map.getPane('chinaProvincePane').style.zIndex = 340
+    map.createPane('worldCountriesPane')
+    map.getPane('worldCountriesPane').style.zIndex = 220
     map.createPane('chinaBorderHaloPane')
     map.getPane('chinaBorderHaloPane').style.zIndex = 350
     map.createPane('chinaBorderPane')
@@ -1312,35 +1447,36 @@ function initMap() {
     map.getPane('routeHitPane').style.zIndex = 470
     map.createPane('tradeNodePane')
     map.getPane('tradeNodePane').style.zIndex = 480
+    map.createPane('tradeNodeLabelPane')
+    map.getPane('tradeNodeLabelPane').style.zIndex = 485
     map.createPane('nodeHitPane')
     map.getPane('nodeHitPane').style.zIndex = 490
 
     L.control.zoom({ position: 'bottomright' }).addTo(map)
 
-    try {
-      var tileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
-        subdomains: 'abcd',
-        maxZoom: 19,
-        attribution: '',
-        errorTileUrl: '',
-      })
-      tileLayer.on('tileerror', function(error) {
-        try { error.target._raw = true } catch(e) {}
-      })
-      tileLayer.addTo(map)
-    } catch (tileErr) {
-      console.warn('瓦片图层加载失败:', tileErr)
-    }
-
     routeLayer = L.layerGroup().addTo(map)
     routeHitLayer = L.layerGroup().addTo(map)
     nodeLayer = L.layerGroup().addTo(map)
+    nodeLabelLayer = L.layerGroup().addTo(map)
     nodeHitLayer = L.layerGroup().addTo(map)
 
     map.on('click', function() {
       if (panelMode.value === 'route') showDynastyPanel()
     })
+    map.on('zoom', function() {
+      if (nodeRegistry.size) updateNodeMarkers(progress.value)
+    })
 
+    // 用户开始拖动、触摸或滚轮操作时立即接管镜头，瓦片加载期间也能自由移动。
+    var takeManualCameraControl = function() {
+      cameraUserControlled = true
+      programmaticCameraMove = false
+      if (map) map.stop()
+    }
+    map.getContainer().addEventListener('pointerdown', takeManualCameraControl, { passive: true })
+    map.getContainer().addEventListener('wheel', takeManualCameraControl, { passive: true })
+
+    loadWorldBoundary()
     loadChinaBoundary()
 
     precomputeRouteProgress()
@@ -1348,6 +1484,10 @@ function initMap() {
     buildNodeRegistry()
 
     progress.value = 0
+    cameraInitialized = false
+    cameraUserControlled = false
+    programmaticCameraMove = false
+    lastCameraSignature = ''
     nextTick(function() {
       map.invalidateSize()
       renderCurrentProgress()
@@ -1421,6 +1561,38 @@ function onVisibilityChange() {
       if (map) map.invalidateSize()
     }, 100)
   }
+}
+
+function loadWorldBoundary() {
+  fetch(WORLD_COUNTRIES_URL)
+    .then(function(response) {
+      if (!response.ok) throw new Error(`HTTP ${response.status}`)
+      return response.json()
+    })
+    .then(function(geo) {
+      if (!map || !geo || geo.type !== 'FeatureCollection') return
+      if (worldCountriesLayer) worldCountriesLayer.remove()
+      worldCountriesLayer = L.geoJSON(geo, {
+        pane: 'worldCountriesPane',
+        interactive: false,
+        smoothFactor: 0.7,
+        style: function() {
+          return {
+            color: '#D8CDAF',
+            weight: 0.72,
+            opacity: 0.8,
+            fillColor: '#F7F4EB',
+            fillOpacity: 0.96,
+            lineCap: 'round',
+            lineJoin: 'round',
+            interactive: false,
+          }
+        },
+      }).addTo(map)
+    })
+    .catch(function(error) {
+      console.warn(`本地世界底图加载失败（${WORLD_COUNTRIES_URL}）:`, error)
+    })
 }
 
 function loadChinaBoundary() {
@@ -2367,6 +2539,7 @@ onBeforeUnmount(function() {
   height: 100%;
   min-height: calc(100vh - 200px);
   z-index: 1;
+  background: #D7E0E1;
 }
 
 /* Dynasty Label - compact, top-left overlay */
@@ -2486,6 +2659,24 @@ onBeforeUnmount(function() {
   background: none;
   border-top: 2px dashed #8A8270;
   opacity: 0.65;
+}
+
+:deep(.ch4-node-label-icon) {
+  width: max-content !important;
+  height: auto !important;
+  background: rgba(247, 244, 235, 0.94);
+  border: 1px solid rgba(178, 143, 76, 0.48);
+  border-radius: 12px;
+  box-shadow: 0 2px 7px rgba(72, 64, 43, 0.13);
+  color: #4d5f35;
+  font-family: var(--font-body, inherit);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  padding: 5px 9px;
+  white-space: nowrap;
+  pointer-events: none;
+  transition: opacity 180ms linear;
 }
 
 .legend-row.nodes .legend-line {
@@ -3172,7 +3363,8 @@ onBeforeUnmount(function() {
 }
 .modern-legend,
 .modern-legend :deep(*) {
-  font-family: var(--font-body) !important;
+  font-family: var(--font-body), KaiTi, STKaiti, serif !important;
+  font-style: normal !important;
 }
 .modern-legend-section + .modern-legend-section {
   margin-top: 8px;
@@ -3182,7 +3374,7 @@ onBeforeUnmount(function() {
 .modern-legend-title {
   margin-bottom: 6px;
   color: #516D33;
-  font: 700 11px/1.35 var(--serif);
+  font: normal 700 11px/1.35 var(--font-body), KaiTi, STKaiti, serif;
 }
 .leaf-size-legend {
   display: grid;
@@ -3198,7 +3390,7 @@ onBeforeUnmount(function() {
   justify-content: flex-end;
   gap: 3px;
   color: var(--c-beige-dark);
-  font: 600 10px/1 var(--serif);
+  font: normal 600 10px/1 var(--font-body), KaiTi, STKaiti, serif;
 }
 .legend-leaf {
   display: inline-block;
@@ -3218,7 +3410,7 @@ onBeforeUnmount(function() {
   min-width: 0;
   gap: 5px;
   color: var(--c-beige-dark);
-  font: 500 10px/1.2 var(--sans);
+  font: normal 500 10px/1.2 var(--font-body), KaiTi, STKaiti, serif;
 }
 .color-leaf {
   width: 18px;

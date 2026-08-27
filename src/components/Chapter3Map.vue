@@ -1003,6 +1003,8 @@ onBeforeUnmount(() => {
   border: 1px solid rgba(178, 143, 76, 0.15);
   display: flex;
   flex-direction: column;
+  font-family: var(--font-body), KaiTi, STKaiti, serif;
+  font-style: normal;
 }
 
 .panel-header {
@@ -1044,6 +1046,8 @@ onBeforeUnmount(() => {
   color: var(--c-olive);
   margin: 0;
   letter-spacing: 0.05em;
+  font-family: inherit;
+  font-style: normal;
 }
 
 .panel-close {
@@ -1122,6 +1126,8 @@ onBeforeUnmount(() => {
   letter-spacing: 0.05em;
   backdrop-filter: blur(4px);
   opacity: 0.85;
+  font-family: var(--font-body), KaiTi, STKaiti, serif;
+  font-style: normal;
 }
 .panel-image-wrap:hover .panel-image-hint { opacity: 1; background: rgba(81, 109, 51, 0.75); }
 
@@ -1443,6 +1449,8 @@ onBeforeUnmount(() => {
   border: 1px solid rgba(255, 255, 255, 0.15);
   z-index: 100;
   pointer-events: none;
+  font-family: var(--font-body), KaiTi, STKaiti, serif;
+  font-style: normal;
 }
 .lb-name {
   font-weight: 700;
@@ -1466,6 +1474,8 @@ onBeforeUnmount(() => {
   letter-spacing: 0.15em;
   z-index: 100;
   pointer-events: none;
+  font-family: var(--font-body), KaiTi, STKaiti, serif;
+  font-style: normal;
 }
 
 /* fade transition */
@@ -1489,6 +1499,8 @@ onBeforeUnmount(() => {
   padding: 12px 14px;
   pointer-events: none;
   transform: translateY(-4px);
+  font-family: var(--font-body), KaiTi, STKaiti, serif;
+  font-style: normal;
 }
 
 .preview-header {
@@ -1522,7 +1534,8 @@ onBeforeUnmount(() => {
   color: var(--c-olive);
   margin: 0;
   letter-spacing: 0.03em;
-  font-family: var(--font-dzji, var(--serif));
+  font-family: var(--font-body), KaiTi, STKaiti, serif;
+  font-style: normal;
 }
 
 .preview-body {

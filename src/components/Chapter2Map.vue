@@ -77,7 +77,7 @@
       <div ref="toolGroupRef" class="tool-group">
         <!-- 图例：与说明卡、转盘共用右侧纵向工具列 -->
         <div v-if="showLegend" class="legend-inner">
-          <div class="legend-title">{{ legendTitle }}</div>
+          <div class="legend-title" style="font-family:var(--font-body),KaiTi,STKaiti,serif !important;font-style:normal !important">{{ legendTitle }}</div>
           <div
             v-for="lv in legendLevels"
             :key="lv.value"
@@ -405,7 +405,9 @@ function initBgLayer(m) {
 const currentBgKey = computed(() => {
   if (viewMode.value === 'composite') return 'composite'
   if (activeFactorId.value && FACTORS[activeFactorId.value]) return activeFactorId.value
-  return null
+  // 尚未抽取任何因子时，也保持完整的页面氛围；复用综合评价背景，
+  // 后续抽中因子后仍由既有双缓冲逻辑平滑切换到对应背景。
+  return 'composite'
 })
 
 const _bgPreloadDone = { v: false }
@@ -853,7 +855,8 @@ watch([activeFactorId, viewMode], () => {
  *   每个可见因子拥有独立 Leaflet 实例；卡片不再显示 Canvas 截图。
  *   坐标、图片、Bounds 与主图共用同一配置和 Albers CRS。
  * ========================================================= */
-const THUMBNAIL_PADDING = 8
+const THUMBNAIL_PADDING = 4
+const THUMBNAIL_ZOOM_BOOST = 0.3
 const THUMBNAIL_OUTLINE_STYLE = {
   color: '#66784D', weight: 0.9, opacity: 0.9,
   fillOpacity: 0, interactive: false,
@@ -884,6 +887,12 @@ function scheduleThumbnailFit(record) {
       paddingBottomRight: [THUMBNAIL_PADDING, THUMBNAIL_PADDING],
       animate: false,
     })
+    // 在仍以中国全域中心为基准的前提下略微放大，提升缩略图辨识度。
+    const fittedZoom = record.map.getZoom()
+    record.map.setZoom(
+      Math.min(record.map.getMaxZoom(), fittedZoom + THUMBNAIL_ZOOM_BOOST),
+      { animate: false },
+    )
   })
 }
 
@@ -1992,7 +2001,8 @@ onBeforeUnmount(() => {
 /* ===== 左侧悬浮层：六宫格直接位于底图上，不再划分独立栏区 ===== */
 .left-panel {
   position: absolute;
-  top: var(--ch2-page-edge);
+  top: auto;
+  bottom: 8px;
   left: var(--ch2-page-edge);
   width: var(--ch2-left-panel-width);
   z-index: 700;
@@ -2002,29 +2012,26 @@ onBeforeUnmount(() => {
 .six-grid {
   width: 100%;
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  /* 六等分网格让两行卡片保持同宽：首行两张居中，次行三张铺开。 */
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   grid-auto-rows: auto;
-  grid-template-areas:
-    "thumb1 thumb2"
-    "thumb3 thumb4"
-    "thumb5 .";
   column-gap: 14px;
   row-gap: 14px;
-  align-content: start;
+  align-content: end;
   justify-content: start;
 }
 .grid-slot {
   position: relative;
   min-width: 0;
   width: 100%;
-  /* 统一加高缩略图卡片；名称栏固定，新增高度主要留给地图画面。 */
-  aspect-ratio: 16 / 11;
+  /* 高宽约 4:3，显著增加地图画面的纵向空间。 */
+  aspect-ratio: 3 / 4;
 }
-.thumb-slot-1 { grid-area: thumb1; }
-.thumb-slot-2 { grid-area: thumb2; }
-.thumb-slot-3 { grid-area: thumb3; }
-.thumb-slot-4 { grid-area: thumb4; }
-.thumb-slot-5 { grid-area: thumb5; }
+.thumb-slot-1 { grid-column: 2 / span 2; grid-row: 1; }
+.thumb-slot-2 { grid-column: 4 / span 2; grid-row: 1; }
+.thumb-slot-3 { grid-column: 1 / span 2; grid-row: 2; }
+.thumb-slot-4 { grid-column: 3 / span 2; grid-row: 2; }
+.thumb-slot-5 { grid-column: 5 / span 2; grid-row: 2; }
 
 /* 缩略图卡片（地图区域 16:10 + 名称栏 32px） */
 .thumb-card {
@@ -2116,8 +2123,12 @@ onBeforeUnmount(() => {
   box-shadow: 0 3px 12px rgba(81,109,51,0.09);
   backdrop-filter: blur(5px);
   -webkit-backdrop-filter: blur(5px);
+  font-family: var(--font-body), KaiTi, STKaiti, serif;
+  font-style: normal;
 }
 .legend-title {
+  font-family: inherit;
+  font-style: normal;
   font-size: 12px;
   font-weight: 700;
   color: #4b5d2b;
@@ -2135,6 +2146,8 @@ onBeforeUnmount(() => {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-family: inherit;
+  font-style: normal;
 }
 .legend-row .sw {
   flex: none;

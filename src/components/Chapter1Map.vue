@@ -443,7 +443,7 @@ async function initMap() {
     })
     tangLayer.bindTooltip(layer => {
       const p = layer.feature.properties
-      return `<div style="font-family:Noto Serif SC,serif;color:#516D33;padding:2px 4px">
+      return `<div style="font-family:var(--font-body),KaiTi,STKaiti,serif;font-style:normal;color:#516D33;padding:2px 4px">
         <b>${p.name || ''}</b><br/><span style="font-size:11px;color:#8a8478">${p.areaLabel || ''}</span></div>`
     }, { direction: 'top', sticky: true, offset: [0, -6] })
     tangLayer.addTo(map)
@@ -475,11 +475,11 @@ async function initMap() {
       const species = props.species
       const tn = s.label
       m.bindPopup(
-        `<div style="font-family:Noto Sans SC,sans-serif;min-width:170px">
-          <b style="color:${s.color};font-family:Noto Serif SC,serif">${name}</b><br/>
+        `<div style="font-family:var(--font-body),KaiTi,STKaiti,serif;font-style:normal;min-width:170px">
+          <b style="color:${s.color};font-family:inherit;font-style:normal">${name}</b><br/>
           <span style="font-size:12px;color:#4a4a40">类型：${tn}</span><br/>
           ${province ? `<span style="font-size:12px;color:#4a4a40">省份：${province}</span><br/>` : ''}
-          ${species ? `<span style="font-size:12px;color:#4a4a40">学名：<i>${species}</i></span><br/>` : ''}
+          ${species ? `<span style="font-size:12px;color:#4a4a40;font-style:normal">学名：${species}</span><br/>` : ''}
           <span style="font-size:11px;color:#8a8478">坐标：${(y_m/1000).toFixed(1)}km, ${(x_m/1000).toFixed(1)}km</span>
         </div>`
       )
