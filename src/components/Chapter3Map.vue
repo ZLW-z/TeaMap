@@ -933,7 +933,8 @@ onBeforeUnmount(() => {
 /* 图例 */
 .map-legend {
   position: absolute;
-  top: 16px;
+  top: auto;
+  bottom: 16px;
   left: 16px;
   z-index: 800;
   background: rgba(247, 244, 235, 0.92);
@@ -983,7 +984,7 @@ onBeforeUnmount(() => {
   margin-top: 8px;
   font-size: 0.72rem;
   color: var(--c-beige);
-  font-style: italic;
+  font-style: normal;
 }
 
 /* 固定信息面板 */

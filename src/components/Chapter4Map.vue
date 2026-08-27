@@ -41,22 +41,6 @@
           <div class="ch4-stage">
             <div ref="mapEl" class="map"></div>
 
-            <!-- Dynasty Label (compact, top-left) -->
-            <div class="dynasty-label" :class="'dyn-' + dynastyClass">
-              <span class="dyn-dot"></span>
-              <span class="dyn-text">当前：{{ dynastyName }}</span>
-            </div>
-
-            <div class="route-filter-control">
-              <button
-                v-for="option in routeFilterOptions"
-                :key="option.value"
-                :class="['route-filter-btn', { active: routeFilter === option.value }]"
-                :aria-pressed="routeFilter === option.value"
-                @click.stop="setRouteFilter(option.value)"
-              >{{ option.label }}</button>
-            </div>
-
             <!-- Legend -->
             <div class="map-legend">
               <div class="legend-title">图例</div>
@@ -214,6 +198,15 @@
                   </button>
                 </div>
               </div>
+              <div class="route-filter-control" aria-label="路线类型筛选">
+                <button
+                  v-for="option in routeFilterOptions"
+                  :key="option.value"
+                  :class="['route-filter-btn', { active: routeFilter === option.value }]"
+                  :aria-pressed="routeFilter === option.value"
+                  @click.stop="setRouteFilter(option.value)"
+                >{{ option.label }}</button>
+              </div>
             </div>
           </div>
         </div>
@@ -223,10 +216,9 @@
       <div v-show="ch4Tab === 'modern'" class="ch4-view ch4-view-modern">
         <div class="modern-topbar">
           <div class="modern-title">
-            <span class="title-badge" :class="{ world: !isModernChinaMode }">
-              {{ isModernChinaMode ? '🇨🇳 选择省份' : (selectedModernProvince || '中国') }}
+            <span v-if="!isModernChinaMode" class="title-badge world">
+              {{ selectedModernProvince || '中国' }}
             </span>
-            <span class="title-sub" v-if="isModernChinaMode">点击任意省份，查看该省茶叶出口全球流向</span>
             <span class="title-sub" v-if="!isModernChinaMode && modernProvinceInfo.hasData && modernProvinceInfo.flows.length">{{ modernYear }}年 出口总额 <b class="hl-num">{{ fmtNum(modernProvinceInfo.provinceValue / 1e8) }}</b> 亿元，覆盖 <b class="hl-num">{{ modernProvinceInfo.flows.length }}</b> 个主要国家</span>
             <span class="title-sub" v-else-if="!isModernChinaMode && modernProvinceInfo.hasData">{{ modernYear }}年 出口总额 <b class="hl-num">{{ fmtNum(modernProvinceInfo.provinceValue / 1e8) }}</b> 亿元，暂无主要出口目的地数据</span>
             <span class="title-sub" v-else-if="!isModernChinaMode">{{ modernYear }}年该省暂无茶叶出口数据</span>
@@ -267,6 +259,9 @@
                   <span>{{ item.label }}</span>
                 </div>
               </div>
+            </div>
+            <div v-if="isModernChinaMode" class="modern-legend-guide">
+              点击任意省份，查看该省茶叶出口全球流向
             </div>
           </div>
 
@@ -701,17 +696,6 @@ var panelKey = computed(function() {
   if (selectedRoute.value) return 'route-' + selectedRoute.value.id
   return 'node-' + selectedNodeName.value
 })
-var dynastyClass = computed(function() {
-  var n = dynastyName.value
-  if (n === '唐代') return 'tang'
-  if (n === '宋代') return 'song'
-  if (n === '元代') return 'yuan'
-  if (n === '明代') return 'ming'
-  if (n === '清代') return 'qing'
-  if (n === '抗战时期') return 'kangzhan'
-  return 'default'
-})
-
 function pausePlayback() {
   isPlaying.value = false
   stopAnimationLoop()
@@ -2542,52 +2526,9 @@ onBeforeUnmount(function() {
   background: #D7E0E1;
 }
 
-/* Dynasty Label - compact, top-left overlay */
-.dynasty-label {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  z-index: 400;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 14px;
-  background: rgba(247, 244, 235, 0.92);
-  backdrop-filter: blur(6px);
-  border: 1px solid rgba(178, 143, 76, 0.4);
-  border-radius: 16px;
-  box-shadow: 0 2px 8px rgba(81, 109, 51, 0.1);
-  transition: all 0.25s ease;
-}
-
-.dynasty-label .dyn-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #5C7C3A;
-  box-shadow: 0 0 0 2px rgba(92, 124, 58, 0.2);
-  transition: all 0.3s ease;
-}
-
-.dynasty-label .dyn-text {
-  font: 600 13px/1 var(--serif);
-  color: #516D33;
-  letter-spacing: 0.08em;
-  transition: opacity 0.3s ease;
-}
-
-.dynasty-label.dyn-tang .dyn-dot { background: #C8763E; box-shadow: 0 0 0 2px rgba(200, 118, 62, 0.25); }
-.dynasty-label.dyn-song .dyn-dot { background: #5A7A9A; box-shadow: 0 0 0 2px rgba(90, 122, 154, 0.25); }
-.dynasty-label.dyn-yuan .dyn-dot { background: #6B8E6B; box-shadow: 0 0 0 2px rgba(107, 142, 107, 0.25); }
-.dynasty-label.dyn-ming .dyn-dot { background: #B28F4C; box-shadow: 0 0 0 2px rgba(178, 143, 76, 0.25); }
-.dynasty-label.dyn-qing .dyn-dot { background: #8A6A9A; box-shadow: 0 0 0 2px rgba(138, 106, 154, 0.25); }
-.dynasty-label.dyn-kangzhan .dyn-dot { background: #A8453A; box-shadow: 0 0 0 2px rgba(168, 69, 58, 0.25); }
-
 .route-filter-control {
-  position: absolute;
-  top: 52px;
-  left: 12px;
-  z-index: 400;
+  align-self: center;
+  flex-shrink: 0;
   display: flex;
   gap: 5px;
   padding: 5px;
@@ -2880,7 +2821,7 @@ onBeforeUnmount(function() {
   flex-direction: column;
   gap: 8px;
   min-height: 90px;
-  max-height: 130px;
+  max-height: 170px;
 }
 
 .timeline-header {
@@ -3095,7 +3036,6 @@ onBeforeUnmount(function() {
 
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
-  .dynasty-label,
   .play-btn,
   .reset-btn {
     transition: none;
@@ -3354,8 +3294,8 @@ onBeforeUnmount(function() {
 
 .modern-legend {
   left: 16px !important;
-  top: 16px !important;
-  bottom: auto !important;
+  top: auto !important;
+  bottom: 16px !important;
   z-index: 950;
   width: 248px;
   min-width: 0;
@@ -3375,6 +3315,13 @@ onBeforeUnmount(function() {
   margin-bottom: 6px;
   color: #516D33;
   font: normal 700 11px/1.35 var(--font-body), KaiTi, STKaiti, serif;
+}
+.modern-legend-guide {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(178, 143, 76, 0.26);
+  color: #516D33;
+  font: normal 500 11px/1.55 var(--font-body), KaiTi, STKaiti, serif;
 }
 .leaf-size-legend {
   display: grid;

@@ -358,7 +358,7 @@ async function initMap() {
     zoomDelta: 0.5,
     // 围绕地图中心缩放，不再根据鼠标所在位置向东或向西偏移地图。
     scrollWheelZoom: 'center',
-    zoomControl: true,
+    zoomControl: false,
     attributionControl: false,
     dragging: true,
     doubleClickZoom: false,
@@ -366,6 +366,8 @@ async function initMap() {
     keyboard: false,
     renderer: svgRenderer
   })
+
+  L.control.zoom({ position: 'bottomright' }).addTo(map)
 
   // 捕获阶段优先于 Leaflet 处理滚轮，确保最小缩放时不会再产生地图位移。
   mapWheelTarget = map.getContainer()

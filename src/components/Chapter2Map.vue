@@ -53,7 +53,7 @@
           v-if="viewMode === 'composite' || activeFactorId"
         >
           <div v-if="viewMode === 'composite'" class="map-title">
-            茶树生态适宜性<strong>综合评价</strong>
+            茶树生态适宜性综合评价
           </div>
           <div v-else class="map-title">
             {{ currentConfig.name }}适宜性分析
@@ -85,6 +85,11 @@
           >
             <span class="sw" :style="{ background: lv.color }"></span>
             <span>{{ lv.label }}</span>
+          </div>
+          <!-- 综合评价结论分析：仅在综合评价模式显示 -->
+          <div v-if="viewMode === 'composite'" class="composite-conclusion">
+            <p>本评价综合积温、气温、降水、土壤酸碱度与光照五项关键生态因子，运用层次分析法加权建模，以此解读山川风土与茶树生长之间的契合。</p>
+            <p>纵观全国，茶树最适宜的生长之地主要集中在江南丘陵与武夷、南岭之间，以及滇南、川南一带——这里气候温润，四季分明，土壤酸度相宜，山间云雾滋养嫩芽，逐渐形成以浙江、福建、云南、四川四省为核心的中华名茶主产区。一方水土养一方茶，茶树择境而生，得天地和气，方成一叶清芳。</p>
           </div>
         </div>
 
@@ -199,20 +204,13 @@
 
         <!-- 综合分析状态下的溯回按钮：右下角，取代转盘 -->
         <div v-if="viewMode === 'composite'" class="return-area">
-          <button class="return-btn" @click="onReturn">溯回</button>
+          <button class="return-btn" @click="onReturn">再看一遍</button>
         </div>
       </div>
     </div>
 
-    <!-- ========= 固定定位动画覆盖层（主图↔缩略图的位移/缩放/圆角/阴影过渡） ========= -->
-    <div
-      v-for="layer in _flipLayers"
-      :key="layer.id"
-      class="flip-overlay-fixed"
-      :style="layer.style"
-    >
-      <img :src="layer.png" />
-    </div>
+    <!-- 主图↔缩略图使用真实 DOM（Leaflet 容器 / 缩略图卡）做 CSS transform 缩放，
+         无 PNG overlay；地图的真实 SVG / tile 元素会跟着 transform 一起缩放。 -->
   </section>
 </template>
 
@@ -544,31 +542,7 @@ let _opId = 0
 let _currentOpId = 0
 let _spinTimers = []
 let _hardKillTimer = null
-let _flipIdCounter = 0
-const _flipLayers = shallowRef([])   // 固定定位动画层列表
-let _flipCleanupTimers = []
 let _resizeTimer = null
-
-// 缩略图缓存：key = `${fid}__v${version}` → dataURL
-// _thumbCacheVersion 在每次组件挂载时自增, 保证旧版本缓存失效。
-const _thumbCacheVersion = { v: 7 }
-const _thumbCache = reactive({})
-
-function _thumbKey(fid) {
-  return `${fid}__v${_thumbCacheVersion.v}`
-}
-function _getThumb(fid) {
-  return _thumbCache[_thumbKey(fid)] || ''
-}
-function _setThumb(fid, dataUrl) {
-  _thumbCache[_thumbKey(fid)] = dataUrl
-}
-function _hasThumb(fid) {
-  return !!_thumbCache[_thumbKey(fid)]
-}
-function _clearAllThumbs() {
-  Object.keys(_thumbCache).forEach(k => { delete _thumbCache[k] })
-}
 
 function clearSpinTimers() {
   _spinTimers.forEach(t => clearTimeout(t))
@@ -809,29 +783,28 @@ async function updateFactorLayer() {
       factorLayer = L.imageOverlay(COMPOSITE.png, bounds, {
         opacity: 0, interactive: false, crossOrigin: true,
       }).addTo(map)
-      animateOpacity(factorLayer, 450)
-      // 后台生成综合分析缩略图
-      _generateThumbInBackground('composite')
-    } catch (e) { layerFading.value = false }
-    return
-  }
-  const fid = activeFactorId.value
-  if (!fid) return
-  layerFading.value = true
-  await new Promise(r => setTimeout(r, 30))
-  try {
-    const cfg = FACTORS[fid]
-    const bounds = await loadFactorBounds(fid)
-    factorLayer = L.imageOverlay(cfg.png, bounds, {
-      opacity: 0, interactive: false, crossOrigin: true,
-    }).addTo(map)
-    animateOpacity(factorLayer, 450)
-    // 后台生成因子缩略图
-    _generateThumbInBackground(fid)
+animateOpacity(factorLayer, 450)
   } catch (e) {
-    console.warn('[ch2] factor overlay failed:', e)
+    console.warn('[ch2] composite overlay failed:', e)
     layerFading.value = false
   }
+  return
+}
+const fid = activeFactorId.value
+if (!fid) return
+layerFading.value = true
+await new Promise(r => setTimeout(r, 30))
+try {
+  const cfg = FACTORS[fid]
+  const bounds = await loadFactorBounds(fid)
+  factorLayer = L.imageOverlay(cfg.png, bounds, {
+    opacity: 0, interactive: false, crossOrigin: true,
+  }).addTo(map)
+  animateOpacity(factorLayer, 450)
+} catch (e) {
+  console.warn('[ch2] factor overlay failed:', e)
+  layerFading.value = false
+}
 }
 
 function animateOpacity(layer, dur) {
@@ -856,7 +829,7 @@ watch([activeFactorId, viewMode], () => {
  *   坐标、图片、Bounds 与主图共用同一配置和 Albers CRS。
  * ========================================================= */
 const THUMBNAIL_PADDING = 4
-const THUMBNAIL_ZOOM_BOOST = 0.3
+const THUMBNAIL_ZOOM_BOOST = 0.78
 const THUMBNAIL_OUTLINE_STYLE = {
   color: '#66784D', weight: 0.9, opacity: 0.9,
   fillOpacity: 0, interactive: false,
@@ -1110,336 +1083,267 @@ watch(thumbSlot, () => {
 }, { flush: 'post' })
 
 /* =========================================================
- * 现有 FLIP 动画的临时快照生成器
- *
- * 使用单个固定尺寸离屏 Leaflet 地图实例生成所有缩略图。
- *   - 容器: 640×400 (16:10), position:fixed, left:-10000px, 不用 display:none
- *   - 与主图共享同一套 CRS、图层配置、loadFactorBounds
- *   - 加载顺序: 省填充 → 因子 ImageOverlay → 省界 → 国界 → 九段线
- *   - 关键: 等待 moveend 事件 + 2x requestAnimationFrame 后再导出
- *     (Leaflet 在 moveend 后才会把 SVG <g transform> 和 img translate3d 同步到新视图)
- *   - 通过 SVG 序列化 + Canvas 合成导出单张扁平化 PNG dataURL
- *   - 缓存到 _thumbCache[key], 供缩略图卡片和 FLIP 动画共用
+ * 主图↔缩略图动画：
+ *   不生成 PNG。直接对"真实地图元素"做 fixed-position + CSS transform 缩放：
+ *     - 主图：用 .map 内部的 .leaflet-container（含 SVG path、tile pane、九段线、因子图层）
+ *             —— 而不是整个 .map-stage（.map-stage 还含 .ch2-bgimg 全屏背景艺术图、
+ *                .factor-fade-mask 等"非地图元素"，它们留在原位不缩放）
+ *     - 缩略图：用 .thumbnail-map 元素本身（内含缩略图 Leaflet 实例的三个 pane）
+ *                —— 而不是整个 .thumb-card（thumb-card 外框 + thumb-label 留在原位）
+ *   Leaflet 内部所有 SVG path、tile pane、九段线、imageOverlay 都是真实 DOM 节点，
+ *   会跟随 transform 一起被缩放——用户看到的就是真实地图在缩放，且只有"地图"
+ *   的范围在动，背景艺术图、米色蒙版、缩略图卡框等都保持原状。
  * ========================================================= */
-const _thumbRenderer = {
-  container: null,
-  map: null,
-  provFill: null,
-  provStroke: null,
-  outline: null,
-  tendash: null,
-  factor: null,
-  chinaBounds: null,
-  initialized: false,
-}
 
-// 离屏容器固定尺寸（16:10 横向比例）
-const THUMB_CONTAINER_W = 640
-const THUMB_CONTAINER_H = 400
-// 缩略图 fitBounds 内部 padding（水平 20px / 垂直 16px）
-const THUMB_FIT_PADDING = [20, 16]
-
-async function _ensureThumbRenderer() {
-  if (_thumbRenderer.initialized) return _thumbRenderer
-
-  // 创建隐藏容器: 640×400, position:fixed, 不能用 display:none (会导致 clientWidth=0)
-  // visibility:visible 但 left:-10000px 移出视口, 保证布局真实
-  const container = document.createElement('div')
-  container.style.cssText =
-    `position:fixed;left:-10000px;top:0;` +
-    `width:${THUMB_CONTAINER_W}px;height:${THUMB_CONTAINER_H}px;` +
-    `margin:0;padding:0;background:#EFE9DA;` +
-    `pointer-events:none;visibility:visible;`
-  document.body.appendChild(container)
-  _thumbRenderer.container = container
-
-  // 关键: 等待容器实际拥有 640×400 尺寸后再创建地图
-  // (position:fixed 元素通常立即可布局, 但保险起见等一帧)
-  await new Promise(r => requestAnimationFrame(() => r()))
-
-  if (container.clientWidth !== THUMB_CONTAINER_W || container.clientHeight !== THUMB_CONTAINER_H) {
-    console.warn('[ch2-thumb] container size mismatch before map init:',
-      container.clientWidth, container.clientHeight, 'expected', THUMB_CONTAINER_W, THUMB_CONTAINER_H)
+/** 把 el 临时改为 fixed 定位 + 设到 sourceRect。返回一个 restore() 把所有样式还原。*/
+function _pinElForAnim(el, rect, zIndex) {
+  if (!el) return () => {}
+  const prev = {
+    position: el.style.position,
+    left: el.style.left,
+    top: el.style.top,
+    width: el.style.width,
+    height: el.style.height,
+    transform: el.style.transform,
+    transformOrigin: el.style.transformOrigin,
+    transition: el.style.transition,
+    opacity: el.style.opacity,
+    willChange: el.style.willChange,
+    zIndex: el.style.zIndex,
+    classList: el.className,
   }
-
-  const opts = getMapOptions()
-  const m = L.map(container, {
-    ...opts,
-    zoomControl: false,
-    attributionControl: false,
-    dragging: false,
-    scrollWheelZoom: false,
-    doubleClickZoom: false,
-    boxZoom: false,
-    keyboard: false,
-    fadeAnimation: false,
-    zoomAnimation: false,
-    markerZoomAnimation: false,
-  })
-  _thumbRenderer.map = m
-
-  // 创建与主图相同的 pane
-  m.createPane('ch2Base')
-  m.getPane('ch2Base').style.zIndex = 200
-  m.createPane('ch2Border')
-  m.getPane('ch2Border').style.zIndex = 450
-
-  // 加载基础图层（省填充 + 省界 + 国界 + 九段线）
-  _thumbRenderer.provFill = await _addProvFillLayer(m)
-  _thumbRenderer.provStroke = await _addProvStrokeLayer(m)
-  _thumbRenderer.outline = await _addOutlineLayer(m)
-  _thumbRenderer.tendash = await _addTendashLayer(m)
-  _thumbRenderer.chinaBounds = _thumbRenderer.provStroke.getBounds()
-
-  // 初次定位: invalidateSize + fitBounds + 等待 moveend
-  m.invalidateSize(false)
-  await _fitBoundsAndWait(m, _thumbRenderer.chinaBounds)
-
-  _thumbRenderer.initialized = true
-  return _thumbRenderer
-}
-
-/**
- * 执行 fitBounds 并等待地图完全稳定:
- *   1. invalidateSize(false)
- *   2. fitBounds(animate:false, padding)
- *   3. 等待 moveend 事件 (Leaflet 完成所有图层重定位的信号)
- *   4. 再等 2x requestAnimationFrame (DOM/CSS flush)
- *   5. 兜底超时 1500ms
- *
- * 必须在导出快照前调用, 否则 SVG <g transform> 与 img translate3d 可能仍是旧值。
- */
-function _fitBoundsAndWait(m, bounds) {
-  return new Promise(resolve => {
-    let settled = false
-    const finish = () => {
-      if (settled) return
-      settled = true
-      // 2x rAF: 第一帧让 Leaflet 提交 DOM 变更, 第二帧让浏览器绘制
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => resolve())
-      })
-    }
-
-    // moveend 是 Leaflet 完成视图重定位的权威信号
-    const onMoveEnd = () => {
-      m.off('moveend', onMoveEnd)
-      finish()
-    }
-    m.on('moveend', onMoveEnd)
-
-    m.invalidateSize(false)
-    m.fitBounds(bounds, { animate: false, padding: THUMB_FIT_PADDING })
-
-    // 兜底: 如果 800ms 内没 moveend (例如 bounds 未变化), 直接 finish
-    setTimeout(() => { if (!settled) { m.off('moveend', onMoveEnd); finish() } }, 800)
-  })
-}
-
-async function generateThumbnail(fid) {
-  if (_hasThumb(fid)) return _getThumb(fid)
-  try {
-    const renderer = await _ensureThumbRenderer()
-    if (renderer.factor) {
-      renderer.map.removeLayer(renderer.factor)
-      renderer.factor = null
-    }
-    renderer.factor = await _addFactorOverlay(renderer.map, fid)
-    await _fitBoundsAndWait(renderer.map, renderer.chinaBounds)
-
-    const container = renderer.map.getContainer()
-    const controls = container.querySelectorAll('.leaflet-control-container')
-    const prevDisplay = []
-    controls.forEach(c => { prevDisplay.push({ el: c, display: c.style.display }); c.style.display = 'none' })
-
-    const dataUrl = await _captureFromMap(renderer.map)
-
-    prevDisplay.forEach(({ el, display }) => { el.style.display = display })
-
-    if (dataUrl) {
-      _setThumb(fid, dataUrl)
-    } else {
-      console.error('[ch2-thumb] capture failed for:', fid)
-    }
-  } catch (error) {
-    console.warn('[ch2-thumb] animation snapshot failed:', fid, error)
+  el.style.position = 'fixed'
+  el.style.left = rect.left + 'px'
+  el.style.top = rect.top + 'px'
+  el.style.width = rect.width + 'px'
+  el.style.height = rect.height + 'px'
+  el.style.transformOrigin = '0 0'
+  el.style.transform = 'none'
+  el.style.transition = 'none'
+  el.style.opacity = '1'
+  el.style.willChange = 'transform, opacity'
+  el.style.zIndex = String(zIndex)
+  el.classList.add('animating')
+  return () => {
+    el.style.position = prev.position
+    el.style.left = prev.left
+    el.style.top = prev.top
+    el.style.width = prev.width
+    el.style.height = prev.height
+    el.style.transform = prev.transform
+    el.style.transformOrigin = prev.transformOrigin
+    el.style.transition = prev.transition
+    el.style.opacity = prev.opacity
+    el.style.willChange = prev.willChange
+    el.style.zIndex = prev.zIndex
+    el.classList.remove('animating')
   }
-
-  return _getThumb(fid) || null
 }
 
-/** 等待地图视图完全稳定 (moveend + 因子图层就绪) */
-function _waitMapSettled(m) {
-  return new Promise(resolve => {
-    let settled = false
-    const finish = () => { if (settled) return; settled = true; requestAnimationFrame(() => requestAnimationFrame(resolve)) }
-    const onMoveEnd = () => { m.off('moveend zoomend', onMoveEnd); finish() }
-    m.on('moveend zoomend', onMoveEnd)
-    const checkFactor = () => {
-      const c = m.getContainer()
-      const img = c.querySelector('.leaflet-overlay-pane img.leaflet-image-layer')
-      if (img && img.complete && img.naturalWidth > 0 && img.style.transform) { finish(); return }
-      if (!settled) setTimeout(checkFactor, 80)
-    }
-    checkFactor()
-    setTimeout(() => { if (!settled) { m.off('moveend zoomend', onMoveEnd); finish() } }, 2000)
-  })
-}
+/** 用 CSS transition 把 el 从 sourceRect 形变到 targetRect。
+ *  options: durationMs、fadeOut（末段淡出，淡出开始时间 fadeStartMs、淡出时长 fadeDurationMs）。*/
+function _animateDomToRect(el, sourceRect, targetRect, {
+  durationMs = 1400,
+  fadeOut = false,
+  fadeStartMs = 950,
+  fadeDurationMs = 500,
+  ease = 'cubic-bezier(0.45, 0.05, 0.35, 0.95)',
+} = {}) {
+  if (!el || !sourceRect || !targetRect) return
+  const sx = targetRect.width / sourceRect.width
+  const sy = targetRect.height / sourceRect.height
+  const tx = targetRect.left - sourceRect.left
+  const ty = targetRect.top - sourceRect.top
+  // transform-origin: 0 0; 复合矩阵作用顺序：先 scale 再 translate，但
+  // CSS transform 列表是 reverse application: 'translate(...) scale(...)' 表示
+  // 先 scale 后 translate；最右边的先生效。所以 translate 在后意为位移是
+  // 在缩放后的坐标系内做平移，刚好让 fixed 坐标原 rect → targetRect 的形变
+  // 可以看作"先把 rect 缩放到 target 矩形大小，再把原点位移到 target.left-top"。
+  // 我们的写法是先 translate 后 scale，浏览器解析时是反着的：先 scale 再 translate。
+  const finalTransform = `translate(${tx}px, ${ty}px) scale(${sx}, ${sy})`
 
-function _generateThumbInBackground(fid) {
-  if (_hasThumb(fid)) return
-  nextTick(() => {
-    requestAnimationFrame(async () => {
-      try { await generateThumbnail(fid) } catch (e) { console.warn('[ch2-thumb] bg failed:', fid, e) }
+  let transitionCss = `transform ${durationMs}ms ${ease}`
+  if (fadeOut) {
+    transitionCss += `, opacity ${fadeDurationMs}ms ease-out ${fadeStartMs}ms`
+  }
+  el.style.transition = transitionCss
+  // 强制 reflow 让 transition 从当前 transform="none" 开始
+  void el.getBoundingClientRect()
+  el.style.transform = finalTransform
+  if (fadeOut) {
+    requestAnimationFrame(() => {
+      if (el) el.style.opacity = '0'
     })
-  })
-}
-
-/**
- * 从 Leaflet 地图实例栅格化导出单张 PNG。
- *
- * 策略: 以 .leaflet-map-pane 的 boundingRect 为统一参考系,
- * 按 Leaflet 图层 z-order 顺序 (tile → ch2Base → overlay → ch2Border)
- * 逐图层把 SVG / <img> 绘制到同一 canvas, 保证所有图层使用完全一致的
- * 相对像素坐标, 不会出现错位。
- */
-async function _captureFromMap(m) {
-  const container = m.getContainer()
-  const w = container.clientWidth
-  const h = container.clientHeight
-  if (w === 0 || h === 0) { console.warn('[ch2-thumb] zero size'); return null }
-
-  const mapPane = container.querySelector('.leaflet-map-pane')
-  if (!mapPane) { console.warn('[ch2-thumb] no leaflet-map-pane'); return null }
-
-  // 隐藏控件
-  const controls = container.querySelectorAll('.leaflet-control-container')
-  const prevDisplay = []
-  controls.forEach(c => { prevDisplay.push({ el: c, display: c.style.display }); c.style.display = 'none' })
-
-  // 统一参考系: mapPane 的 boundingRect
-  const mpRect = mapPane.getBoundingClientRect()
-
-  const canvas = document.createElement('canvas')
-  canvas.width = w
-  canvas.height = h
-  const ctx = canvas.getContext('2d')
-
-  // 背景填充
-  ctx.fillStyle = '#EFE9DA'
-  ctx.fillRect(0, 0, w, h)
-
-  try {
-    // 绘制顺序: 与 Leaflet z-index 一致
-    // 1) ch2Base pane (省填充)
-    await _drawPaneByRect(mpRect, m, 'ch2Base', ctx)
-
-    // 2) overlay-pane (因子数据 ImageOverlay)
-    await _drawOverlayPane(mpRect, m, ctx)
-
-    // 3) ch2Border pane (省界 + 国界 + 九段线)
-    await _drawPaneByRect(mpRect, m, 'ch2Border', ctx)
-
-    return canvas.toDataURL('image/png')
-  } catch (e) {
-    console.warn('[ch2-thumb] capture failed:', e)
-    return null
-  } finally {
-    // 还原控件
-    controls.forEach(({ el, display }) => { el.style.display = display })
   }
 }
 
-/**
- * 绘制指定 pane (SVG) 到 canvas, 所有坐标相对 mapPane 参考系。
- */
-function _drawPaneByRect(mpRect, m, paneName, ctx) {
-  return new Promise(resolve => {
-    const pane = m.getPane(paneName)
-    if (!pane) { resolve(); return }
+function _sleep(ms) { return new Promise(r => setTimeout(r, ms)) }
 
-    const svgEl = pane.querySelector('svg')
-    if (!svgEl) { resolve(); return }
-
-    // 使用 pane 相对于 mapPane 的位置
-    const paneRect = pane.getBoundingClientRect()
-    const x = paneRect.left - mpRect.left
-    const y = paneRect.top - mpRect.top
-    const rw = paneRect.width
-    const rh = paneRect.height
-    if (rw <= 0 || rh <= 0) { resolve(); return }
-
-    const clone = svgEl.cloneNode(true)
-    clone.setAttribute('width', rw)
-    clone.setAttribute('height', rh)
-    clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg')
-    clone.setAttribute('preserveAspectRatio', 'none')
-
-    // 注入关键 CSS, 使序列化后的 SVG 正确渲染
-    const styleBlock = document.createElement('style')
-    styleBlock.textContent = `
-      .leaflet-pane { position: absolute; }
-      .leaflet-overlay-pane img { pointer-events: none; }
-      svg.leaflet-zoom-box { position: absolute; }
-    `
-    clone.insertBefore(styleBlock, clone.firstChild)
-
-    const svgStr = new XMLSerializer().serializeToString(clone)
-    const svgUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgStr)
-
-    const img = new Image()
-    img.onload = () => {
-      ctx.drawImage(img, x, y, rw, rh)
-      resolve()
-    }
-    img.onerror = () => {
-      console.warn('[ch2-thumb] pane load error:', paneName)
-      resolve()
-    }
-    img.src = svgUrl
-  })
+function _getThumbSlotRect(slotIndex0Based) {
+  const el = document.querySelector('.thumb-slot-' + (slotIndex0Based + 1))
+  if (!el) return null
+  return el.getBoundingClientRect()
 }
 
-/**
- * 绘制 overlay-pane 中的因子 ImageOverlay <img> 到 canvas。
- * 使用与 SVG pane 相同的 mpRect 参考系, 确保坐标对齐。
- */
-function _drawOverlayPane(mpRect, m, ctx) {
-  return new Promise(resolve => {
-    const container = m.getContainer()
-    const img = container.querySelector('.leaflet-overlay-pane img.leaflet-image-layer')
-    if (!img) { resolve(); return }
-    if (!img.complete || img.naturalWidth === 0) {
-      // 等待图片加载完成
-      const onLoad = () => {
-        img.removeEventListener('load', onLoad)
-        drawIt()
+/** 主图"地图范围"：主图容器 .map 本身就是 Leaflet 容器（L.map 直接复用该 div，
+ *  其 class 含 .leaflet-container）。动画缩放的就是这个元素。
+ *  注意：.ch2-bgimg-A/B 与 .ch2-bg-mask 也被注入在 .map 内部，动画期间由
+ *  _detachBgForAnim() 临时移出，保证只有真实地图内容（省份 SVG、因子图层、
+ *  边界、九段线、缩放控件）参与缩放，背景艺术图和米色蒙版留在原位不动。*/
+function _getMainMapRect() {
+  const el = mapRef.value
+  if (!el) return null
+  return el.getBoundingClientRect()
+}
+
+/** 主图 Leaflet 容器（动画的真实目标元素）——即 .map 本身。*/
+function _getMainLcEl() {
+  return mapRef.value || null
+}
+
+/** 动画期间把主图 .map 内部的全屏背景层（ch2-bgimg-A/B、ch2-bg-mask）临时
+ *  移到 .map-stage 下。它们的 CSS 是 position:absolute; inset:0，.map-stage 同样
+ *  铺满，因此视觉位置完全不变；但它们不再跟随 .map 的 transform 一起被缩放。
+ *  返回 restore() 把节点按原顺序放回 .map 内部。*/
+function _detachBgForAnim() {
+  const root = mapRef.value
+  const stage = root?.closest?.('.map-stage')
+  if (!root || !stage) return () => {}
+  const sels = ['img.ch2-bgimg-A', 'img.ch2-bgimg-B', 'div.ch2-bg-mask']
+  const moved = []
+  for (const s of sels) {
+    const n = root.querySelector(':scope > ' + s)
+    if (n) moved.push(n)
+  }
+  if (!moved.length) return () => {}
+  const restores = moved.map(n => {
+    const parent = n.parentElement
+    const next = n.nextSibling
+    stage.appendChild(n)
+    return () => { try { parent.insertBefore(n, next) } catch (e) {} }
+  })
+  // 恢复必须逆序：正序恢复时，前一个节点的 insertBefore 参考节点（next）还留在
+  // .map-stage 里，insertBefore 会抛 DOMException 被吞掉，节点就永久滞留了
+  return () => { for (let i = restores.length - 1; i >= 0; i--) restores[i]() }
+}
+
+/** 主图归档到第 N 个缩略图卡槽：使用主图内真实 Leaflet DOM 做 CSS transform 缩小。
+ *   - 动画期间：主图 .map（即 .leaflet-container）被 fixed 到源矩形，再 transform scale 到目标矩形
+ *   - .ch2-bgimg-A/B / .ch2-bg-mask 被 _detachBgForAnim() 临时移到 .map-stage 下——
+ *     背景艺术图、米色蒙版留在原位不缩放，动的只是真实地图内容
+ *   - 末段 950ms 起透明度渐隐（露出下方真实缩略图卡片），终点不跳变
+ *   - 动画结束：Leaflet 容器恢复到原位置，背景节点放回 .map 内，调 invalidateSize
+ *   - fid 仅作为语义说明：被归档的因子 id（即上一个 activeFactorId） */
+async function playArchiveAnimation({ fid, targetSlotIndex0Based }) {
+  const sourceRect = _getMainMapRect()
+  const targetRect = _getThumbSlotRect(targetSlotIndex0Based)
+  if (!sourceRect || !targetRect) return { ok: false }
+
+  const lcEl = _getMainLcEl()
+  if (!lcEl) return { ok: false }
+
+  const detachBg = _detachBgForAnim()
+  const restore = _pinElForAnim(lcEl, sourceRect, 99999)
+  try {
+    // 等两帧，确保 fixed 状态彻底生效，transition 从 transform:none 开始
+    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))
+
+    _animateDomToRect(lcEl, sourceRect, targetRect, {
+      durationMs: 1400,
+      ease: 'cubic-bezier(0.45, 0.05, 0.35, 0.95)',
+      fadeOut: true,
+      fadeStartMs: 950,
+      fadeDurationMs: 500,
+    })
+    await _sleep(1500)
+  } finally {
+    restore()
+    detachBg()
+    if (map) {
+      try { map.invalidateSize(false) } catch (e) {}
+    }
+  }
+  return { ok: true }
+}
+
+/** 缩略图点击 → 主图放大；同时把原主图（currentActiveFid）归档到 futureThumb 对应卡槽。
+ *   Layer A (放大)：被点击的 .thumbnail-map（缩略图内真实 Leaflet DOM）fixed 到缩略图位后 transform scale-up 到主图位
+ *                   —— 只缩地图元素，thumb-card 外框和 thumb-label 留在原位不参与动画
+ *   Layer B (归档)：主图 .leaflet-container fixed 在主图位后 transform scale-down 到 futureThumb 对应缩略图位（淡出）
+ *                   —— 只缩主图内真实地图元素，背景艺术图/米色蒙版留在原位不参与动画
+ *   被归档的 currentActiveFid 是被点击切换前的 activeFactorId（"上一个因子"），
+ *   正是用户期望的"变成缩略图的是上一个因子，而不是新抽出的因子"。*/
+async function playThumbToMainAnimations({ clickedFid, currentActiveFid, futureDrawOrder, futureView }) {
+  const futureThumb = futureView === 'composite'
+    ? [...futureDrawOrder]
+    : futureDrawOrder.filter(x => x !== clickedFid)
+
+  const clickedSourceIdx = thumbSlot.value.indexOf(clickedFid)
+  const currentActiveTargetIdx = futureThumb.indexOf(currentActiveFid)
+
+  const mainRect = _getMainMapRect()
+  if (!mainRect) return null
+
+  const lcEl = _getMainLcEl()
+  if (!lcEl) return null
+
+  const restores = []
+  let detachBg = () => {}
+
+  try {
+    // === Layer A：被点击缩略图内的真实 Leaflet DOM 放大到主图位置 ===
+    if (clickedSourceIdx >= 0) {
+      const mapEl = document.querySelector(
+        '.thumb-slot-' + (clickedSourceIdx + 1) + ' .thumbnail-map'
+      )
+      if (mapEl) {
+        // 起始矩形用元素自身的实际 rect（比 slot 小——不含 thumb-label 高度），
+        // 避免 pin 瞬间出现尺寸跳变
+        const srcRect = mapEl.getBoundingClientRect()
+        const r = _pinElForAnim(mapEl, srcRect, 99998)
+        restores.push(r)
+        // Layer A 只缩 .thumbnail-map，thumb-card 外框 + thumb-label 留在原位——不需要再隐藏 label
+
+        await new Promise(rs => requestAnimationFrame(() => requestAnimationFrame(rs)))
+
+        _animateDomToRect(mapEl, srcRect, mainRect, {
+          durationMs: 1400,
+          ease: 'cubic-bezier(0.45, 0.05, 0.35, 0.95)',
+          fadeOut: false, // Layer A 不淡出，让真实主图最终接管显示
+        })
       }
-      img.addEventListener('load', onLoad)
-      setTimeout(() => { img.removeEventListener('load', onLoad); drawIt() }, 3000)
-      return
     }
 
-    drawIt()
+    // === Layer B：主图（.map = .leaflet-container）缩到 futureThumb 对应卡槽（"上一个因子"位，末段淡出） ===
+    if (currentActiveTargetIdx >= 0 && currentActiveFid && currentActiveFid !== clickedFid) {
+      const targetRect = _getThumbSlotRect(currentActiveTargetIdx)
+      if (targetRect) {
+        // 背景层（ch2-bgimg/ch2-bg-mask）临时移出 .map，动画只作用于真实地图内容
+        detachBg = _detachBgForAnim()
+        const r = _pinElForAnim(lcEl, mainRect, 99997)
+        restores.push(r)
 
-    function drawIt() {
-      const r = img.getBoundingClientRect()
-      const x = r.left - mpRect.left
-      const y = r.top - mpRect.top
-      const rw = r.width
-      const rh = r.height
-      if (rw <= 0 || rh <= 0) { resolve(); return }
+        await new Promise(rs => requestAnimationFrame(() => requestAnimationFrame(rs)))
 
-      ctx.drawImage(img, x, y, rw, rh)
-      resolve()
+        _animateDomToRect(lcEl, mainRect, targetRect, {
+          durationMs: 1400,
+          ease: 'cubic-bezier(0.45, 0.05, 0.35, 0.95)',
+          fadeOut: true,
+          fadeStartMs: 950,
+          fadeDurationMs: 500,
+        })
+      }
     }
-  })
-}
 
-/** 模板辅助：获取缓存的缩略图 dataURL */
-function thumbSrc(fid) {
-  if (!fid) return ''
-  return _getThumb(fid)
+    await _sleep(1500)
+  } finally {
+    restores.forEach(r => { try { r() } catch (e) {} })
+    detachBg()
+    if (map) {
+      try { map.invalidateSize(false) } catch (e) {}
+    }
+  }
+  return true
 }
 
 /* =========================================================
@@ -1526,210 +1430,7 @@ async function runSpinSequence(steps, myOpId) {
   })
 }
 
-/* =========================================================
- * 固定定位 FLIP 动画工具
- *   - 先测量 sourceRect、targetRect（在 activeFactorId 改变之前）
- *   - 创建一个 position: fixed 的动画层，初始尺寸与主图完全相同
- *   - 一个 requestAnimationFrame 后，对 left/top/width/height + borderRadius + boxShadow 做 800ms 过渡
- *   - 过渡开始约 250ms 后，新图淡入
- *   - Promise.race([动画 850ms, 超时 1200ms]) 确保最终清理
- * ========================================================= */
-function _makeFlipLayerId() { return 'fl' + (++_flipIdCounter) }
-function _getThumbSlotRect(slotIndex0Based) {
-  const el = document.querySelector('.thumb-slot-' + (slotIndex0Based + 1))
-  if (!el) return null
-  return el.getBoundingClientRect()
-}
-function _getMainStageRect() {
-  const el = mapRef.value?.closest('.map-stage')
-  if (!el) return null
-  return el.getBoundingClientRect()
-}
-
-/**
- * 获取因子缩略图 dataURL（优先用缓存，否则同步生成）
- */
-async function _ensureThumbPng(fid) {
-  if (_hasThumb(fid)) return _getThumb(fid)
-  // 后台尚未生成完成，等待最多 3 秒
-  try {
-    const result = await Promise.race([
-      generateThumbnail(fid),
-      _sleep(3000).then(() => null),
-    ])
-    if (result) return result
-  } catch (e) {
-    console.warn('[ch2] _ensureThumbPng failed:', fid, e)
-  }
-  return null
-}
-
-function _pushFlipLayer({ fid, png, sourceRect, targetRect }) {
-  const id = _makeFlipLayerId()
-  const layer = {
-    id,
-    png,
-    fid,
-    style: {
-      position: 'fixed',
-      left:   sourceRect.left + 'px',
-      top:    sourceRect.top  + 'px',
-      width:  sourceRect.width  + 'px',
-      height: sourceRect.height + 'px',
-      borderRadius: '2px',
-      boxShadow: '0 2px 8px rgba(81,109,51,0.0)',
-      overflow: 'hidden',
-      pointerEvents: 'none',
-      zIndex: 99999,
-      transition: 'none',
-    },
-  }
-  _flipLayers.value = [..._flipLayers.value, layer]
-
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      layer.style = {
-        position: 'fixed',
-        left:   targetRect.left + 'px',
-        top:    targetRect.top  + 'px',
-        width:  targetRect.width  + 'px',
-        height: targetRect.height + 'px',
-        borderRadius: '10px',
-        boxShadow: '0 2px 8px rgba(81,109,51,0.12)',
-        overflow: 'hidden',
-        pointerEvents: 'none',
-        zIndex: 99999,
-        transition:
-          'left 800ms cubic-bezier(0.22, 1, 0.36, 1),' +
-          'top 800ms cubic-bezier(0.22, 1, 0.36, 1),' +
-          'width 800ms cubic-bezier(0.22, 1, 0.36, 1),' +
-          'height 800ms cubic-bezier(0.22, 1, 0.36, 1),' +
-          'border-radius 800ms cubic-bezier(0.22, 1, 0.36, 1),' +
-          'box-shadow 800ms cubic-bezier(0.22, 1, 0.36, 1)',
-      }
-      _flipLayers.value = [..._flipLayers.value]
-    })
-  })
-
-  return id
-}
-function _removeFlipLayer(id) {
-  _flipLayers.value = _flipLayers.value.filter(x => x.id !== id)
-}
-function _sleep(ms) { return new Promise(r => setTimeout(r, ms)) }
-
-/**
- * 执行主图归档动画：从主图位置 -> 第 N 个缩略图卡槽
- * 调用时机：在 activeFactorId / viewMode 改变 **之前** 调用
- * 返回 Promise：动画结束或 1200ms 超时后 resolve（永远 resolve，不抛错）
- */
-async function playArchiveAnimation({ fid, targetSlotIndex0Based }) {
-  const sourceRect = _getMainStageRect()
-  if (!sourceRect) return { ok: false }
-
-  const targetRect = _getThumbSlotRect(targetSlotIndex0Based)
-  if (!targetRect) return { ok: false }
-
-  // 使用缓存的完整缩略图（包含行政底图+因子+省界+国界+九段线）
-  const png = await _ensureThumbPng(fid)
-  if (!png) {
-    console.warn('[ch2] archive animation: thumbnail not available for', fid)
-    return { ok: false }
-  }
-
-  const layerId = _pushFlipLayer({ fid, png, sourceRect, targetRect })
-
-  const cleanup = () => _removeFlipLayer(layerId)
-  try {
-    await Promise.race([_sleep(850), _sleep(1200)])
-  } finally {
-    cleanup()
-  }
-  return { ok: true }
-}
-
-/**
- * 缩略图点击 -> 主图放大动画（source=thumbSlot, target=mainStage）
- * 同时把当前主图做一次归档动画到它未来的缩略图槽（双向）
- */
-async function playThumbToMainAnimations({ clickedFid, currentActiveFid, futureDrawOrder, futureView }) {
-  const futureThumb = futureView === 'composite'
-    ? [...futureDrawOrder]
-    : futureDrawOrder.filter(x => x !== clickedFid)
-
-  const clickedSourceIdx = thumbSlot.value.indexOf(clickedFid)
-  const currentActiveTargetIdx = futureThumb.indexOf(currentActiveFid)
-  const mainRect = _getMainStageRect()
-
-  if (!mainRect) return null
-
-  const layerIds = []
-  const cleanupAll = () => layerIds.forEach(id => _removeFlipLayer(id))
-
-  try {
-    // Layer A: clicked 缩略图放大到主图
-    if (clickedSourceIdx >= 0) {
-      const srcRect = _getThumbSlotRect(clickedSourceIdx)
-      const srcPng = await _ensureThumbPng(clickedFid)
-      if (srcRect && srcPng) {
-        const id = _makeFlipLayerId()
-        const layer = {
-          id, png: srcPng, fid: clickedFid,
-          style: {
-            position: 'fixed',
-            left:   srcRect.left + 'px', top: srcRect.top + 'px',
-            width:  srcRect.width + 'px', height: srcRect.height + 'px',
-            borderRadius: '10px',
-            boxShadow: '0 2px 8px rgba(81,109,51,0.12)',
-            overflow: 'hidden', pointerEvents: 'none', zIndex: 99999, transition: 'none',
-          },
-        }
-        _flipLayers.value = [..._flipLayers.value, layer]
-        layerIds.push(id)
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            layer.style = {
-              position: 'fixed',
-              left:   mainRect.left + 'px', top: mainRect.top + 'px',
-              width:  mainRect.width + 'px', height: mainRect.height + 'px',
-              borderRadius: '2px',
-              boxShadow: '0 2px 8px rgba(81,109,51,0.0)',
-              overflow: 'hidden', pointerEvents: 'none', zIndex: 99999,
-              transition:
-                'left 800ms cubic-bezier(0.22, 1, 0.36, 1),' +
-                'top 800ms cubic-bezier(0.22, 1, 0.36, 1),' +
-                'width 800ms cubic-bezier(0.22, 1, 0.36, 1),' +
-                'height 800ms cubic-bezier(0.22, 1, 0.36, 1),' +
-                'border-radius 800ms cubic-bezier(0.22, 1, 0.36, 1),' +
-                'box-shadow 800ms cubic-bezier(0.22, 1, 0.36, 1)',
-            }
-            _flipLayers.value = [..._flipLayers.value]
-          })
-        })
-      }
-    }
-
-    // Layer B: currentActiveFid（原主图）归档到 futureThumb 中它对应的缩略图槽
-    if (currentActiveTargetIdx >= 0 && currentActiveFid && currentActiveFid !== clickedFid) {
-      const targetRect = _getThumbSlotRect(currentActiveTargetIdx)
-      const png = await _ensureThumbPng(currentActiveFid)
-      if (targetRect && png) {
-        const id = _pushFlipLayer({
-          fid: currentActiveFid,
-          png,
-          sourceRect: mainRect,
-          targetRect,
-        })
-        layerIds.push(id)
-      }
-    }
-
-    await Promise.race([_sleep(850), _sleep(1200)])
-  } finally {
-    cleanupAll()
-  }
-  return true
-}
+/* FLIP PNG 覆盖层已删除：本文件靠 _pinElForAnim + _animateDomToRect + playArchiveAnimation/playThumbToMainAnimations 实现真 DOM 缩放。 */
 
 /* =========================================================
  * 抽取主流程（状态机保持稳定）
@@ -1789,12 +1490,13 @@ async function runSpinAnimation() {
       const targetSlotIdx   = futureThumb.indexOf(previousActive)
 
       if (targetSlotIdx >= 0) {
-        const animPromise = playArchiveAnimation({
+        // 真 DOM 缩放：等动画层（图钉）状态生效（首帧 transform 已应用）后再提交状态，
+        // 保证归档动画起始画面与主图一致，无跳变；最坏 1.5s 超时。
+        playArchiveAnimation({
           fid: previousActive,
           targetSlotIndex0Based: targetSlotIdx,
-        })
+        }).catch(() => {})
         await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(() => r())))
-        animPromise.catch(() => {})
       } else {
         await new Promise(r => requestAnimationFrame(() => r()))
       }
@@ -1832,7 +1534,7 @@ async function runSpinAnimation() {
             drawPhase.value = isDrawComplete.value ? 'complete' : 'ready'
           }
         }
-      }, 820)
+      }, 1420)
     }
   }
 }
@@ -1840,7 +1542,7 @@ async function runSpinAnimation() {
 /* =========================================================
  * 缩略图点击（双向动画）
  * ========================================================= */
-function onThumbClick(targetFid) {
+async function onThumbClick(targetFid) {
   if (btnDisabled.value) return
   if (viewMode.value !== 'detail') return
   if (targetFid === activeFactorId.value) return
@@ -1854,27 +1556,30 @@ function onThumbClick(targetFid) {
 
   const currentActive = activeFactorId.value
   const futureDrawOrder = [...drawOrder.value]
-  const futureThumb = futureDrawOrder.filter(x => x !== targetFid)
 
-  Promise.resolve()
-    .then(() => playThumbToMainAnimations({
-      clickedFid: targetFid,
-      currentActiveFid: currentActive,
-      futureDrawOrder,
-      futureView: 'detail',
-    }))
-    .catch(() => {})
+  // 触发主图归档 + 缩略图放大双向真 DOM 缩放动画（fire-and-forget，不阻塞后续状态提交——
+  //   动画层状态在两个 rAF 后已稳定，主图 activeFactorId 提交后会立即接管）。
+  playThumbToMainAnimations({
+    clickedFid: targetFid,
+    currentActiveFid: currentActive,
+    futureDrawOrder,
+    futureView: 'detail',
+  }).catch(() => {})
 
-  setTimeout(() => {
-    if (_currentOpId !== myOpId) return
-    activeFactorId.value = targetFid
-    if (map) map.invalidateSize(false)
-  }, 220)
+  // 保持原有 220ms 的最小节奏。
+  const startedAt = performance.now()
+  await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))
+  const elapsed = performance.now() - startedAt
+  if (elapsed < 220) await _sleep(220 - elapsed)
+  if (_currentOpId !== myOpId) return
+
+  activeFactorId.value = targetFid
+  if (map) map.invalidateSize(false)
 
   setTimeout(() => {
     if (_currentOpId !== myOpId) return
     isVisualLocked.value = false
-  }, 900)
+  }, 1500)
 }
 
 /* =========================================================
@@ -1901,13 +1606,12 @@ async function enterComposite() {
     if (fifthFid) {
       const targetSlotIdx = drawOrder.value.indexOf(fifthFid)
       if (targetSlotIdx === 4) {
-        Promise.resolve()
-          .then(() => playArchiveAnimation({
-            fid: fifthFid,
-            targetSlotIndex0Based: 4,
-          }))
-          .catch(() => {})
-        await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(() => r())))
+        // 真 DOM 缩放：等图钉状态生效（两个 rAF）后再提交状态，避免起始跳变
+        playArchiveAnimation({
+          fid: fifthFid,
+          targetSlotIndex0Based: 4,
+        }).catch(() => {})
+        await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))
       }
     }
 
@@ -1941,8 +1645,6 @@ function onReturn() {
  * ========================================================= */
 onBeforeUnmount(() => {
   clearSpinTimers(); clearHardKill()
-  _flipCleanupTimers.forEach(h => clearTimeout(h))
-  _flipCleanupTimers = []
   _bgSwitchTimers.forEach(h => clearTimeout(h))
   _bgSwitchTimers = []
   if (_resizeTimer) { clearTimeout(_resizeTimer); _resizeTimer = null }
@@ -1955,22 +1657,6 @@ onBeforeUnmount(() => {
   ])).forEach(destroyThumbnailMap)
   thumbnailContainers.clear()
   thumbnailInitPending.clear()
-  // 清理离屏缩略图渲染器
-  if (_thumbRenderer.map) {
-    _thumbRenderer.map.off()
-    _thumbRenderer.map.remove()
-    _thumbRenderer.map = null
-  }
-  if (_thumbRenderer.container) {
-    _thumbRenderer.container.remove()
-    _thumbRenderer.container = null
-  }
-  _thumbRenderer.factor = null
-  _thumbRenderer.chinaBounds = null
-  _thumbRenderer.initialized = false
-  // 清空缩略图缓存并递增版本号, 下次挂载时旧 key 全部失效
-  _clearAllThumbs()
-  _thumbCacheVersion.v++
   if (map) { map.remove(); map = null }
 })
 </script>
@@ -1983,7 +1669,7 @@ onBeforeUnmount(() => {
 
 .chapter-body {
   --ch2-page-edge: clamp(16px, 2vw, 28px);
-  --ch2-left-panel-width: clamp(440px, 25vw, 560px);
+  --ch2-left-panel-width: clamp(572px, 32.5vw, 728px);
   --ch2-right-safe-width: clamp(300px, 19vw, 360px);
   position: fixed;
   top: 60px;
@@ -2003,7 +1689,7 @@ onBeforeUnmount(() => {
   position: absolute;
   top: auto;
   bottom: 8px;
-  left: var(--ch2-page-edge);
+  left: calc(var(--ch2-page-edge) + 25px);
   width: var(--ch2-left-panel-width);
   z-index: 700;
   min-width: 0;
@@ -2027,8 +1713,8 @@ onBeforeUnmount(() => {
   /* 高宽约 4:3，显著增加地图画面的纵向空间。 */
   aspect-ratio: 3 / 4;
 }
-.thumb-slot-1 { grid-column: 2 / span 2; grid-row: 1; }
-.thumb-slot-2 { grid-column: 4 / span 2; grid-row: 1; }
+.thumb-slot-1 { grid-column: 1 / span 2; grid-row: 1; }
+.thumb-slot-2 { grid-column: 3 / span 2; grid-row: 1; }
 .thumb-slot-3 { grid-column: 1 / span 2; grid-row: 2; }
 .thumb-slot-4 { grid-column: 3 / span 2; grid-row: 2; }
 .thumb-slot-5 { grid-column: 5 / span 2; grid-row: 2; }
@@ -2129,20 +1815,20 @@ onBeforeUnmount(() => {
 .legend-title {
   font-family: inherit;
   font-style: normal;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
   color: #4b5d2b;
   letter-spacing: 1px;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 .legend-row {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 10.5px;
+  gap: 9px;
+  font-size: 13.5px;
   color: #5a4f38;
-  margin-bottom: 3px;
-  line-height: 1.35;
+  margin-bottom: 6px;
+  line-height: 1.45;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2151,8 +1837,8 @@ onBeforeUnmount(() => {
 }
 .legend-row .sw {
   flex: none;
-  width: 12px;
-  height: 9px;
+  width: 14px;
+  height: 10px;
   border-radius: 2px;
   border: 0.5px solid rgba(0,0,0,0.06);
 }
@@ -2186,7 +1872,7 @@ onBeforeUnmount(() => {
   letter-spacing: 2px;
   text-shadow: 0 1px 8px rgba(247, 244, 235, 0.95);
 }
-.map-title strong { font-weight: 700; color: #3D5428; }
+.map-title strong { font-weight: 400; color: inherit; }
 
 .map-stage {
   position: absolute;
@@ -2214,8 +1900,11 @@ onBeforeUnmount(() => {
  * 配合 :deep(.leaflet-container { background: transparent })，才能看到这些层
  * object-fit: cover 保证不变形；750ms ease-in-out 交叉淡入淡出
  * 目标透明度 0.18，再叠加浅米色蒙版使色彩统一
+ * 注意：主图↔缩略图动画期间，这些背景节点会被临时 reparent 到 .map-stage 下
+ * （见 _detachBgForAnim），因此 .map-stage 下也要应用同样的样式，视觉位置不变。
  */
-.map :deep(img.ch2-bgimg) {
+.map :deep(img.ch2-bgimg),
+.map-stage :deep(img.ch2-bgimg) {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -2232,7 +1921,8 @@ onBeforeUnmount(() => {
   z-index: 0;
 }
 /* 浅米色蒙版 (位于背景 A/B 之上、真实地图 pane 之下) —— 统一不同图片明暗，保持淡雅 */
-.map :deep(div.ch2-bg-mask) {
+.map :deep(div.ch2-bg-mask),
+.map-stage :deep(div.ch2-bg-mask) {
   position: absolute;
   inset: 0;
   pointer-events: none;
@@ -2268,21 +1958,11 @@ onBeforeUnmount(() => {
 }
 .factor-fade-mask.show { opacity: 0.30; }
 
-/* 固定定位动画覆盖层 */
-.flip-overlay-fixed {
-  pointer-events: none;
-  will-change: left, top, width, height, border-radius, box-shadow;
-}
-.flip-overlay-fixed img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  object-position: center center;
-  display: block;
-  transform: none;
-  margin: 0;
-  max-width: 100%;
-  max-height: 100%;
+/* 地图本身使用 CSS transform 做缩放过渡：will-change 提示浏览器开启层 */
+.map-stage.animating,
+.thumb-card.animating {
+  will-change: transform, opacity;
+  backface-visibility: hidden;
 }
 
 /* ===== 右侧工具组：图例、说明卡、转盘/溯回纵向同列 ===== */
@@ -2350,6 +2030,26 @@ onBeforeUnmount(() => {
   line-height: 1.75;
   color: #5a4f38;
   word-break: break-word;
+}
+
+/* 综合评价结论分析：仅综合模式下在图例下方显示 */
+.composite-conclusion {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px dashed rgba(81, 109, 51, 0.18);
+  font-family: var(--font-body), KaiTi, STKaiti, serif;
+  font-style: normal;
+  font-size: 13.5px;
+  line-height: 1.85;
+  color: #5a4f38;
+  text-align: justify;
+}
+.composite-conclusion p {
+  margin: 0 0 8px;
+  text-indent: 0;
+}
+.composite-conclusion p:last-child {
+  margin-bottom: 0;
 }
 
 /* 没有说明卡时，转盘/溯回仍固定在工具列底部。 */
@@ -2553,8 +2253,10 @@ onBeforeUnmount(() => {
   color: #FBF8EF;
   border: none;
   border-radius: 22px;
+  font-family: var(--font-body), KaiTi, STKaiti, serif;
+  font-style: normal;
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 400;
   letter-spacing: 2px;
   cursor: pointer;
   transition: transform 0.25s, box-shadow 0.25s, background 0.25s;
@@ -2570,7 +2272,7 @@ onBeforeUnmount(() => {
 @media (max-width: 1200px) {
   .chapter-body {
     --ch2-page-edge: 14px;
-    --ch2-left-panel-width: clamp(360px, 34vw, 430px);
+    --ch2-left-panel-width: clamp(468px, 44.2vw, 559px);
     --ch2-right-safe-width: 300px;
   }
   .six-grid { column-gap: 10px; row-gap: 10px; }
@@ -2588,7 +2290,7 @@ onBeforeUnmount(() => {
 @media (max-width: 900px) {
   .chapter-body {
     --ch2-page-edge: 10px;
-    --ch2-left-panel-width: clamp(280px, 41vw, 340px);
+    --ch2-left-panel-width: clamp(364px, 53.3vw, 442px);
     --ch2-right-safe-width: 250px;
   }
   .six-grid { column-gap: 8px; row-gap: 8px; }
@@ -2596,14 +2298,16 @@ onBeforeUnmount(() => {
     left: calc(var(--ch2-page-edge) + var(--ch2-left-panel-width) + 12px);
     right: calc(var(--ch2-right-safe-width) + 12px);
   }
-  .legend-inner { width: 220px; min-width: 220px; max-width: 220px; padding: 14px 16px; }
+  .legend-inner { width: 230px; min-width: 230px; max-width: 230px; padding: 14px 16px; }
   .factor-info { padding: 14px 16px; width: 220px; }
   .factor-info-title { font-size: 13px; }
   .factor-info-desc { font-size: 11.5px; line-height: 1.65; }
   .wheel-wrap { width: 180px; height: 180px; }
   .return-area { width: 180px; height: 180px; }
-  .legend-title { font-size: 11px; }
-  .legend-row .sw { width: 10px; height: 8px; }
+  .legend-title { font-size: 14px; }
+  .legend-row { font-size: 13.5px; gap: 8px; margin-bottom: 5px; line-height: 1.45; }
+  .legend-row .sw { width: 12px; height: 9px; }
+  .composite-conclusion { font-size: 13.5px; line-height: 1.8; }
   .thumb-name { font-size: 11px; }
   .label-name { font-size: 12.5px; }
   .wheel-guide {
