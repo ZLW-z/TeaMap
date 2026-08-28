@@ -511,12 +511,12 @@ onBeforeUnmount(() => {
   will-change: left, top, transform;
 }
 
-/* 详情态：放大后把球心移到左下方，保留约三分之一球面。 */
+/* 详情态：放大后把球心移到左下角处，视口内仅露出约 1/4 球面。 */
 @media (min-width: 961px) {
   .map-fullscreen.detail-open > .globe-wrap {
-    left: -4%;
-    top: 68%;
-    transform: translate(-50%, -50%) scale(1.6);
+    left: -7.9%;
+    top: 105%;
+    transform: translate(-50%, -50%) scale(2.4);
   }
 }
 .map-fullscreen > .legend-box,
