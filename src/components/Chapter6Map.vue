@@ -1,14 +1,15 @@
 <template>
   <section class="chapter chapter-6" :id="id">
     <ChapterIntro
-      ch-no="陆"
-      title="世界共饮"
-      desc="茶香跨越山海国界，从中国走向全球各地，融入不同地域生活日常，&#10;多元饮茶习俗共生交融，编织出异彩纷呈的世界茶文化图景。"
+      :ch-no="chapter.number"
+      :title="chapter.title"
+      :desc="chapter.description"
       :duration="7"
       @done="onIntroDone"
     />
 
     <div class="map-fullscreen" :class="{ show: introDone, 'detail-open': selectedPoint }">
+      <ChapterCornerIntro chapter-key="ch6" :visible="introDone" />
       <div class="bg-layer">
         <div class="bg-image" :style="{ backgroundImage: `url(${bgImageUrl})` }"></div>
         <div class="bg-mask"></div>
@@ -72,6 +73,8 @@ import { ref, reactive, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
 import * as d3 from 'd3'
 import { feature } from 'topojson-client'
 import ChapterIntro from './ChapterIntro.vue'
+import ChapterCornerIntro from './ChapterCornerIntro.vue'
+import { CHAPTER_META } from '../data/chapterMeta.js'
 import { TEA_CULTURE_POINTS } from '../data/ch6.js'
 import { assetUrl } from '../utils/base.js'
 
@@ -80,6 +83,7 @@ const props = defineProps({ id: { type: String, required: true } })
 const globeWrap = ref(null)
 const globeSvg = ref(null)
 const tooltipEl = ref(null)
+const chapter = CHAPTER_META.ch6
 const selectedPoint = ref(null)
 const hoveredPoint = ref(null)
 const introDone = ref(false)

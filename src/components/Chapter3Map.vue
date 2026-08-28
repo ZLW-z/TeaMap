@@ -1,14 +1,15 @@
 <template>
   <section class="chapter chapter-3" :id="id" ref="sectionEl">
     <ChapterIntro
-      ch-no="叁"
-      title="云雾深处"
-      desc="云雾藏佳茗，寻访散落山河的传统名茶，看名山滋养珍味、岁月沉淀风味，&#10;深谷氤氲茶香藏着一代代茗茶佳话。"
+      :ch-no="chapter.number"
+      :title="chapter.title"
+      :desc="chapter.description"
       :duration="7"
       @done="onIntroDone"
     />
 
     <div class="map-fullscreen" :class="{ show: introDone }">
+      <ChapterCornerIntro chapter-key="ch3" :visible="introDone" />
       <div ref="mapEl" class="map"></div>
 
       <!-- 图例 -->
@@ -143,6 +144,8 @@ import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import L from 'leaflet'
 import { createAlbersCRS } from '../utils/crs.js'
 import ChapterIntro from './ChapterIntro.vue'
+import ChapterCornerIntro from './ChapterCornerIntro.vue'
+import { CHAPTER_META } from '../data/chapterMeta.js'
 import {
   TEAS,
   TEA_TYPE_COLORS,
@@ -160,6 +163,7 @@ const sectionEl = ref(null)
 const mapEl = ref(null)
 const selectedTea = ref(null)
 const activeMarker = ref(null)
+const chapter = CHAPTER_META.ch3
 const hoveredTea = ref(null)
 const hoveredPos = ref({ x: 0, y: 0 })
 const introDone = ref(false)

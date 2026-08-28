@@ -1,14 +1,15 @@
 <template>
   <section class="chapter chapter-4" :id="id" ref="sectionEl">
     <ChapterIntro
-      ch-no="肆"
-      title="一叶行远"
-      desc="小小一叶茶叶踏出深山，顺着古道、江河辗转流通，从地方风物变成流通四方的货品，&#10;开启漫长的远行之路。"
+      :ch-no="chapter.number"
+      :title="chapter.title"
+      :desc="chapter.description"
       :duration="7"
       @done="onIntroDone"
     />
 
     <div class="map-fullscreen" :class="{ show: introDone }">
+      <ChapterCornerIntro chapter-key="ch4" :visible="introDone" />
       <!-- Tab Navigation -->
       <nav class="ch4-tabs">
         <button
@@ -323,6 +324,8 @@
 import { ref, reactive, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import L from 'leaflet'
 import ChapterIntro from './ChapterIntro.vue'
+import ChapterCornerIntro from './ChapterCornerIntro.vue'
+import { CHAPTER_META } from '../data/chapterMeta.js'
 import { TEA_TRADE_DATA, DYNASTY_INFO } from '../data/ch4/trade-data.js'
 import { assetUrl } from '../utils/base.js'
 import {
@@ -648,6 +651,7 @@ const routeFilterOptions = [
 ]
 var panelMode = ref('dynasty')
 var selectedRoute = ref(null)
+const chapter = CHAPTER_META.ch4
 var selectedNodeName = ref('')
 var nodeRouteOptions = ref([])
 var introDone = ref(false)

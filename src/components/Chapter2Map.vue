@@ -1,9 +1,9 @@
 <template>
   <section class="chapter chapter-2">
     <ChapterIntro
-      ch-no="贰"
-      title="何以生茶"
-      desc="得天独厚的光照、气候与土壤条件，编织出适配茶树生长的天然温床，&#10;一方水土的禀赋，悄悄决定了茶叶的诞生与品质。"
+      :ch-no="chapter.number"
+      :title="chapter.title"
+      :desc="chapter.description"
       :duration="7"
       @done="onIntroDone"
     />
@@ -12,6 +12,7 @@
       class="chapter-body"
       :class="{ 'ready': layoutReady }"
     >
+      <ChapterCornerIntro chapter-key="ch2" :visible="layoutReady" />
       <!-- ========= 左侧：悬浮六宫格（直接叠放在全屏底图上） ========= -->
       <aside ref="leftPanelRef" class="left-panel">
         <div class="six-grid">
@@ -218,6 +219,8 @@
 import { ref, reactive, computed, onMounted, onBeforeUnmount, watch, nextTick, shallowRef } from 'vue'
 import L from 'leaflet'
 import ChapterIntro from './ChapterIntro.vue'
+import ChapterCornerIntro from './ChapterCornerIntro.vue'
+import { CHAPTER_META } from '../data/chapterMeta.js'
 import {
   FACTORS, COMPOSITE,
   PROV_BG_URL, PROV_STYLE,
@@ -243,6 +246,7 @@ const WHEEL_SECTOR_COLORS = {
 /* =========================================================
  * 章节状态
  * ========================================================= */
+const chapter = CHAPTER_META.ch2
 const introDone   = ref(false)
 const layoutReady = ref(false)
 const mapReady    = ref(false)
@@ -1199,6 +1203,35 @@ function _getThumbMapRect(slotIndex0Based) {
   }
 }
 
+let _activeMapFlight = null
+let _activeMapFlightTimer = null
+
+function _cleanupMapFlight(flight = _activeMapFlight) {
+  if (!flight) return
+  if (flight._cleanupOnTransitionEnd) {
+    flight.removeEventListener('transitionend', flight._cleanupOnTransitionEnd)
+    flight._cleanupOnTransitionEnd = null
+  }
+  if (_activeMapFlightTimer) {
+    clearTimeout(_activeMapFlightTimer)
+    _activeMapFlightTimer = null
+  }
+  flight.remove()
+  if (_activeMapFlight === flight) _activeMapFlight = null
+}
+
+function _scheduleMapFlightCleanup(flight, durationMs) {
+  if (!flight) return
+  const onTransitionEnd = event => {
+    if (event.target === flight && event.propertyName === 'transform') {
+      _cleanupMapFlight(flight)
+    }
+  }
+  flight._cleanupOnTransitionEnd = onTransitionEnd
+  flight.addEventListener('transitionend', onTransitionEnd)
+  _activeMapFlightTimer = setTimeout(() => _cleanupMapFlight(flight), durationMs + 180)
+}
+
 /** 在切换 activeFactorId 之前冻结当前主图的 Leaflet 图层快照。
  *  快照只复制 leaflet-map-pane，不复制背景图、纯色蒙版、缩放控件或主图容器，
  *  因此后续新因子渲染不会把飞行动画的内容替换成新图。 */
@@ -1206,6 +1239,9 @@ function _createMainMapLayerSnapshot(sourceRect, zIndex = 99999) {
   const root = mapRef.value
   const livePane = root?.querySelector?.('.leaflet-map-pane')
   if (!root || !livePane || !sourceRect) return null
+
+  // 任一时刻只保留一个归档飞行层，避免快速交互留下重叠快照。
+  _cleanupMapFlight()
 
   const flight = document.createElement('div')
   flight.className = 'ch2-map-flight leaflet-container'
@@ -1225,8 +1261,19 @@ function _createMainMapLayerSnapshot(sourceRect, zIndex = 99999) {
     willChange: 'transform, opacity',
     zIndex: String(zIndex),
   })
+  // 全局 Leaflet 样式给 .leaflet-container 设置了带 !important 的米色背景。
+  // 飞行层挂在 body 下，不命中组件内 .map 的透明规则，因此必须在运行时
+  // 以同等优先级清除背景；这里只保留地图 pane 本身参与 FLIP 动画。
+  flight.style.setProperty('background', 'transparent', 'important')
+  flight.style.setProperty('background-color', 'transparent', 'important')
+  flight.style.setProperty('border', 'none', 'important')
+  flight.style.setProperty('border-radius', '0', 'important')
+  flight.style.setProperty('box-shadow', 'none', 'important')
 
   const paneClone = livePane.cloneNode(true)
+  paneClone.querySelectorAll(
+    '.ch2-bgimg, .ch2-bg-mask, .factor-fade-mask, .leaflet-control-container'
+  ).forEach(el => el.remove())
   // cloneNode 不复制 canvas 像素；若以后某因子改用 Canvas renderer，仍保留旧图。
   const sourceCanvases = livePane.querySelectorAll('canvas')
   const clonedCanvases = paneClone.querySelectorAll('canvas')
@@ -1239,6 +1286,7 @@ function _createMainMapLayerSnapshot(sourceRect, zIndex = 99999) {
   })
   flight.appendChild(paneClone)
   document.body.appendChild(flight)
+  _activeMapFlight = flight
   return flight
 }
 
@@ -1278,9 +1326,10 @@ async function playArchiveAnimation({ fid, targetSlotIndex0Based }) {
       fadeStartMs: 950,
       fadeDurationMs: 500,
     })
+    _scheduleMapFlightCleanup(snapshot, 1400)
     await _sleep(1500)
   } finally {
-    snapshot.remove()
+    _cleanupMapFlight(snapshot)
   }
   return { ok: true }
 }
@@ -1349,13 +1398,14 @@ async function playThumbToMainAnimations({ clickedFid, currentActiveFid, futureD
           fadeStartMs: 950,
           fadeDurationMs: 500,
         })
+        _scheduleMapFlightCleanup(archiveSnapshot, 1400)
       }
     }
 
     await _sleep(1500)
   } finally {
     restores.forEach(r => { try { r() } catch (e) {} })
-    archiveSnapshot?.remove()
+    _cleanupMapFlight(archiveSnapshot)
     if (map) {
       try { map.invalidateSize(false) } catch (e) {}
     }
@@ -1662,6 +1712,7 @@ function onReturn() {
  * ========================================================= */
 onBeforeUnmount(() => {
   clearSpinTimers(); clearHardKill()
+  _cleanupMapFlight()
   _bgSwitchTimers.forEach(h => clearTimeout(h))
   _bgSwitchTimers = []
   if (_resizeTimer) { clearTimeout(_resizeTimer); _resizeTimer = null }
@@ -1905,6 +1956,19 @@ onBeforeUnmount(() => {
   min-width: 0;
 }
 .map-stage.map-fade-in { opacity: 1; }
+
+/* 临时归档层挂载在 body，需使用全局选择器覆盖 Leaflet 的全局米色底。
+ * 它只承载克隆的地图 pane，不承载背景图、蒙版、卡片或控件。 */
+:global(.ch2-map-flight),
+:global(.ch2-map-flight.leaflet-container) {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  pointer-events: none !important;
+  will-change: transform, opacity;
+}
 
 .map {
   position: relative;

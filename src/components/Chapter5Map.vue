@@ -1,14 +1,15 @@
 <template>
   <section class="chapter chapter-5" :id="id" ref="sectionEl">
     <ChapterIntro
-      ch-no="伍"
-      title="今日茶境"
-      desc="千年茶脉绵延至今，国内茶园规模稳步扩张，茶叶外销步履不停，&#10;现代产业续写着茶业蓬勃发展的新篇章。"
+      :ch-no="chapter.number"
+      :title="chapter.title"
+      :desc="chapter.description"
       :duration="7"
       @done="onIntroDone"
     />
 
     <div class="map-fullscreen ch5-redesign" :class="{ show: introDone }">
+      <ChapterCornerIntro chapter-key="ch5" :visible="introDone" />
 
       <!-- =============== LEFT: Tea tree with 3 clickable zones =============== -->
       <div class="ch5-left">
@@ -473,6 +474,8 @@
 import { ref, computed, onMounted } from 'vue'
 import EChart from './EChart.vue'
 import ChapterIntro from './ChapterIntro.vue'
+import ChapterCornerIntro from './ChapterCornerIntro.vue'
+import { CHAPTER_META } from '../data/chapterMeta.js'
 import * as echarts from 'echarts'
 import proj4 from 'proj4'
 import { assetUrl } from '../utils/base.js'
@@ -563,6 +566,7 @@ const activeTab = computed({
 
 // ---- Shared refs ----
 const sectionEl = ref(null)
+const chapter = CHAPTER_META.ch5
 const hoveredZone = ref(null)
 const mapReady = ref(false)
 const introDone = ref(false)
@@ -1874,7 +1878,7 @@ onMounted(async () => {
       rgba(247, 244, 235, 0.08) 52%,
       rgba(247, 244, 235, 0.24) 100%
     ),
-    url('/data/5/today-tea-garden-bg-v2.png');
+    url('/data/5/today-tea-garden-bg-v4.png');
   background-size: cover;
   background-repeat: no-repeat;
   background-position: 30% center;
@@ -1903,7 +1907,7 @@ onMounted(async () => {
   max-width: 640px;
   aspect-ratio: 600 / 820;
   max-height: calc(100vh - 60px - 3.2rem);
-  transform: translateX(clamp(40px, 3.8vw, 72px));
+  transform: translateX(calc(clamp(40px, 3.8vw, 72px) + 20px));
 }
 
 .tree-svg {
@@ -2963,7 +2967,7 @@ onMounted(async () => {
   .ch5-tree-scene.single-tree {
     max-height: 560px;
     margin: 0 auto;
-    transform: translateX(clamp(22px, 2.8vw, 36px));
+    transform: translateX(calc(clamp(22px, 2.8vw, 36px) + 20px));
   }
   .phone-frame {
     max-height: 760px;

@@ -1,15 +1,16 @@
 <template>
   <section class="page-wrap">
     <ChapterIntro
-      ch-no="壹"
-      title="茶生山水间"
-      desc="群山蕴灵气，活水育新芽。茶自山野萌芽扎根，循着山川脉络散落四方，&#10;这片广袤土地，便是茶叶最初的故乡。"
+      :ch-no="chapter.number"
+      :title="chapter.title"
+      :desc="chapter.description"
       :duration="7"
       @done="onIntroDone"
     />
 
     <!-- 地图全屏 -->
     <div class="map-fullscreen" :class="{ show: introDone }">
+      <ChapterCornerIntro chapter-key="ch1" :visible="introDone" />
       <div ref="mapEl" class="map"></div>
 
       <!-- 右上角图层文字说明 -->
@@ -63,6 +64,8 @@ import L from 'leaflet'
 import gsap from 'gsap'
 import { createAlbersCRS } from '../utils/crs.js'
 import ChapterIntro from './ChapterIntro.vue'
+import ChapterCornerIntro from './ChapterCornerIntro.vue'
+import { CHAPTER_META } from '../data/chapterMeta.js'
 import {
   BG_DEM_IMG, MASK_IMG, DEM_IMG, loadDemBounds, MAP_INIT,
   OUTLINE_URL, TENDASH_URL, TANG_AREAS_URL, TEA_TREES_URL,
@@ -77,6 +80,7 @@ let map = null
 let bgDemLayer = null, maskLayer = null, demLayer = null
 let outlineLayer = null, tendashLayer = null, tangLayer = null, tangBlurLayer = null
 let treeMarkers = []
+const chapter = CHAPTER_META.ch1
 const stage = ref(0)
 const counts = reactive({ 1: 0, 2: 0, 3: 0 })
 const introDone = ref(false)
