@@ -105,17 +105,23 @@ const chapter = computed(() => getChapterMeta(props.chapterKey))
   --chapter-corner-width: clamp(300px, 22vw, 410px);
 }
 
-/* 第一章底图是山脉/海洋纹理 art，art 不同 stage 亮度/色调不同。
-   用户诉求：标题与简介文字亮度独立（不跟随底图 art 变化）。
-   仅通过 text-shadow 在字体渲染层叠加米色光晕（不动文字 color），
-   让文字"自带光晕"在不同底图下都有稳定亮度感。
-   不改变任何版式（不增 padding/border/background），不修改文字颜色。 */
+/* 第一章的阶段图层位于 Leaflet overlay pane（z-index 约 400）中。
+   标题必须处在地图覆盖层之上，否则阶段图层的透明度变化会像遮罩一样
+   同步改变标题与简介的明暗。这里只隔离标题层，不改变地图图层本身。 */
 .chapter-corner-intro--ch1 {
-  text-shadow:
-    0 0 10px rgba(247, 244, 235, 0.95),
-    0 0 22px rgba(247, 244, 235, 0.88),
-    0 0 36px rgba(247, 244, 235, 0.72),
-    0 1px 2px rgba(247, 244, 235, 1);
+  z-index: 760;
+  isolation: isolate;
+  filter: none;
+  mix-blend-mode: normal;
+  text-shadow: 0 1px 8px rgba(247, 244, 235, .78);
+}
+
+.chapter-corner-intro--ch1 .chapter-corner-title {
+  color: #405c2d;
+}
+
+.chapter-corner-intro--ch1 .chapter-corner-description {
+  color: #675f4d;
 }
 
 @media (max-width: 900px) {

@@ -384,6 +384,7 @@ function getDynastyByProgress(currentProgress) {
 const ANCIENT_ROUTE_URL = `${import.meta.env.BASE_URL || '/'}data/4/ancient_tea_routes.geojson`
 const ANCIENT_NODE_URL = `${import.meta.env.BASE_URL || '/'}data/4/ancient_tea_nodes.geojson`
 const WORLD_COUNTRIES_URL = `${import.meta.env.BASE_URL || '/'}data/4/world_countries_50m.geojson`
+const CHINA_BOUNDARY_URL = `${import.meta.env.BASE_URL || '/'}data/4/china.geojson`
 const DYNASTY_ORDER = dynasties.map(function(item) { return item.name })
 const LEGACY_ROUTE_MATCH = {
   R01: 135, R02: 135, R03: 134, R04: 134, R05: 133, R06: 136,
@@ -1584,19 +1585,23 @@ function loadWorldBoundary() {
 }
 
 function loadChinaBoundary() {
-  // 省界和国界使用独立 pane；任一请求失败都不影响路线与另一边界层。
-  fetch(assetUrl('data/2/china-provinces.geojson'))
-    .then(function(r) { return r.json() })
+  // 第四章古今地图共用同一份本地中国边界数据；面要素绘制省域，线要素绘制国界与九段线。
+  fetch(CHINA_BOUNDARY_URL)
+    .then(function(response) {
+      if (!response.ok) throw new Error(`HTTP ${response.status}`)
+      return response.json()
+    })
     .then(function(geo) {
       if (!map) return
       try {
-        if (!geo || !geo.type) {
+        if (!geo || geo.type !== 'FeatureCollection') {
           console.warn('中国边界数据加载失败，无有效GeoJSON')
           return
         }
         L.geoJSON(geo, {
           pane: 'chinaProvincePane',
           interactive: false,
+          filter: isChinaAreaFeature,
           style: function() {
             return {
               color: '#D8CDAF',
@@ -1610,48 +1615,50 @@ function loadChinaBoundary() {
             }
           },
         }).addTo(map)
+        addChinaBoundaryLines(map, geo, 'chinaBorderHaloPane', 'chinaBorderPane')
       } catch (renderErr) {
-        console.warn('中国省界渲染失败:', renderErr)
+        console.warn('中国国界、省界及九段线渲染失败:', renderErr)
       }
     })
     .catch(function(err) {
-      console.warn('中国省界数据加载失败:', err)
+      console.warn(`中国国界、省界及九段线数据加载失败（${CHINA_BOUNDARY_URL}）:`, err)
     })
+}
 
-  fetch(assetUrl('data/1/china_outline.geojson'))
-    .then(function(r) { return r.json() })
-    .then(function(geo) {
-      if (!map || !geo || !geo.type) return
-      L.geoJSON(geo, {
-        pane: 'chinaBorderHaloPane',
-        interactive: false,
-        style: function() {
-          return {
-            color: '#F7F4EB', weight: 4.6, opacity: 0.95,
-            fillOpacity: 0, interactive: false,
-          }
-        },
-      }).addTo(map)
-      L.geoJSON(geo, {
-        pane: 'chinaBorderPane',
-        interactive: false,
-        style: function() {
-          return {
-            color: '#9A712C',
-            weight: 2.5,
-            opacity: 1,
-            dashArray: null,
-            lineCap: 'round',
-            lineJoin: 'round',
-            fillOpacity: 0,
-            interactive: false,
-          }
-        },
-      }).addTo(map)
-    })
-    .catch(function(err) {
-      console.warn('中国国界轮廓加载失败，已保留省界与贸易路线:', err)
-    })
+function isChinaAreaFeature(feature) {
+  var type = feature && feature.geometry && feature.geometry.type
+  return type === 'Polygon' || type === 'MultiPolygon'
+}
+
+function isChinaBoundaryLineFeature(feature) {
+  var type = feature && feature.geometry && feature.geometry.type
+  return type === 'LineString' || type === 'MultiLineString'
+}
+
+function addChinaBoundaryLines(targetMap, geo, haloPane, borderPane) {
+  L.geoJSON(geo, {
+    pane: haloPane,
+    interactive: false,
+    filter: isChinaBoundaryLineFeature,
+    style: function() {
+      return {
+        color: '#F7F4EB', weight: 4.6, opacity: 0.95,
+        fillOpacity: 0, interactive: false,
+      }
+    },
+  }).addTo(targetMap)
+  return L.geoJSON(geo, {
+    pane: borderPane,
+    interactive: false,
+    filter: isChinaBoundaryLineFeature,
+    style: function() {
+      return {
+        color: '#9A712C', weight: 2.5, opacity: 1,
+        dashArray: null, lineCap: 'round', lineJoin: 'round',
+        fillOpacity: 0, interactive: false,
+      }
+    },
+  }).addTo(targetMap)
 }
 
 function onKeydown(e) {
@@ -1696,6 +1703,8 @@ var hoveredProvince = ref(null)
 
 var modernMap = null
 var modernProvLayer = null
+var modernWorldCountriesLayer = null
+var modernChinaBoundaryLayer = null
 var modernFlowLayer = null
 var modernMarkersLayer = null
 var modernBubbleLayer = null
@@ -1885,14 +1894,14 @@ function modernProvinceStyle(featureName) {
   return selected ? {
     pane: 'modernProvincePane',
     color: '#B28F4C', weight: 2, opacity: 1,
-    fillColor: '#F7F4EB', fillOpacity: 0.34,
+    fillColor: '#F7F4EB', fillOpacity: 0.46,
     dashArray: null, lineCap: 'round', lineJoin: 'round',
     interactive: true, bubblingMouseEvents: false,
   } : {
     pane: 'modernProvincePane',
     color: '#D8CDAF', weight: 0.8, opacity: 0.85,
-    fillColor: '#F7F4EB', fillOpacity: 0.28,
-    dashArray: null, lineCap: 'round', lineJoin: 'round',
+    fillColor: '#F7F4EB', fillOpacity: 0.42,
+    dashArray: '3 4', lineCap: 'round', lineJoin: 'round',
     interactive: true, bubblingMouseEvents: false,
   }
 }
@@ -1935,8 +1944,8 @@ function ensureModernProvinceLayer() {
     return Promise.resolve(modernProvLayer)
   }
   if (!modernProvinceGeoJsonPromise) {
-    modernProvinceGeoJsonPromise = fetch(assetUrl('data/2/china-provinces.geojson')).then(function(response) {
-      if (!response.ok) throw new Error('省级GeoJSON加载失败：' + response.status)
+    modernProvinceGeoJsonPromise = fetch(CHINA_BOUNDARY_URL).then(function(response) {
+      if (!response.ok) throw new Error('中国国界、省界及九段线GeoJSON加载失败：' + response.status)
       return response.json()
     })
   }
@@ -1946,6 +1955,7 @@ function ensureModernProvinceLayer() {
       pane: 'modernProvincePane',
       interactive: true,
       bubblingMouseEvents: false,
+      filter: isChinaAreaFeature,
       style: function(feature) {
         var featureName = feature.properties.name || feature.properties.NAME || feature.properties.NL_NAME_1 || ''
         return modernProvinceStyle(resolveProvinceName(featureName))
@@ -1977,9 +1987,17 @@ function ensureModernProvinceLayer() {
         })
       },
     }).addTo(modernMap)
+    if (!modernChinaBoundaryLayer) {
+      modernChinaBoundaryLayer = addChinaBoundaryLines(
+        modernMap,
+        geo,
+        'modernChinaBorderHaloPane',
+        'modernChinaBorderPane'
+      )
+    }
     return modernProvLayer
   }).catch(function(error) {
-    console.warn('当代贸易省界加载失败:', error)
+    console.warn(`当代贸易中国边界加载失败（${CHINA_BOUNDARY_URL}）:`, error)
     return null
   })
 }
@@ -2053,6 +2071,33 @@ function renderModernChinaProvinces() {
   selectedModernProvince.value = null
   ensureModernProvinceLayer()
   renderModernProvinceBubbles({ selectedProvince: null, detailMode: false })
+}
+
+function loadModernWorldBoundary() {
+  fetch(WORLD_COUNTRIES_URL)
+    .then(function(response) {
+      if (!response.ok) throw new Error(`HTTP ${response.status}`)
+      return response.json()
+    })
+    .then(function(geo) {
+      if (!modernMap || !geo || geo.type !== 'FeatureCollection') return
+      if (modernWorldCountriesLayer) modernWorldCountriesLayer.remove()
+      modernWorldCountriesLayer = L.geoJSON(geo, {
+        pane: 'modernWorldCountriesPane',
+        interactive: false,
+        smoothFactor: 0.7,
+        style: function() {
+          return {
+            color: '#D8CDAF', weight: 0.72, opacity: 0.8,
+            fillColor: '#F7F4EB', fillOpacity: 0.96,
+            lineCap: 'round', lineJoin: 'round', interactive: false,
+          }
+        },
+      }).addTo(modernMap)
+    })
+    .catch(function(error) {
+      console.warn(`当代贸易本地世界底图加载失败（${WORLD_COUNTRIES_URL}）:`, error)
+    })
 }
 
 function enterWorldMode(provinceName, options) {
@@ -2292,8 +2337,14 @@ function initModernMap() {
     zoomControl: false,
     attributionControl: false,
   })
+  modernMap.createPane('modernWorldCountriesPane')
+  modernMap.getPane('modernWorldCountriesPane').style.zIndex = 220
   modernMap.createPane('modernProvincePane')
   modernMap.getPane('modernProvincePane').style.zIndex = 410
+  modernMap.createPane('modernChinaBorderHaloPane')
+  modernMap.getPane('modernChinaBorderHaloPane').style.zIndex = 415
+  modernMap.createPane('modernChinaBorderPane')
+  modernMap.getPane('modernChinaBorderPane').style.zIndex = 418
   // 详情模式中的未选中茶叶位于流向线下方，避免遮挡路线。
   modernMap.createPane('modernDetailBubblePane')
   modernMap.getPane('modernDetailBubblePane').style.zIndex = 430
@@ -2306,9 +2357,7 @@ function initModernMap() {
   modernMap.createPane('modernSelectedBubblePane')
   modernMap.getPane('modernSelectedBubblePane').style.zIndex = 480
   L.control.zoom({ position: 'bottomright' }).addTo(modernMap)
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
-    maxZoom: 9, subdomains: 'abcd',
-  }).addTo(modernMap)
+  loadModernWorldBoundary()
   modernBubbleLayer = L.layerGroup().addTo(modernMap)
 
   // 区分点击 vs 拖动：只在纯点击（非拖动）空白区域返回
@@ -2414,6 +2463,8 @@ onBeforeUnmount(function() {
     modernMap = null
   }
   modernProvLayer = null
+  modernWorldCountriesLayer = null
+  modernChinaBoundaryLayer = null
   modernFlowLayer = null
   modernMarkersLayer = null
   modernBubbleLayer = null

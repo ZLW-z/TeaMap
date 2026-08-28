@@ -85,7 +85,10 @@
             class="legend-row"
           >
             <span class="sw" :style="{ background: lv.color }"></span>
-            <span>{{ lv.label }}</span>
+            <div class="legend-row-text">
+              <span class="legend-label">{{ lv.label }}</span>
+              <span v-if="lv.range" class="legend-range">{{ lv.range }}</span>
+            </div>
           </div>
           <!-- 综合评价结论分析：仅在综合评价模式显示 -->
           <div v-if="viewMode === 'composite'" class="composite-conclusion">
@@ -94,34 +97,11 @@
           </div>
         </div>
 
-        <!-- 因子说明卡：位于图例与转盘之间 -->
-        <transition name="info-fade">
-          <div
-            v-if="showInfoCard"
-            key="'info-'+(activeFactorId||'c')"
-            class="factor-info"
-          >
-            <button class="info-close" @click="infoClosed = true" aria-label="关闭说明">×</button>
-            <div class="factor-info-title">{{ currentConfig.name }}适宜性</div>
-            <div class="factor-info-desc">{{ currentConfig.desc }}</div>
-          </div>
-        </transition>
-
         <!-- 转盘：右下角固定 -->
         <div
           v-if="viewMode === 'detail'"
           class="wheel-area"
         >
-          <transition name="wheel-guide-fade">
-            <div
-              v-if="!isDrawComplete && drawPhase !== 'spinning' && drawPhase !== 'committing'"
-              class="wheel-guide"
-              aria-hidden="true"
-            >
-              <span class="wheel-guide-text">点击转盘抽取因子</span>
-              <span class="wheel-guide-arrow">→</span>
-            </div>
-          </transition>
           <div class="wheel-wrap">
             <div class="wheel">
               <svg viewBox="-110 -110 220 220" class="wheel-svg">
@@ -273,20 +253,8 @@ const selectedFactors = ref(new Set())
 const activeFactorId = ref(null)
 const lastDrawnFactorId = ref(null)
 const viewMode = ref(/** @type {'detail'|'composite'} */ ('detail'))
-const infoClosed = ref(false)
 
 const isVisualLocked = ref(false)
-
-// 说明卡：只有切换到新因子才重新显示；用户主动×后保持隐藏直到因子变化
-const showInfoCard = computed(() => {
-  if (viewMode.value !== 'detail') return false
-  if (!activeFactorId.value) return false
-  return !infoClosed.value
-})
-// 因子变化时，解除关闭状态（让说明卡重新出现）
-watch(activeFactorId, () => {
-  infoClosed.value = false
-})
 
 const isDrawComplete = computed(() => drawOrder.value.length >= 5)
 
@@ -1891,15 +1859,12 @@ onBeforeUnmount(() => {
 }
 .legend-row {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 9px;
-  font-size: 13.5px;
+  font-size: 13px;
   color: #5a4f38;
-  margin-bottom: 6px;
-  line-height: 1.45;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  margin-bottom: 8px;
+  line-height: 1.4;
   font-family: inherit;
   font-style: normal;
 }
@@ -1907,8 +1872,33 @@ onBeforeUnmount(() => {
   flex: none;
   width: 14px;
   height: 10px;
+  margin-top: 4px;
   border-radius: 2px;
   border: 0.5px solid rgba(0,0,0,0.06);
+}
+.legend-row-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.legend-label {
+  color: #4b5d2b;
+  font-weight: 600;
+  font-size: 13.5px;
+  font-family: inherit;
+  font-style: normal;
+  letter-spacing: 0.02em;
+}
+.legend-range {
+  color: #7a6f55;
+  font-size: 11.5px;
+  line-height: 1.4;
+  font-family: inherit;
+  font-style: normal;
+  letter-spacing: 0;
+  word-break: break-all;
 }
 
 /* ===== 主地图：填满整个章节内容区，作为所有组件共同底图 ===== */
@@ -2060,59 +2050,6 @@ onBeforeUnmount(() => {
   z-index: 700;
 }
 
-/* 说明卡：位于图例与转盘之间，米白圆角、柔和阴影、茶绿细边框 */
-.factor-info {
-  pointer-events: auto;
-  position: relative;
-  flex: none;
-  margin-top: auto;
-  width: clamp(270px, 15.5vw, 320px);
-  max-width: 320px;
-  min-width: 270px;
-  background: rgba(247, 244, 235, 0.965);
-  border: 1px solid rgba(81, 109, 51, 0.12);
-  border-radius: 17px;
-  padding: 22px 24px 24px;
-  box-shadow:
-    0 6px 18px rgba(81, 109, 51, 0.08),
-    0 2px 4px rgba(81, 109, 51, 0.05);
-}
-.info-close {
-  position: absolute;
-  top: 8px; right: 10px;
-  width: 24px; height: 24px;
-  border: none;
-  background: transparent;
-  color: #8a7b54;
-  font-size: 18px;
-  line-height: 1;
-  font-weight: 500;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 6px;
-  transition: color 0.18s ease, background 0.18s ease;
-}
-.info-close:hover {
-  color: #516D33;
-  background: rgba(81, 109, 51, 0.08);
-}
-.factor-info-title {
-  font-size: 14.5px;
-  font-weight: 700;
-  color: #3f5227;
-  letter-spacing: 1px;
-  margin-bottom: 10px;
-  padding-right: 18px;
-}
-.factor-info-desc {
-  font-size: 12px;
-  line-height: 1.75;
-  color: #5a4f38;
-  word-break: break-word;
-}
-
 /* 综合评价结论分析：仅综合模式下在图例下方显示 */
 .composite-conclusion {
   margin-top: 16px;
@@ -2141,11 +2078,6 @@ onBeforeUnmount(() => {
   margin-top: auto;
 }
 
-.info-fade-enter-active,
-.info-fade-leave-active { transition: opacity 240ms ease, transform 240ms ease; }
-.info-fade-enter-from,
-.info-fade-leave-to { opacity: 0; transform: translateY(-4px); }
-
 /* 转盘：工具组底部 */
 .wheel-area {
   pointer-events: auto;
@@ -2153,45 +2085,6 @@ onBeforeUnmount(() => {
   padding: 12px;
   overflow: visible;
 }
-.wheel-guide {
-  position: absolute;
-  right: calc(100% + 8px);
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  z-index: 12;
-  white-space: nowrap;
-  pointer-events: none;
-}
-.wheel-guide-text {
-  padding: 9px 15px;
-  border: 1px solid rgba(178, 143, 76, 0.38);
-  border-radius: 999px;
-  background: rgba(247, 244, 235, 0.9);
-  color: #516D33;
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: 1px;
-  box-shadow: 0 4px 14px rgba(81, 109, 51, 0.12);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-}
-.wheel-guide-arrow {
-  color: #B28F4C;
-  font-size: 25px;
-  line-height: 1;
-  animation: wheel-guide-nudge 1.35s ease-in-out infinite;
-}
-@keyframes wheel-guide-nudge {
-  0%, 100% { transform: translateX(0); opacity: 0.62; }
-  50% { transform: translateX(5px); opacity: 1; }
-}
-.wheel-guide-fade-enter-active,
-.wheel-guide-fade-leave-active { transition: opacity 180ms ease; }
-.wheel-guide-fade-enter-from,
-.wheel-guide-fade-leave-to { opacity: 0; }
 .wheel-wrap {
   position: relative;
   width: clamp(250px, 16vw, 300px);
@@ -2358,15 +2251,11 @@ onBeforeUnmount(() => {
   }
   .six-grid { column-gap: 10px; row-gap: 10px; }
   .legend-inner { width: 250px; min-width: 250px; max-width: 250px; }
-  .factor-info { width: clamp(250px, 14vw, 290px); padding: 18px 20px; border-radius: 15px; }
   .wheel-wrap { width: 230px; height: 230px; }
   .return-area { width: 230px; height: 230px; }
   .center-btn { width: 62px; height: 62px; }
   .center-text { font-size: 11px; letter-spacing: 1px; }
   .label-name { font-size: 13.5px; }
-  .wheel-guide { right: calc(100% + 2px); gap: 5px; }
-  .wheel-guide-text { padding: 7px 11px; font-size: 12px; }
-  .wheel-guide-arrow { font-size: 21px; }
 }
 @media (max-width: 900px) {
   .chapter-body {
@@ -2380,9 +2269,6 @@ onBeforeUnmount(() => {
     right: calc(var(--ch2-right-safe-width) + 12px);
   }
   .legend-inner { width: 230px; min-width: 230px; max-width: 230px; padding: 14px 16px; }
-  .factor-info { padding: 14px 16px; width: 220px; }
-  .factor-info-title { font-size: 13px; }
-  .factor-info-desc { font-size: 11.5px; line-height: 1.65; }
   .wheel-wrap { width: 180px; height: 180px; }
   .return-area { width: 180px; height: 180px; }
   .legend-title { font-size: 14px; }
@@ -2391,11 +2277,5 @@ onBeforeUnmount(() => {
   .composite-conclusion { font-size: 13.5px; line-height: 1.8; }
   .thumb-name { font-size: 11px; }
   .label-name { font-size: 12.5px; }
-  .wheel-guide {
-    right: 50%;
-    top: auto;
-    bottom: calc(100% + 2px);
-    transform: translateX(50%);
-  }
 }
 </style>

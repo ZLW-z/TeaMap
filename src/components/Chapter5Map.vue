@@ -256,7 +256,7 @@
 
               <!-- 3. 图1：内销总量趋势 -->
               <div class="lv-chart-block">
-                <div class="lv-chart-title">中国茶叶内销总量趋势图（2010—2024年）</div>
+                <div class="lv-chart-title">茶叶国内销量总量趋势图（2010—2024年）</div>
                 <div class="ch5-card small-card">
                   <div class="chart-container" style="height:260px">
                     <EChart :option="leavesVolumeTrendOption" />
@@ -267,7 +267,7 @@
 
               <!-- 4. 内销趋势三阶段结论 -->
               <div class="lv-stages">
-                <div class="lv-stages-title"><span>茶叶内销增势趋缓，<br>竞争转向结构升级</span></div>
+                <div class="lv-stages-title"><span>国内销量增势趋缓，<br>竞争转向结构升级</span></div>
                 <div class="lv-stage-list">
                   <div v-for="(s, i) in leavesStages" :key="s.id" class="lv-stage-card" :style="{ '--stage-color': stageColors[i] }">
                     <div class="lv-stage-num">{{ i + 1 }}</div>
@@ -286,7 +286,7 @@
 
               <!-- 5. 图2：内销总额与均价趋势 -->
               <div class="lv-chart-block">
-                <div class="lv-chart-title">中国茶叶内销总额与均价趋势图（2013—2024年）</div>
+                <div class="lv-chart-title">茶叶国内销量总额与均价趋势图（2013—2024年）</div>
                 <div class="ch5-card small-card">
                   <div class="chart-container" style="height:300px">
                     <EChart :option="leavesValuePriceOption" />
@@ -1617,6 +1617,8 @@ const branchesSankeyOption = computed(() => {
       nodeGap: 6,
       nodeAlign: 'justify',
       layoutIterations: 64,
+      // 禁用节点拖动，固定左侧省份、右侧目的地位置
+      nodeDraggable: false,
       emphasis: { focus: 'adjacency' },
       data: validNodes.map(n => ({
         name: n.name,

@@ -11,10 +11,10 @@ const FACTORS = {
     boundsUrl: assetUrl('data/2/precip_bounds.json'),
     desc: '茶树喜湿润，年降水量 1200–1800 mm 为最适宜区',
     levels: [
-      { value: 0, label: '不适宜', color: '#E8E2D0' },
-      { value: 1, label: '限制适宜', color: '#A8C5A0' },
-      { value: 2, label: '较适宜', color: '#6BA368' },
-      { value: 3, label: '最适宜', color: '#2F6B2F' },
+      { value: 0, label: '不适宜', color: '#E8E2D0', range: '年降水量<800mm、>2200mm' },
+      { value: 1, label: '限制适宜', color: '#A8C5A0', range: '年降水量800-1000、2000-2200mm' },
+      { value: 2, label: '较适宜', color: '#6BA368', range: '年降水量1000-1200、1800-2000mm' },
+      { value: 3, label: '最适宜', color: '#2F6B2F', range: '年降水量1200-1800mm' },
     ],
   },
   temp: {
@@ -24,12 +24,12 @@ const FACTORS = {
     icon: '',
     png: assetUrl('data/2/temp_suitability.png'),
     boundsUrl: assetUrl('data/2/temp_bounds.json'),
-    desc: '茶树喜温暖：年平均气温 15–25℃ 最适宜，13–15℃ 或 25–35℃ 次适宜，低于 13℃ 或高于 35℃ 不适宜',
+    desc: '年平均气温 15–25℃ 最适宜，13–15℃ 或 25–35℃ 次适宜，低于 13℃ 或高于 35℃ 不适宜',
     levels: [
-      { value: 0, label: '不适宜', color: '#E8E2D0' },
-      { value: 1, label: '低温适宜', color: '#9AC4D6' },
-      { value: 2, label: '中温适宜', color: '#5C9EAF' },
-      { value: 3, label: '高温适宜', color: '#C8462E' },
+      { value: 0, label: '不适宜', color: '#E8E2D0', range: '多年均温<10℃或>30℃' },
+      { value: 1, label: '低温适宜', color: '#9AC4D6', range: '多年均温10-15℃' },
+      { value: 2, label: '中温适宜', color: '#5C9EAF', range: '多年均温15-20℃' },
+      { value: 3, label: '高温适宜', color: '#C8462E', range: '多年均温20-30℃' },
     ],
   },
   accum: {
@@ -41,10 +41,10 @@ const FACTORS = {
     boundsUrl: assetUrl('data/2/accum_bounds.json'),
     desc: '≥10℃ 年活动积温 4000℃·d 以上方可满足茶树生长需求',
     levels: [
-      { value: 0, label: '不适宜', color: '#E8E2D0' },
-      { value: 1, label: '限制适宜', color: '#D4B44C' },
-      { value: 2, label: '较适宜', color: '#93B55A' },
-      { value: 3, label: '最适宜', color: '#516D33' },
+      { value: 0, label: '不适宜', color: '#E8E2D0', range: '活动积温<4000℃·d' },
+      { value: 1, label: '限制适宜', color: '#D4B44C', range: '活动积温4000-6000℃·d' },
+      { value: 2, label: '较适宜', color: '#93B55A', range: '活动积温≥6000℃·d' },
+      { value: 3, label: '最适宜', color: '#516D33', range: '活动积温≥6000℃·d' },
     ],
   },
   rad: {
@@ -56,10 +56,10 @@ const FACTORS = {
     boundsUrl: assetUrl('data/2/rad_bounds.json'),
     desc: '茶树喜光耐阴：年日照百分率 35%–45% 最适宜，45%–60% 次适宜，高于 60% 不适宜',
     levels: [
-      { value: 0, label: '不适宜', color: '#E8E2D0' },
-      { value: 1, label: '限制适宜', color: '#C3C19A' },
-      { value: 2, label: '较适宜', color: '#93B55A' },
-      { value: 3, label: '最适宜', color: '#516D33' },
+      { value: 0, label: '不适宜', color: '#E8E2D0', range: '年辐射总量<60或>160kcal/cm²' },
+      { value: 1, label: '限制适宜', color: '#C3C19A', range: '年辐射总量140-160 kcal/cm²' },
+      { value: 2, label: '较适宜', color: '#93B55A', range: '年辐射总量60-80、120-140 kcal/cm²' },
+      { value: 3, label: '最适宜', color: '#516D33', range: '年辐射总量80-120 kcal/cm²' },
     ],
   },
   ph: {
@@ -71,10 +71,10 @@ const FACTORS = {
     boundsUrl: assetUrl('data/2/ph_bounds.json'),
     desc: '茶树喜酸性土壤，pH 4.5–5.5 为最适宜区',
     levels: [
-      { value: 0, label: '不适宜', color: '#E8E2D0' },
-      { value: 1, label: '限制适宜', color: '#D4B44C' },
-      { value: 2, label: '较适宜', color: '#5C7C3A' },
-      { value: 3, label: '最适宜', color: '#516D33' },
+      { value: 0, label: '不适宜', color: '#E8E2D0', range: 'pH<4或>7.5' },
+      { value: 1, label: '限制适宜', color: '#D4B44C', range: 'pH4.0-4.5或6.5-7.0' },
+      { value: 2, label: '较适宜', color: '#5C7C3A', range: 'pH5.5-6.5' },
+      { value: 3, label: '最适宜', color: '#516D33', range: 'pH4.5-5.5' },
     ],
   },
 }
