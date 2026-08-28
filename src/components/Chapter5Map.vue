@@ -1868,11 +1868,16 @@ onMounted(async () => {
   padding: 1.6rem 3rem 1.6rem 1rem;
   background-color: #EFE9DA;
   background-image:
-    linear-gradient(90deg, rgba(239, 233, 218, 0.04) 0%, rgba(239, 233, 218, 0.08) 47%, rgba(239, 233, 218, 0.34) 72%, rgba(239, 233, 218, 0.58) 100%),
-    url('/data/5/today-tea-garden-bg.png');
+    linear-gradient(
+      90deg,
+      rgba(247, 244, 235, 0.04) 0%,
+      rgba(247, 244, 235, 0.08) 52%,
+      rgba(247, 244, 235, 0.24) 100%
+    ),
+    url('/data/5/today-tea-garden-bg-v2.png');
   background-size: cover;
-  background-position: left center;
   background-repeat: no-repeat;
+  background-position: 30% center;
 }
 .map-fullscreen.ch5-redesign.show {
   opacity: 1;
@@ -1898,18 +1903,25 @@ onMounted(async () => {
   max-width: 640px;
   aspect-ratio: 600 / 820;
   max-height: calc(100vh - 60px - 3.2rem);
+  transform: translateX(clamp(40px, 3.8vw, 72px));
 }
 
 .tree-svg {
   display: block;
+  position: relative;
+  z-index: 2;
   width: 100%;
   height: 100%;
   overflow: visible;
+  background: transparent;
+  pointer-events: none;
 }
 
 /* ---------- Click zones ---------- */
 .click-zone {
   transition: filter 0.25s ease;
+  pointer-events: all;
+  cursor: pointer;
 }
 .click-zone.hover {
   filter: drop-shadow(0 0 10px rgba(255,255,255,0.7));
@@ -2946,10 +2958,12 @@ onMounted(async () => {
     overflow-y: auto;
     gap: 16px;
     padding: 1rem 1.2rem 2rem;
+    background-position: 34% center;
   }
   .ch5-tree-scene.single-tree {
     max-height: 560px;
     margin: 0 auto;
+    transform: translateX(clamp(22px, 2.8vw, 36px));
   }
   .phone-frame {
     max-height: 760px;
