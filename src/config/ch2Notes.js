@@ -33,7 +33,7 @@ const FACTOR_NOTES = {
     resolution: '0.1°（逐日）',
     unit: '℃',
     processing: '逐日平均气温 → 多年平均 → 按项目阈值划分温度适宜带',
-    basis: 'FAO ECOCROP 给出茶树最适温度 20–30 ℃、绝对范围 8–35 ℃。本图采用"核心—过渡—边缘"连续适宜性表达，分级阈值读取项目当前配置，与 FAO 最适范围区分表述。',
+    basis: 'FAO ECOCROP 给出茶树最适温度 20–30 ℃、绝对范围 8–35 ℃。本图采用"核心—过渡—边缘"连续适宜性表达，分级阈值参考源数据与 FAO 最适范围区分表述。',
     note: '',
     sources: [
       { label: 'Zenodo 数据集（DOI 10.5281/zenodo.5502275）', url: 'https://doi.org/10.5281/zenodo.5502275' },
@@ -123,7 +123,7 @@ function getFactorLevels(factorId) {
 
 // 分级下方的补充说明（仅综合评价有）
 const CLASSIFICATION_EXTRA = {
-  composite: '五因子等权重叠加，综合评分 ≥2.5 为最适宜区（读取自项目综合评价配置）。',
+  composite: '五因子等权重叠加，综合评分 ≥2.5 为最适宜区。',
 }
 
 export { FACTOR_NOTES, getFactorLevels, CLASSIFICATION_EXTRA }

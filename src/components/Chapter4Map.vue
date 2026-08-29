@@ -216,27 +216,25 @@
 
       <!-- ============================== Tab: 当代贸易情况 ============================== -->
       <div v-show="ch4Tab === 'modern'" class="ch4-view ch4-view-modern">
-        <div class="modern-topbar">
-          <div class="modern-title">
-            <span v-if="!isModernChinaMode" class="title-badge world">
-              {{ selectedModernProvince || '中国' }}
-            </span>
-            <span class="title-sub" v-if="!isModernChinaMode && modernProvinceInfo.hasData && modernProvinceInfo.flows.length">{{ modernYear }}年 出口总额 <b class="hl-num">{{ fmtNum(modernProvinceInfo.provinceValue / 1e8) }}</b> 亿元，覆盖 <b class="hl-num">{{ modernProvinceInfo.flows.length }}</b> 个主要国家</span>
-            <span class="title-sub" v-else-if="!isModernChinaMode && modernProvinceInfo.hasData">{{ modernYear }}年 出口总额 <b class="hl-num">{{ fmtNum(modernProvinceInfo.provinceValue / 1e8) }}</b> 亿元，暂无主要出口目的地数据</span>
-            <span class="title-sub" v-else-if="!isModernChinaMode">{{ modernYear }}年该省暂无茶叶出口数据</span>
-          </div>
-          <div class="modern-controls">
-            <div class="year-select">
-              <span class="slider-label">出口年份</span>
-              <select v-model.number="modernYear" @change="onModernYearChange" class="select-input">
-                <option v-for="y in modernYears" :key="y" :value="y">{{ y }}</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
         <div class="ch4-stage modern-stage">
           <div ref="modernMapEl" class="map modern-map"></div>
+
+          <div class="modern-topbar" :class="{ 'is-detail-mode': !isModernChinaMode }">
+            <div v-if="!isModernChinaMode" class="modern-title">
+              <span class="title-badge world">{{ selectedModernProvince || '中国' }}</span>
+              <span class="title-sub" v-if="modernProvinceInfo.hasData && modernProvinceInfo.flows.length">{{ modernYear }}年 出口总额 <b class="hl-num">{{ fmtNum(modernProvinceInfo.provinceValue / 1e8) }}</b> 亿元，覆盖 <b class="hl-num">{{ modernProvinceInfo.flows.length }}</b> 个主要国家</span>
+              <span class="title-sub" v-else-if="modernProvinceInfo.hasData">{{ modernYear }}年 出口总额 <b class="hl-num">{{ fmtNum(modernProvinceInfo.provinceValue / 1e8) }}</b> 亿元，暂无主要出口目的地数据</span>
+              <span class="title-sub" v-else>{{ modernYear }}年该省暂无茶叶出口数据</span>
+            </div>
+            <div class="modern-controls">
+              <div class="year-select">
+                <span class="slider-label">出口年份</span>
+                <select v-model.number="modernYear" @change="onModernYearChange" class="select-input">
+                  <option v-for="y in modernYears" :key="y" :value="y">{{ y }}</option>
+                </select>
+              </div>
+            </div>
+          </div>
 
           <!-- 茶叶形比例符号图例：概览与世界详情共用同一固定尺度 -->
           <div class="map-legend modern-legend">
@@ -345,13 +343,18 @@ const ch4Tabs = [
 ]
 const ch4Tab = ref('ancient')
 function switchCh4Tab(k) {
+  if (k !== 'ancient') clearAncientRouteSelection(false)
   ch4Tab.value = k
   setTimeout(() => {
     if (k === 'ancient' && map) map.invalidateSize()
     if (k === 'modern' && modernMap) {
-      modernMap.invalidateSize()
-      if (isModernChinaMode.value) fitModernChinaBounds()
-      else fitModernWorldBounds()
+      var center = modernMap.getCenter()
+      var zoom = modernMap.getZoom()
+      requestAnimationFrame(function() {
+        if (!modernMap) return
+        modernMap.invalidateSize({ animate: false, pan: false })
+        modernMap.setView(center, zoom, { animate: false })
+      })
     }
   }, 60)
 }
@@ -448,12 +451,52 @@ function routePathSegments(route) {
   if (route && route.routeMode === 'digitized' && Array.isArray(route.geometrySegments)) {
     return route.geometrySegments
   }
-  var nodePath = visualPoints(route).map(function(point) {
-    return [Number(point.lat), Number(point.lon)]
-  }).filter(function(point) {
-    return Number.isFinite(point[0]) && Number.isFinite(point[1])
+  var points = visualPoints(route)
+  var parts = []
+  for (var i = 1; i < points.length; i++) {
+    parts.push.apply(parts, createGreatCircleSegment(
+      [Number(points[i - 1].lon), Number(points[i - 1].lat)],
+      [Number(points[i].lon), Number(points[i].lat)]
+    ))
+  }
+  return parts
+}
+
+function createGreatCircleSegment(startCoordinate, endCoordinate) {
+  var lon1 = startCoordinate[0] * Math.PI / 180
+  var lat1 = startCoordinate[1] * Math.PI / 180
+  var lon2 = endCoordinate[0] * Math.PI / 180
+  var lat2 = endCoordinate[1] * Math.PI / 180
+  var centralAngle = 2 * Math.asin(Math.sqrt(
+    Math.pow(Math.sin((lat2 - lat1) / 2), 2) +
+    Math.cos(lat1) * Math.cos(lat2) * Math.pow(Math.sin((lon2 - lon1) / 2), 2)
+  ))
+  var distanceKm = 6371.0088 * centralAngle
+  var npoints = Math.min(160, Math.max(32, Math.ceil(distanceKm / 120)))
+  if (!Number.isFinite(centralAngle) || centralAngle < 1e-10) {
+    return [[[startCoordinate[1], startCoordinate[0]], [endCoordinate[1], endCoordinate[0]]]]
+  }
+  var sinAngle = Math.sin(centralAngle)
+  var coordinates = []
+  for (var i = 0; i < npoints; i++) {
+    var fraction = i / (npoints - 1)
+    var a = Math.sin((1 - fraction) * centralAngle) / sinAngle
+    var b = Math.sin(fraction * centralAngle) / sinAngle
+    var x = a * Math.cos(lat1) * Math.cos(lon1) + b * Math.cos(lat2) * Math.cos(lon2)
+    var y = a * Math.cos(lat1) * Math.sin(lon1) + b * Math.cos(lat2) * Math.sin(lon2)
+    var z = a * Math.sin(lat1) + b * Math.sin(lat2)
+    coordinates.push([Math.atan2(z, Math.hypot(x, y)) * 180 / Math.PI, Math.atan2(y, x) * 180 / Math.PI])
+  }
+  var parts = [[]]
+  coordinates.forEach(function(coordinate) {
+    var current = parts[parts.length - 1]
+    if (current.length && Math.abs(coordinate[1] - current[current.length - 1][1]) > 180) {
+      parts.push([])
+      current = parts[parts.length - 1]
+    }
+    current.push(coordinate)
   })
-  return nodePath.length >= 2 ? [nodePath] : []
+  return parts.filter(function(part) { return part.length >= 2 })
 }
 
 function sameCoordinate(a, b) {
@@ -602,7 +645,7 @@ function buildRuntimeRoute(routeId) {
     points: nodes,
     via,
     historicalBackground: `${routeName}是${dynastyNames.join('至')}茶叶跨区域流通的重要通道。${baseFact || properties.note || ''}`,
-    routeStory: `茶叶由${origin}出发${via.length ? `，依次经过${via.join('、')}` : ''}，抵达${destination}。地图以${modeText}方式呈现该通道；${routeMode === 'node_path' ? '线形严格按 GeoJSON 中有序历史节点连接，不增加圆弧控制点。' : '线形保留人工数字化成果的原始折点顺序与行进方向。'}`,
+    routeStory: `茶叶由${origin}出发${via.length ? `，依次经过${via.join('、')}` : ''}，抵达${destination}。地图以${modeText}方式呈现该通道；${routeMode === 'node_path' ? '有真实数字化线形的路段沿原GeoJSON绘制；缺少真实线形的相邻节点区间采用大圆路线连接，作为路线示意补充。' : '线形保留人工数字化成果的原始折点顺序与行进方向。'}`,
     tradeSignificance: legacy && legacy.tradeSignificance ? legacy.tradeSignificance : `该路线连接了${origin}与${destination}，反映茶叶贸易带动的区域交流与市场扩展。`,
     sourceRefs: Array.from(new Set(sourceRefs)),
     rawIndex: Number(routeId.replace(/\D/g, '')) || 0,
@@ -618,6 +661,7 @@ function rebuildAncientTradeRoutes() {
   }).map(buildRuntimeRoute).filter(function(route) {
     return route.points.length >= 2 || route.geometrySegments.length
   })
+  ancientRouteMap = new Map(ancientTradeRoutes.map(function(route) { return [String(route.id), route] }))
 }
 
 async function loadAncientRouteData() {
@@ -645,6 +689,7 @@ async function loadAncientRouteData() {
   if (!ancientTradeRoutes.length) {
     console.error('古代贸易 GeoJSON 未生成任何有效路线，保留旧数据作为页面降级显示。')
     ancientTradeRoutes = TEA_TRADE_DATA
+    ancientRouteMap = new Map(ancientTradeRoutes.map(function(route) { return [String(route.id), route] }))
   }
 }
 var sectionEl = ref(null)
@@ -659,6 +704,8 @@ const routeFilterOptions = [
 ]
 var panelMode = ref('dynasty')
 var selectedRoute = ref(null)
+var selectedAncientRouteId = ref(null)
+var ancientRouteMap = new Map()
 const chapter = CHAPTER_META.ch4
 var selectedNodeName = ref('')
 var nodeRouteOptions = ref([])
@@ -681,6 +728,11 @@ var chinaBoundaryLayer = null
 var chinaBoundaryHaloLayer = null
 var routeLayer = null
 var routeHitLayer = null
+var selectedRouteHaloLayer = null
+var selectedRouteMainLayer = null
+var selectedRouteFlowLayer = null
+var selectedNodeHaloLayer = null
+var selectedRouteVisualLayers = null
 var nodeLayer = null
 var nodeLabelLayer = null
 var nodeHitLayer = null
@@ -716,6 +768,7 @@ var cameraUserControlled = false
 var programmaticCameraMove = false
 var lastCameraSignature = ''
 var hasTriggeredYuanZoom = false
+var hasCompletedInitialPlayZoom = false
 var hasEnteredMing = false
 var previousAncientStage = '唐代'
 var ancientInitialCenter = null
@@ -723,11 +776,11 @@ var yuanCameraTarget = null
 
 const ANCIENT_MIN_ZOOM = 1.75
 const ANCIENT_MAX_ZOOM = 6.5
-const ANCIENT_INITIAL_ZOOM = 4
+const ANCIENT_INITIAL_VIEW = { center: [35.5, 104.0], zoom: 4 }
+const ANCIENT_PLAY_FOCUS_VIEW = { center: [30.8, 103.5], zoom: 5.2 }
+const ANCIENT_INITIAL_ZOOM = ANCIENT_INITIAL_VIEW.zoom
 const INITIAL_ROUTE_ZOOM = ANCIENT_MAX_ZOOM
 const MIN_ROUTE_ZOOM = 2.5
-const LABEL_FULL_SCALE = 5000000
-const LABEL_HIDDEN_SCALE = 15000000
 
 // Active routes cache
 var activeRouteLayers = new Map()
@@ -753,6 +806,7 @@ function pausePlayback() {
 }
 
 function showDynastyPanel() {
+  clearAncientRouteSelection(false)
   panelMode.value = 'dynasty'
   selectedRoute.value = null
   selectedNodeName.value = ''
@@ -760,9 +814,42 @@ function showDynastyPanel() {
   if (map && routeLayer) renderCurrentProgress()
 }
 
+function clearAncientRouteSelection(renderAfter) {
+  selectedAncientRouteId.value = null
+  if (selectedRouteHaloLayer) selectedRouteHaloLayer.clearLayers()
+  if (selectedRouteMainLayer) selectedRouteMainLayer.clearLayers()
+  if (selectedRouteFlowLayer) selectedRouteFlowLayer.clearLayers()
+  selectedRouteVisualLayers = null
+  selectedRoute.value = null
+  if (renderAfter !== false && map && routeLayer) renderCurrentProgress()
+}
+
+function selectAncientRoute(routeId) {
+  var route = ancientRouteMap.get(String(routeId))
+  if (!route) return
+  selectedAncientRouteId.value = String(route.id)
+  panelMode.value = 'route'
+  selectedRoute.value = route
+  selectedNodeName.value = ''
+  nodeRouteOptions.value = []
+  createSelectedRouteVisualLayers()
+  renderCurrentProgress()
+}
+
+function createSelectedRouteVisualLayers() {
+  if (!selectedRouteHaloLayer || !selectedRouteMainLayer || !selectedRouteFlowLayer) return
+  selectedRouteHaloLayer.clearLayers()
+  selectedRouteMainLayer.clearLayers()
+  selectedRouteFlowLayer.clearLayers()
+  selectedRouteVisualLayers = {
+    halo: L.polyline([], { pane: 'selectedRouteHaloPane', interactive: false, lineCap: 'round', lineJoin: 'round' }).addTo(selectedRouteHaloLayer),
+    main: L.polyline([], { pane: 'selectedRouteMainPane', interactive: false, lineCap: 'round', lineJoin: 'round' }).addTo(selectedRouteMainLayer),
+    flow: L.polyline([], { pane: 'selectedRouteFlowPane', interactive: false, lineCap: 'round', lineJoin: 'round' }).addTo(selectedRouteFlowLayer),
+  }
+}
+
 function jumpToDynasty(tick) {
   pausePlayback()
-  showDynastyPanel()
   if (tick.index >= dynastyTicks.findIndex(function(item) { return item.name === '明代' })) {
     hasEnteredMing = true
   }
@@ -772,14 +859,12 @@ function jumpToDynasty(tick) {
 function openRouteDetail(route, event) {
   if (event && event.originalEvent) L.DomEvent.stopPropagation(event.originalEvent)
   pausePlayback()
-  panelMode.value = 'route'
-  selectedRoute.value = route
-  nodeRouteOptions.value = []
-  renderCurrentProgress()
+  selectAncientRoute(route.id)
 }
 
 function selectRoute(route) {
-  openRouteDetail(route)
+  pausePlayback()
+  selectAncientRoute(route.id)
 }
 
 function routeForVisual(rp) {
@@ -922,6 +1007,8 @@ function getVisiblePathSegments(fullSegments, routeProgress) {
 
 const BRUSH_CHUNK_COUNT = 24
 const HISTORY_OPACITY_MULTIPLIER = 0.38
+const UNSELECTED_ROUTE_OPACITY = 0.2
+const SELECTED_FLOW_LENGTH_RATIO = 0.08
 const BRUSH_HEAD_LENGTH_PX = 90
 const FLOW_HIGHLIGHT_RATIO = 0.08
 const FLOW_DURATION = 5000
@@ -1038,7 +1125,6 @@ var routeFromTo = computed(function() {
 function onSliderMouseDown(e) {
   isDraggingTimeline.value = true
   pausePlayback()
-  showDynastyPanel()
   updateProgressFromEvent(e)
   window.addEventListener('mousemove', onSliderMouseMove)
   window.addEventListener('mouseup', onSliderMouseUp)
@@ -1160,20 +1246,55 @@ function restoreAncientInitialView() {
   if (!map || !ancientInitialCenter) return
   map.stop()
   map.setView(ancientInitialCenter, ANCIENT_INITIAL_ZOOM, { animate: false })
+  updateNodeLabelOpacity(ANCIENT_INITIAL_ZOOM)
 }
 
-function currentScaleDenominator() {
-  if (!map) return LABEL_HIDDEN_SCALE
-  var latitude = Math.max(-85, Math.min(85, map.getCenter().lat))
-  var metresPerPixel = 156543.03392 * Math.cos(latitude * Math.PI / 180) / Math.pow(2, map.getZoom())
-  return metresPerPixel * 96 * 39.37007874
+function getNodeLabelOpacity(zoom) {
+  const FADE_START_ZOOM = 4.35
+  const FADE_END_ZOOM = 5.05
+  return Math.min(1, Math.max(0, (zoom - FADE_START_ZOOM) / (FADE_END_ZOOM - FADE_START_ZOOM)))
 }
 
-function labelVisibilityFactor() {
-  var scale = currentScaleDenominator()
-  if (scale <= LABEL_FULL_SCALE) return 1
-  if (scale >= LABEL_HIDDEN_SCALE) return 0
-  return 1 - (scale - LABEL_FULL_SCALE) / (LABEL_HIDDEN_SCALE - LABEL_FULL_SCALE)
+function updateNodeLabelOpacity(zoom) {
+  if (!map) return
+  var pane = map.getPane('tradeNodeLabelPane')
+  if (!pane) return
+  var opacity = getNodeLabelOpacity(Number(zoom))
+  pane.style.opacity = String(opacity)
+  pane.style.pointerEvents = opacity > 0.1 ? 'auto' : 'none'
+}
+
+function nodeRouteStateOpacity(node, targetProgress) {
+  var visibleRouteIds = Array.from(node.routeIds).filter(function(routeId) {
+    var rp = routeProgressMap.get(String(routeId))
+    return rp && routePassesFilter(rp.route) && targetProgress + 1e-8 >= rp.startProgress
+  })
+  if (!visibleRouteIds.length) return 0
+  return visibleRouteIds.reduce(function(best, routeId) {
+    var rp = routeProgressMap.get(String(routeId))
+    var state = getRouteState(rp, targetProgress)
+    if (state === 'historical') return best
+    if (state !== 'retiring') return 1
+    var span = Math.max(0.000001, rp.retireEndProgress - rp.retireStartProgress)
+    return Math.max(best, 1 - Math.max(0, Math.min(1, (targetProgress - rp.retireStartProgress) / span)))
+  }, 0)
+}
+
+function runInitialPlayZoom(onComplete) {
+  if (!map || hasCompletedInitialPlayZoom || dynastyName.value !== '唐代') return false
+  hasCompletedInitialPlayZoom = true
+  map.stop()
+  programmaticCameraMove = true
+  map.flyTo(ANCIENT_PLAY_FOCUS_VIEW.center, ANCIENT_PLAY_FOCUS_VIEW.zoom, {
+    animate: true,
+    duration: 2,
+    easeLinearity: 0.22,
+  })
+  map.once('moveend', function() {
+    programmaticCameraMove = false
+    if (typeof onComplete === 'function') onComplete()
+  })
+  return true
 }
 
 function stableLabelRank(name, lat, lng) {
@@ -1238,10 +1359,11 @@ function buildRouteRegistry() {
       lineCap: 'round', lineJoin: 'round', interactive: false,
     }).addTo(routeLayer)
     var hitLine = L.polyline([], {
-      pane: 'routeHitPane', color: '#000000', weight: 14, opacity: 0.001,
+      pane: 'routeHitPane', color: '#000000', weight: 16, opacity: 0.001,
       interactive: true, bubblingMouseEvents: false,
     }).addTo(routeHitLayer)
     rp.visual = { fullPathSegments, brushChunks, brushLines, flowLine, hitLine, hover: false }
+    hitLine.routeId = String(rp.route.id)
     hitLine.on('click', function(event) { openRouteDetail(routeForVisual(rp), event) })
     hitLine.on('mouseover', function() {
       rp.visual.hover = true
@@ -1281,6 +1403,9 @@ function updateRouteVisual(rp, targetProgress) {
   }
   var highlighted = visual.hover || (selectedRoute.value && routeProgressMap.get(String(selectedRoute.value.id)) === rp)
   var opacityMultiplier = state === 'historical' ? HISTORY_OPACITY_MULTIPLIER : 1
+  var selectionActive = Boolean(selectedAncientRouteId.value)
+  var isSelectedRoute = selectionActive && routeProgressMap.get(selectedAncientRouteId.value) === rp
+  if (selectionActive && !isSelectedRoute) opacityMultiplier *= UNSELECTED_ROUTE_OPACITY
   if (state === 'retiring') {
     var retireSpan = Math.max(0.000001, rp.retireEndProgress - rp.retireStartProgress)
     var retire = Math.max(0, Math.min(1, (targetProgress - rp.retireStartProgress) / retireSpan))
@@ -1317,7 +1442,7 @@ function updateRouteVisual(rp, targetProgress) {
       })
     }
   })
-  if (state === 'active') {
+  if (state === 'active' && !selectionActive) {
     var flowStart = routeFlowProgress * (1 - FLOW_HIGHLIGHT_RATIO)
     visual.flowLine.setLatLngs(slicePathSegmentsByFraction(visual.fullPathSegments, flowStart, flowStart + FLOW_HIGHLIGHT_RATIO))
     visual.flowLine.setStyle({
@@ -1332,6 +1457,49 @@ function updateRouteVisual(rp, targetProgress) {
   visual.hitLine.setLatLngs(visiblePath)
   var detailRoute = routeForVisual(rp)
   visual.hitLine.setTooltipContent((detailRoute.yearText || detailRoute.dynasty) + '｜' + detailRoute.origin + '→' + detailRoute.destination)
+}
+
+function renderAncientRouteSelection(targetProgress) {
+  if (!selectedAncientRouteId.value || !selectedRouteVisualLayers) return
+  var rp = routeProgressMap.get(selectedAncientRouteId.value)
+  if (!rp || !routePassesFilter(rp.route)) {
+    showDynastyPanel()
+    return
+  }
+  var state = getRouteState(rp, targetProgress)
+  if (state === 'hidden') {
+    showDynastyPanel()
+    return
+  }
+  var drawSpan = Math.max(0.000001, rp.drawEndProgress - rp.startProgress)
+  var local = state === 'drawing'
+    ? Math.max(0, Math.min(1, (targetProgress - rp.startProgress) / drawSpan))
+    : 1
+  var path = getVisiblePathSegments(rp.visual.fullPathSegments, local)
+  var routeType = kind(rp.route)
+  var historical = state === 'historical'
+  selectedRouteVisualLayers.halo.setLatLngs(path)
+  selectedRouteVisualLayers.main.setLatLngs(path)
+  selectedRouteVisualLayers.halo.setStyle({
+    color: routeType === 'sea' ? '#AFC3A9' : '#F1DFB1',
+    weight: 10,
+    opacity: routeType === 'sea' ? 0.38 : 0.42,
+    dashArray: historical ? '8 7' : null,
+  })
+  selectedRouteVisualLayers.main.setStyle({
+    color: routeType === 'sea' ? '#315D47' : '#C39A43',
+    weight: 4.8,
+    opacity: 1,
+    dashArray: historical ? '8 7' : null,
+  })
+  var flowStart = routeFlowProgress * (1 - SELECTED_FLOW_LENGTH_RATIO)
+  selectedRouteVisualLayers.flow.setLatLngs(slicePathSegmentsByFraction(path, flowStart, flowStart + SELECTED_FLOW_LENGTH_RATIO))
+  selectedRouteVisualLayers.flow.setStyle({
+    color: routeType === 'sea' ? '#CBDAC3' : '#F7ECCB',
+    weight: 3.2,
+    opacity: routeType === 'sea' ? 0.68 : 0.72,
+    dashArray: null,
+  })
 }
 
 function buildNodeRegistry() {
@@ -1355,24 +1523,32 @@ function buildNodeRegistry() {
           pane: 'nodeHitPane', radius: 10, color: '#000000', weight: 0,
           opacity: 0, fillOpacity: 0, interactive: true, bubblingMouseEvents: false,
         })
+        var selectionHalo = L.circleMarker([point.lat, point.lon], {
+          pane: 'selectedNodeHaloPane', radius: 10, weight: 0,
+          fillColor: '#F1DFB1', fillOpacity: 0, opacity: 0,
+          interactive: false,
+        }).addTo(selectedNodeHaloLayer)
         var labelMarker = L.marker([point.lat, point.lon], {
-          pane: 'tradeNodeLabelPane', interactive: false, keyboard: false, opacity: 0,
+          pane: 'tradeNodeLabelPane', interactive: true, bubblingMouseEvents: false, keyboard: true, opacity: 0,
           icon: L.divIcon({
-            className: 'ch4-node-label-icon',
+            className: 'ch4-node-label-icon ancient-node-label',
             html: '<span>' + escapeNodeLabel(point.name || '路线节点') + '</span>',
             iconSize: null,
             iconAnchor: [-9, 13],
           }),
         }).addTo(nodeLabelLayer)
         node = {
-          marker, hitMarker, labelMarker, routeIds: new Set(), routeFractions: new Map(),
+          marker, hitMarker, labelMarker, selectionHalo, routeIds: new Set(), routeFractions: new Map(),
           name: point.name || '路线节点', lat: Number(point.lat), lng: Number(point.lon), hitEnabled: false,
           currentOpacity: 0, labelRank: stableLabelRank(point.name, point.lat, point.lon),
         }
         hitMarker.bindTooltip(node.name, { direction: 'top', offset: [0, -6], className: 'ch4-node-tip' })
         hitMarker.on('click', function(event) {
-          openNodeDetail(node, event)
+          handleAncientNodeClick(node, event)
         })
+        labelMarker.on('click', function(event) { handleAncientNodeClick(node, event) })
+        labelMarker.on('mouseover', function() { if (map) map.getContainer().style.cursor = 'pointer' })
+        labelMarker.on('mouseout', function() { if (map) map.getContainer().style.cursor = '' })
         nodeRegistry.set(nodeKey, node)
       }
       ;(rp.routes || [rp.route]).forEach(function(route) {
@@ -1400,7 +1576,6 @@ function nodeOpacityForRoute(node, routeId, targetProgress) {
 }
 
 function updateNodeMarkers(targetProgress) {
-  var labelFactor = labelVisibilityFactor()
   nodeRegistry.forEach(function(node) {
     var bestOpacity = 0
     var bestRoute = null
@@ -1412,14 +1587,33 @@ function updateNodeMarkers(targetProgress) {
         bestRoute = rp && routeForVisual(rp)
       }
     })
+    var selectionActive = Boolean(selectedAncientRouteId.value)
+    var nodeSelected = selectionActive && node.routeIds.has(selectedAncientRouteId.value)
+    var selectedNodeRoute = nodeSelected ? ancientRouteMap.get(selectedAncientRouteId.value) : null
+    var nodeColorRoute = selectedNodeRoute || bestRoute
+    var visualOpacity = selectionActive && !nodeSelected ? bestOpacity * 0.3 : bestOpacity
     node.marker.setStyle({
-      fillColor: bestRoute && kind(bestRoute) === 'sea' ? '#5C7C3A' : '#B28F4C',
-      fillOpacity: bestOpacity, opacity: bestOpacity,
+      fillColor: nodeColorRoute && kind(nodeColorRoute) === 'sea' ? '#315D47' : '#B28F4C',
+      fillOpacity: visualOpacity,
+      opacity: visualOpacity,
+      weight: nodeSelected ? 2.5 : 2,
+    })
+    node.marker.setRadius(nodeSelected ? 6.5 : 5)
+    node.selectionHalo.setStyle({
+      fillColor: nodeColorRoute && kind(nodeColorRoute) === 'sea' ? '#AFC3A9' : '#F1DFB1',
+      fillOpacity: nodeSelected && bestOpacity > 0.05 ? 0.28 : 0,
+      opacity: 0,
     })
     node.currentOpacity = bestOpacity
-    var labelVisible = labelFactor > 0 && node.labelRank <= labelFactor && bestOpacity > 0.12
-    var labelOpacity = labelVisible ? Math.min(1, bestOpacity) * Math.min(1, labelFactor * 1.7) : 0
+    var routeStateOpacity = nodeRouteStateOpacity(node, targetProgress)
+    var labelOpacity = bestOpacity > 0.12 ? Math.min(1, visualOpacity) * routeStateOpacity : 0
     node.labelMarker.setOpacity(labelOpacity)
+    var labelElement = node.labelMarker.getElement()
+    if (labelElement) {
+      labelElement.classList.toggle('is-history', routeStateOpacity <= 0.001)
+      labelElement.classList.toggle('is-current', routeStateOpacity > 0.001)
+      labelElement.style.pointerEvents = labelOpacity > 0.1 ? 'auto' : 'none'
+    }
     var enabled = bestOpacity > 0.05
     if (enabled && !node.hitEnabled) {
       nodeHitLayer.addLayer(node.hitMarker)
@@ -1454,13 +1648,18 @@ function getRoutesForNode(node) {
   })
 }
 
-function openNodeDetail(node, event) {
+function handleAncientNodeClick(node, event) {
   if (event && event.originalEvent) L.DomEvent.stopPropagation(event.originalEvent)
   var routes = getRoutesForNode(node)
   if (!routes.length) return
   pausePlayback()
+  var current = routes.find(function(route) { return String(route.id) === selectedAncientRouteId.value })
+  if (current) {
+    selectAncientRoute(current.id)
+    return
+  }
   if (routes.length === 1) {
-    openRouteDetail(routes[0], event)
+    selectAncientRoute(routes[0].id)
     return
   }
   panelMode.value = 'route'
@@ -1472,6 +1671,7 @@ function openNodeDetail(node, event) {
 function drawRoutesAtProgress(targetProgress) {
   handleAncientStageChange(getDynastyByProgress(targetProgress).name)
   routeProgressData.forEach(function(rp) { updateRouteVisual(rp, targetProgress) })
+  renderAncientRouteSelection(targetProgress)
   updateNodeMarkers(targetProgress)
 }
 
@@ -1531,6 +1731,7 @@ function togglePlay() {
       progress.value = 0
       routeFlowProgress = 0
       hasTriggeredYuanZoom = false
+      hasCompletedInitialPlayZoom = false
       hasEnteredMing = false
       previousAncientStage = '唐代'
       restoreAncientInitialView()
@@ -1539,9 +1740,11 @@ function togglePlay() {
       programmaticCameraMove = false
       lastCameraSignature = ''
     }
-    showDynastyPanel()
     isPlaying.value = true
-    startAnimationLoop()
+    var waitingForInitialZoom = runInitialPlayZoom(function() {
+      if (isPlaying.value) startAnimationLoop()
+    })
+    if (!waitingForInitialZoom) startAnimationLoop()
   } else {
     isPlaying.value = false
     stopAnimationLoop()
@@ -1560,6 +1763,7 @@ function resetView() {
   progress.value = 0
   routeFlowProgress = 0
   hasTriggeredYuanZoom = false
+  hasCompletedInitialPlayZoom = false
   hasEnteredMing = false
   previousAncientStage = '唐代'
   cameraInitialized = false
@@ -1605,13 +1809,12 @@ function initMap() {
     }
 
     map = L.map(mapEl.value, {
-      center: [31, 103],
-      zoom: MIN_ROUTE_ZOOM,
+      center: ANCIENT_INITIAL_VIEW.center,
+      zoom: ANCIENT_INITIAL_VIEW.zoom,
       minZoom: ANCIENT_MIN_ZOOM,
       maxZoom: ANCIENT_MAX_ZOOM,
-      zoomSnap: 0.25,
+      zoomSnap: 0.1,
       zoomDelta: 0.25,
-      worldCopyJump: true,
       zoomControl: false,
       attributionControl: false,
       preferCanvas: true,
@@ -1628,8 +1831,16 @@ function initMap() {
     map.getPane('chinaBorderPane').style.zIndex = 335
     map.createPane('tradeRoutePane')
     map.getPane('tradeRoutePane').style.zIndex = 460
+    map.createPane('selectedRouteHaloPane')
+    map.getPane('selectedRouteHaloPane').style.zIndex = 462
+    map.createPane('selectedRouteMainPane')
+    map.getPane('selectedRouteMainPane').style.zIndex = 464
+    map.createPane('selectedRouteFlowPane')
+    map.getPane('selectedRouteFlowPane').style.zIndex = 466
     map.createPane('routeHitPane')
     map.getPane('routeHitPane').style.zIndex = 470
+    map.createPane('selectedNodeHaloPane')
+    map.getPane('selectedNodeHaloPane').style.zIndex = 475
     map.createPane('tradeNodePane')
     map.getPane('tradeNodePane').style.zIndex = 480
     map.createPane('tradeNodeLabelPane')
@@ -1641,6 +1852,10 @@ function initMap() {
 
     routeLayer = L.layerGroup().addTo(map)
     routeHitLayer = L.layerGroup().addTo(map)
+    selectedRouteHaloLayer = L.layerGroup().addTo(map)
+    selectedRouteMainLayer = L.layerGroup().addTo(map)
+    selectedRouteFlowLayer = L.layerGroup().addTo(map)
+    selectedNodeHaloLayer = L.layerGroup().addTo(map)
     nodeLayer = L.layerGroup().addTo(map)
     nodeLabelLayer = L.layerGroup().addTo(map)
     nodeHitLayer = L.layerGroup().addTo(map)
@@ -1649,8 +1864,10 @@ function initMap() {
       if (panelMode.value === 'route') showDynastyPanel()
     })
     map.on('zoom', function() {
-      if (nodeRegistry.size) updateNodeMarkers(progress.value)
+      updateNodeLabelOpacity(map.getZoom())
     })
+    map.on('zoomanim', function(event) { updateNodeLabelOpacity(event.zoom) })
+    map.on('zoomend', function() { updateNodeLabelOpacity(map.getZoom()) })
 
     // 用户开始拖动、触摸或滚轮操作时立即接管镜头，瓦片加载期间也能自由移动。
     var takeManualCameraControl = function() {
@@ -1668,9 +1885,7 @@ function initMap() {
     buildRouteRegistry()
     buildNodeRegistry()
 
-    // 初始仍展示唐代内容，但首次可见前直接采用宋代阶段的同一镜头计算结果。
-    var songReferenceView = getStageCamera('宋代')
-    ancientInitialCenter = L.latLng(songReferenceView.center.lat, songReferenceView.center.lng)
+    ancientInitialCenter = L.latLng(ANCIENT_INITIAL_VIEW.center)
     // 元代沿用上一版全局贸易路线目标，并受既有路线镜头下限约束。
     var globalRouteView = getStageCamera('民国')
     yuanCameraTarget = { center: globalRouteView.center, zoom: MIN_ROUTE_ZOOM }
@@ -1686,10 +1901,14 @@ function initMap() {
     programmaticCameraMove = false
     lastCameraSignature = 'initial-song-reference'
     hasTriggeredYuanZoom = false
+    hasCompletedInitialPlayZoom = false
     hasEnteredMing = false
     previousAncientStage = '唐代'
+    updateNodeLabelOpacity(ANCIENT_INITIAL_ZOOM)
     nextTick(function() {
-      map.invalidateSize()
+      map.invalidateSize({ animate: false, pan: false })
+      map.setView(ANCIENT_INITIAL_VIEW.center, ANCIENT_INITIAL_VIEW.zoom, { animate: false })
+      updateNodeLabelOpacity(ANCIENT_INITIAL_VIEW.zoom)
       renderCurrentProgress()
       ancientLoading.value = false
       ancientMapReady.value = true
@@ -1880,13 +2099,11 @@ function onKeydown(e) {
   if (e.code === 'ArrowRight') {
     e.preventDefault()
     pausePlayback()
-    showDynastyPanel()
     progress.value = Math.min(1, progress.value + 0.005)
     renderCurrentProgress()
   } else if (e.code === 'ArrowLeft') {
     e.preventDefault()
     pausePlayback()
-    showDynastyPanel()
     progress.value = Math.max(0, progress.value - 0.005)
     renderCurrentProgress()
   } else if (e.code === 'Space') {
@@ -1958,7 +2175,11 @@ const MODERN_GLOBAL_MAX_VALUE = Math.max.apply(null, modernYears.flatMap(functio
 }).concat([0]))
 
 function normalizeProvinceName(name) {
-  return String(name || '').replace(/省|市|自治区|壮族|回族|维吾尔|特别行政区|特别行政/g, '')
+  return String(name || '').replace(/省|市|自治区|壮族|回族|维吾尔|特别行政区|特别行政/g, '').trim()
+}
+
+function isProvinceDetailDisabled(provinceName) {
+  return normalizeProvinceName(provinceName) === '台湾'
 }
 
 function findProvinceRecord(records, provinceName) {
@@ -2191,8 +2412,9 @@ function ensureModernProvinceLayer() {
         var provinceName = resolveProvinceName(featureName)
         layer.on('mouseover', function() {
           var bubble = getProvinceBubble(provinceName)
-          var clickable = Boolean(bubble && bubble.hasData)
-          hoveredProvince.value = clickable ? hoverProvinceData(provinceName) : null
+          var hasData = Boolean(bubble && bubble.hasData)
+          var clickable = hasData && !isProvinceDetailDisabled(provinceName)
+          hoveredProvince.value = hasData ? hoverProvinceData(provinceName) : null
           var path = layer.getElement && layer.getElement()
           if (path) path.style.cursor = clickable ? 'pointer' : 'default'
           if (!clickable) return
@@ -2209,7 +2431,7 @@ function ensureModernProvinceLayer() {
           stopModernMapEvent(event)
           var bubble = getProvinceBubble(provinceName)
           if (!bubble || !bubble.hasData) return
-          enterWorldMode(provinceName)
+          openModernProvinceDetail(provinceName)
         })
       },
     }).addTo(modernMap)
@@ -2235,8 +2457,9 @@ function renderModernProvinceBubbles(options) {
     var baseSize = getLeafSize(item.currentValue, MODERN_GLOBAL_MAX_VALUE)
     var size = baseSize * modeScale * (selected ? 1.08 : 1)
     var opacity = detailMode && !selected ? 0.5 : 1
+    var detailDisabled = isProvinceDetailDisabled(item.provinceName)
     var icon = L.divIcon({
-      className: 'province-tea-leaf-icon' + (selected ? ' selected' : '') + (detailMode && !selected ? ' muted' : ''),
+      className: 'province-tea-leaf-icon' + (selected ? ' selected' : '') + (detailMode && !selected ? ' muted' : '') + (detailDisabled ? ' is-analysis-only' : ''),
       html: createLeafSvg(getYoYColor(item.yoy), selected, opacity),
       iconSize: [size, size],
       iconAnchor: [size / 2, size / 2],
@@ -2249,7 +2472,7 @@ function renderModernProvinceBubbles(options) {
         : (detailMode ? 'modernDetailBubblePane' : 'modernBubblePane'),
       interactive: true,
       bubblingMouseEvents: false,
-      keyboard: true,
+      keyboard: !detailDisabled,
       riseOnHover: true,
       riseOffset: 1200,
       zIndexOffset: selected ? 1800 : 0,
@@ -2270,10 +2493,12 @@ function renderModernProvinceBubbles(options) {
       var el = marker.getElement()
       if (el) el.classList.remove('hovered')
     })
-    marker.on('click', function(event) {
-      stopModernMapEvent(event)
-      enterWorldMode(item.provinceName)
-    })
+    if (!detailDisabled) {
+      marker.on('click', function(event) {
+        stopModernMapEvent(event)
+        openModernProvinceDetail(item.provinceName)
+      })
+    }
     marker.addTo(modernBubbleLayer)
   })
 }
@@ -2317,6 +2542,10 @@ function loadModernWorldBoundary() {
 }
 
 function enterWorldMode(provinceName, options) {
+  if (isProvinceDetailDisabled(provinceName)) {
+    if (!isModernChinaMode.value || selectedModernProvince.value) backToChinaMap()
+    return
+  }
   var opts = options || {}
   var bubble = getProvinceBubble(provinceName)
   var hasData = Boolean(bubble && bubble.hasData)
@@ -2342,6 +2571,11 @@ function enterWorldMode(provinceName, options) {
   })
 }
 
+function openModernProvinceDetail(provinceName, options) {
+  if (isProvinceDetailDisabled(provinceName)) return
+  enterWorldMode(provinceName, options)
+}
+
 function backToChinaMap() {
   isModernChinaMode.value = true
   selectedModernProvince.value = null
@@ -2355,6 +2589,10 @@ function backToChinaMap() {
     renderModernChinaProvinces()
   })
 }
+
+watch(selectedModernProvince, function(provinceName) {
+  if (isProvinceDetailDisabled(provinceName)) backToChinaMap()
+})
 
 function highlightFlowCountry(countryName, on) {
   if (!modernFlowLayer || !modernMarkersLayer) return
@@ -2543,16 +2781,31 @@ function renderModernFlows(provinceName, info) {
   // Pane 层级已固定，无需对 LayerGroup 调用不存在的 bringToFront()。
 }
 
+function disposeModernMap() {
+  modernProvLayer = null
+  modernWorldCountriesLayer = null
+  modernChinaBoundaryLayer = null
+  modernFlowLayer = null
+  modernMarkersLayer = null
+  modernBubbleLayer = null
+  modernProvinceGeoJsonPromise = null
+  if (modernMap) {
+    try { modernMap.remove() } catch (e) {}
+    modernMap = null
+  }
+}
+
 function initModernMap() {
   if (modernMap) return
-  modernMap = L.map(modernMapEl.value, {
+  var mapOptions = {
     center: [32, 104],
     zoom: 4,
     minZoom: 2,
     maxZoom: 7,
     zoomControl: false,
     attributionControl: false,
-  })
+  }
+  modernMap = L.map(modernMapEl.value, mapOptions)
   modernWorldRenderer = L.canvas({ padding: 0.5, tolerance: 3 })
   modernMap.createPane('modernWorldCountriesPane')
   modernMap.getPane('modernWorldCountriesPane').style.zIndex = 220
@@ -2654,6 +2907,7 @@ onBeforeUnmount(function() {
   document.removeEventListener('visibilitychange', onVisibilityChange)
 
   stopAnimationLoop()
+  clearAncientRouteSelection(false)
   isAnimatingProgress = false
   if (activeCameraAnimation) {
     cancelAnimationFrame(activeCameraAnimation)
@@ -2674,22 +2928,17 @@ onBeforeUnmount(function() {
   }
   routeLayer = null
   routeHitLayer = null
+  selectedRouteHaloLayer = null
+  selectedRouteMainLayer = null
+  selectedRouteFlowLayer = null
+  selectedNodeHaloLayer = null
+  selectedRouteVisualLayers = null
   nodeLayer = null
   nodeHitLayer = null
   nodeRegistry.clear()
   activeRouteLayers.clear()
 
-  if (modernMap) {
-    modernMap.remove()
-    modernMap = null
-  }
-  modernProvLayer = null
-  modernWorldCountriesLayer = null
-  modernChinaBoundaryLayer = null
-  modernFlowLayer = null
-  modernMarkersLayer = null
-  modernBubbleLayer = null
-  modernProvinceGeoJsonPromise = null
+  disposeModernMap()
 })
 </script>
 
@@ -2895,8 +3144,16 @@ onBeforeUnmount(function() {
   line-height: 1;
   padding: 5px 9px;
   white-space: nowrap;
-  pointer-events: none;
-  transition: opacity 180ms linear;
+  pointer-events: auto;
+  cursor: pointer;
+  transition: opacity 420ms ease, visibility 0s linear 420ms;
+}
+:deep(.ancient-node-label.is-history) { visibility: hidden; pointer-events: none !important; }
+:deep(.ancient-node-label.is-current) { visibility: visible; transition-delay: 0s; }
+
+:deep(.leaflet-tradeNodeLabel-pane) {
+  transition: opacity 120ms linear;
+  will-change: opacity;
 }
 
 .legend-row.nodes .legend-line {
@@ -3385,7 +3642,7 @@ onBeforeUnmount(function() {
 /* ================================================================
    当代贸易情况
    ================================================================ */
-.ch4-view-modern { padding-top: 8px; }
+.ch4-view-modern { padding: 12px 16px 0; }
 
 /* ================================================================
    Tab Navigation
@@ -3442,28 +3699,42 @@ onBeforeUnmount(function() {
 /* ================================================================
    当代贸易情况
    ================================================================ */
-.ch4-view-modern { padding-top: 8px; }
+.ch4-view-modern { padding: 12px 16px 0; }
 
 .modern-topbar {
-  flex-shrink: 0;
+  position: absolute;
+  top: 16px;
+  right: 20px;
+  z-index: 1100;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
-  gap: 14px;
-  padding: 10px 20px;
-  background: linear-gradient(135deg, #FAF7EF 0%, #F5F1E8 100%);
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  margin: 8px 16px 0;
-  box-shadow: 0 2px 12px rgba(81, 109, 51, 0.06);
-  z-index: 800;
-  flex-wrap: wrap;
+  gap: 16px;
+  width: auto;
+  max-width: calc(100% - 40px);
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  pointer-events: none;
 }
+.modern-topbar > * { pointer-events: auto; }
 .modern-topbar,
 .modern-topbar :deep(*) {
   font-family: var(--font-body) !important;
 }
-.modern-title { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.modern-title {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  min-width: 0;
+  max-width: min(720px, 55vw);
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
 .title-badge {
   display: inline-flex;
   align-items: center;
@@ -3496,14 +3767,14 @@ onBeforeUnmount(function() {
 
 .modern-stage {
   flex: 1;
-  min-height: 400px;
-  margin-top: 8px;
+  min-height: calc(100vh - 200px);
+  margin-top: 0;
 }
 .modern-map { width: 100%; height: 100%; background: #F0EBD9; }
 
 .hover-card {
   position: absolute;
-  top: 16px; right: 16px;
+  top: 64px; right: 16px;
   z-index: 950;
   min-width: 200px;
   background: rgba(247, 244, 235, 0.98);
@@ -3525,6 +3796,7 @@ onBeforeUnmount(function() {
   cursor: pointer;
   overflow: visible;
 }
+:deep(.province-tea-leaf-icon.is-analysis-only) { cursor: default; }
 :deep(.province-tea-leaf-icon::before) {
   content: '';
   position: absolute;
@@ -3649,7 +3921,7 @@ onBeforeUnmount(function() {
 
 .modern-country-panel {
   position: absolute;
-  top: 16px; right: 16px;
+  top: 64px; right: 16px;
   bottom: 16px;
   width: 320px;
   max-width: 42%;
@@ -3731,6 +4003,17 @@ onBeforeUnmount(function() {
 .modern-country-panel .panel-scroll::-webkit-scrollbar-thumb { background: rgba(178,143,76,0.3); border-radius: 3px; }
 
 .modern-tag { background: var(--c-olive) !important; }
+
+@media (max-width: 1200px) {
+  .modern-topbar.is-detail-mode {
+    flex-wrap: wrap;
+    row-gap: 8px;
+  }
+  .modern-title {
+    max-width: calc(100vw - 300px);
+    white-space: normal;
+  }
+}
 
 :deep(.modern-flow-tip) {
   background: var(--c-olive) !important;

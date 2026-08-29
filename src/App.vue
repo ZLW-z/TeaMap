@@ -3,7 +3,15 @@
     <!-- 顶部导航栏 -->
     <nav class="top-nav">
       <div class="nav-brand">
-        <span class="brand-icon">茶</span>
+        <span class="brand-icon">
+          <img
+            :src="assetUrl('images/site-logo.png')"
+            alt="山海一叶"
+            class="brand-icon-image"
+            width="36"
+            height="36"
+          />
+        </span>
         <span class="brand-text">山海一叶</span>
       </div>
       <div class="nav-track">
@@ -99,6 +107,7 @@
 <script setup>
 import { computed, ref, watch, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { assetUrl } from './utils/base.js'
 
 const route = useRoute()
 const router = useRouter()
@@ -229,13 +238,19 @@ onBeforeUnmount(() => {
 .brand-icon {
   width: 36px;
   height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--c-olive, #516D33);
-  color: var(--c-paper, #EFE9DA);
+  flex: 0 0 36px;
+  display: block;
   border-radius: 50%;
-  font: 700 20px var(--serif);
+  overflow: hidden;
+}
+.brand-icon-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 50%;
+  user-select: none;
+  pointer-events: none;
 }
 .brand-text {
   font: 700 20px var(--font-qiji, var(--serif));

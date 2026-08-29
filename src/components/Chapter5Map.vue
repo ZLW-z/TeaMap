@@ -185,7 +185,7 @@
                   <EChart v-else :option="rootsMapOption" @ready="onRootsMapReady" @click="onMapClick" style="height:280px" />
                 </div>
                 <div v-if="metric === 'gardenArea'" class="lv-chart-note">图示说明：圆盘大小表示各省茶园面积（千公顷），圆盘越大，茶园面积越大；颜色深浅表示茶园面积占该省行政区划面积的覆盖率（%），颜色越深，覆盖率越高。</div>
-                <div v-else class="lv-chart-note">图示说明：圆盘大小表示各省茶叶产量（万吨），圆盘越大，茶叶产量越高；颜色深浅同步表示产量等级，颜色越深，产量越高。</div>
+                <div v-else class="lv-chart-note">图示说明：圆盘大小表示各省茶叶产量（万吨），圆盘越大，茶叶产量越高；圆盘颜色表示较上一年的产量增长率，绿色越深表示增长越快，绿色越浅表示增长较慢、产量下降或暂无可比数据。</div>
               </div>
 
               <!-- 省份详情 -->
@@ -605,6 +605,7 @@ const metricColor = computed(() => metricOptions.find(m => m.key === metric.valu
 
 // ---- Roots state ----
 const allProvinceYears = computed(() => {
+  if (metric.value === 'totalOutput') return Array.from({ length: 13 }, (_, index) => 2012 + index)
   const years = new Set()
   // 只保留当前指标有非零数据的年份——茶园面积2024年全空则自动排除
   const m = metric.value
@@ -635,7 +636,7 @@ const provinceYearRange = computed(() => {
 
 function setMetric(key) {
   metric.value = key
-  const y = latestProvinceYear(key)
+  const y = key === 'totalOutput' ? 2024 : latestProvinceYear(key)
   if (y) rootsYear.value = y
 }
 
@@ -1160,6 +1161,61 @@ const rootsMapData = computed(() => {
     .filter(d => !isMissingVal(d.value) && d.value > 0)
 })
 
+const PRODUCTION_START_YEAR = 2012
+const PRODUCTION_END_YEAR = 2024
+const MIN_PRODUCTION_RADIUS = 2
+const MAX_PRODUCTION_RADIUS = 14
+
+function getProvinceProduction(province, year) {
+  const record = province?.years?.find(item => Number(item.year) === Number(year))
+  if (!record || record.totalOutput == null || record.totalOutput === '') return null
+  const value = Number(record.totalOutput)
+  return Number.isFinite(value) ? value : null
+}
+
+function calculateProductionGrowth(currentValue, previousValue) {
+  if (currentValue == null || previousValue == null || previousValue <= 0) return null
+  const result = ((currentValue - previousValue) / previousValue) * 100
+  return Number.isFinite(result) ? result : null
+}
+
+function getProductionGrowthColor(growthRate) {
+  if (growthRate == null) return '#E3EBD9'
+  if (growthRate >= 20) return '#355326'
+  if (growthRate >= 5) return '#5F7D45'
+  if (growthRate >= 0) return '#88A36B'
+  if (growthRate >= -5) return '#AFC39A'
+  return '#CDDABE'
+}
+
+function formatProductionGrowth(growthRate) {
+  if (growthRate == null || !Number.isFinite(growthRate)) return '暂无可比数据'
+  return `${growthRate > 0 ? '+' : ''}${growthRate.toFixed(1)}%`
+}
+
+const globalMaxProduction = Math.max(0, ...provinceData.flatMap(province => province.years
+  .filter(item => item.year >= PRODUCTION_START_YEAR && item.year <= PRODUCTION_END_YEAR)
+  .map(item => Number(item.totalOutput))
+  .filter(value => Number.isFinite(value) && value > 0)))
+
+function getProductionRadius(production) {
+  if (production == null || production <= 0 || globalMaxProduction <= 0) return 0
+  return MIN_PRODUCTION_RADIUS + Math.sqrt(production / globalMaxProduction) * (MAX_PRODUCTION_RADIUS - MIN_PRODUCTION_RADIUS)
+}
+
+const productionBubbleData = computed(() => provinceData.map(province => {
+  const production = getProvinceProduction(province, rootsYear.value)
+  const previousProduction = getProvinceProduction(province, rootsYear.value - 1)
+  return {
+    provinceName: province.province,
+    production,
+    previousProduction,
+    growthRate: calculateProductionGrowth(production, previousProduction),
+    center: PROVINCE_COORDS[province.province],
+    hasData: production != null,
+  }
+}))
+
 function createRootsGeoOption() {
   const sharedItemStyle = {
     areaColor: '#F7F4EB',
@@ -1348,22 +1404,18 @@ const rootsMapOption = computed(() => {
   }
 
   // =================== 茶叶产量 Tab：Albers 底图 + 比例气泡 ===================
-  const outputScatterList = data
+  const outputScatterList = productionBubbleData.value
     .map(d => {
-      const coord = PROVINCE_COORDS[d.name]
-      if (!coord) return null
+      const coord = d.center
+      if (!coord || d.production == null || d.production <= 0) return null
       return {
-        name: d.name,
-        value: [coord[0], coord[1], d.value],
-        totalOutput: d.value,
+        name: d.provinceName,
+        value: [coord[0], coord[1], d.production],
+        totalOutput: d.production,
+        growthRate: d.growthRate,
       }
     })
     .filter(Boolean)
-  const outputMax = outputScatterList.length
-    ? Math.max(...outputScatterList.map(d => d.totalOutput))
-    : 1
-  const outputSizeMin = 4
-  const outputSizeMax = 24
 
   return {
     textStyle: chartTextStyle,
@@ -1376,25 +1428,23 @@ const rootsMapOption = computed(() => {
         if (p.componentType === 'geo') return `${p.name}<br/>（点击气泡查看省份详情）`
         const d = p.data
         if (!d || !d.totalOutput) return `${p.name}<br/>暂无数据`
-        return `<b>${d.name}</b>（${yr}年）<br/>茶叶产量：${fmt(d.totalOutput, 2)} 万吨`
+        return `<b>${d.name}</b>（${yr}年）<br/>茶叶产量：${fmt(d.totalOutput, 2)}万吨<br/>较上年增长率：${formatProductionGrowth(d.growthRate)}`
       },
     },
     geo: createRootsGeoOption(),
     visualMap: {
-      min: 0,
-      max: outputMax,
+      min: -5,
+      max: 20,
       left: 12,
       bottom: 18,
-      text: ['', '产量'],
+      text: ['', '同比增长率'],
       textStyle: { ...chartTextStyle, color: '#5A6655', fontSize: 9 },
-      inRange: { color: ['#F0F4E6', '#C5D6AC', '#8BA667', '#5C7C3A', '#3A4D38'] },
+      inRange: { color: ['#CDDABE', '#AFC39A', '#88A36B', '#5F7D45', '#355326'] },
       calculable: false,
       itemWidth: 10,
       itemHeight: 60,
-      // 柱子下方写明"产量"，数值由 hover tooltip 显示
-      formatter: v => `${fmt(v, 0)} 万吨`,
-      dimension: 2,
-      seriesIndex: 0,
+      formatter: value => `${value > 0 ? '+' : ''}${fmt(value, 0)}%`,
+      seriesIndex: [],
     },
     series: [{
       type: 'scatter',
@@ -1402,13 +1452,12 @@ const rootsMapOption = computed(() => {
       geoIndex: 0,
       symbol: 'circle',
       symbolSize: (value, params) => {
-        const outputValue = params.data?.totalOutput || 0
-        const ratio = Math.sqrt(outputValue / outputMax)
-        const base = outputSizeMin + (outputSizeMax - outputSizeMin) * ratio
+        const base = getProductionRadius(params.data?.totalOutput) * 2
         const zoomFactor = currentGeoZoom.value / DEFAULT_GEO_ZOOM
         return base * zoomFactor
       },
       itemStyle: {
+        color: params => getProductionGrowthColor(params.data?.growthRate),
         borderColor: 'rgba(255,255,255,0.94)',
         borderWidth: 1,
         opacity: 0.9,
