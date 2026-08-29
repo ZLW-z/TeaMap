@@ -55,11 +55,11 @@
               </div>
               <div class="legend-row">
                 <span class="legend-line digitized"></span>
-                <span>实线：当前路线</span>
+                <span>当前路线</span>
               </div>
               <div class="legend-row">
                 <span class="legend-line inferred"></span>
-                <span>虚线：已消失的历史路线</span>
+                <span>历史路线</span>
               </div>
               <div class="legend-row nodes">
                 <span class="legend-node origin"></span>
@@ -191,6 +191,7 @@
                     class="dynasty-tick"
                     :class="{ active: dynastyName === tick.name, alternate: tick.index % 2 === 1 }"
                     :style="{ left: (tick.progress * 100) + '%' }"
+                    :aria-label="tick.name"
                     @mousedown.stop
                     @click="jumpToDynasty(tick)"
                   >
@@ -363,7 +364,7 @@ const dynasties = [
   { name: '元代', start: 1271, end: 1367 },
   { name: '明代', start: 1368, end: 1643 },
   { name: '清代', start: 1644, end: 1936 },
-  { name: '抗战时期', start: 1937, end: 1945 },
+  { name: '民国', dataName: '抗战时期', start: 1937, end: 1945 },
 ]
 function yearToProgress(year) {
   return Math.max(0, Math.min(1, (Number(year) - MIN_YEAR) / (MAX_YEAR - MIN_YEAR)))
@@ -447,7 +448,12 @@ function routePathSegments(route) {
   if (route && route.routeMode === 'digitized' && Array.isArray(route.geometrySegments)) {
     return route.geometrySegments
   }
-  return arcSegmentsFromNodes(visualPoints(route))
+  var nodePath = visualPoints(route).map(function(point) {
+    return [Number(point.lat), Number(point.lon)]
+  }).filter(function(point) {
+    return Number.isFinite(point[0]) && Number.isFinite(point[1])
+  })
+  return nodePath.length >= 2 ? [nodePath] : []
 }
 
 function sameCoordinate(a, b) {
@@ -484,6 +490,7 @@ function mergeOrderedSegments(features) {
 
 function parseDynasties(value) {
   var tokens = String(value || '').split(/[|｜、,，/]+/).map(function(item) { return item.trim() }).filter(Boolean)
+  tokens = tokens.map(function(item) { return item === '抗战时期' ? '民国' : item })
   var normalized = tokens.filter(function(item) { return DYNASTY_ORDER.includes(item) })
   return normalized.length ? Array.from(new Set(normalized)) : ['唐代']
 }
@@ -552,7 +559,7 @@ function buildRuntimeRoute(routeId) {
   var routeType = String(properties.route_type || '').toLowerCase()
   if (!['land', 'sea', 'mixed'].includes(routeType)) routeType = legacy ? routeTypeCode(legacy) : 'land'
   var geometrySegments = mergeOrderedSegments(features)
-  var routeMode = geometrySegments.length ? 'digitized' : 'node_arc'
+  var routeMode = geometrySegments.length ? 'digitized' : 'node_path'
   var firstNode = nodes[0]
   var lastNode = nodes[nodes.length - 1]
   if ((!firstNode || !lastNode) && geometrySegments.length) {
@@ -566,7 +573,7 @@ function buildRuntimeRoute(routeId) {
   var origin = firstNode ? firstNode.name : (legacy && legacy.origin) || '起点'
   var destination = lastNode ? lastNode.name : (legacy && legacy.destination) || '终点'
   var via = nodes.slice(1, -1).map(function(node) { return node.name }).filter(Boolean)
-  var modeText = routeMode === 'digitized' ? '历史路线复原' : '节点推定路线'
+  var modeText = routeMode === 'digitized' ? '历史路线复原' : '节点顺序路线'
   var baseFact = legacy && legacy.note ? legacy.note : (properties.note || '')
   var sourceRefs = []
   if (legacy && Array.isArray(legacy.sourceRefs)) sourceRefs.push.apply(sourceRefs, legacy.sourceRefs)
@@ -595,7 +602,7 @@ function buildRuntimeRoute(routeId) {
     points: nodes,
     via,
     historicalBackground: `${routeName}是${dynastyNames.join('至')}茶叶跨区域流通的重要通道。${baseFact || properties.note || ''}`,
-    routeStory: `茶叶由${origin}出发${via.length ? `，依次经过${via.join('、')}` : ''}，抵达${destination}。地图以${modeText}方式呈现该通道；${routeMode === 'node_arc' ? '线形依据有序历史节点推定，不表示精确历史轨迹。' : '线形保留人工数字化成果的原始折点顺序与行进方向。'}`,
+    routeStory: `茶叶由${origin}出发${via.length ? `，依次经过${via.join('、')}` : ''}，抵达${destination}。地图以${modeText}方式呈现该通道；${routeMode === 'node_path' ? '线形严格按 GeoJSON 中有序历史节点连接，不增加圆弧控制点。' : '线形保留人工数字化成果的原始折点顺序与行进方向。'}`,
     tradeSignificance: legacy && legacy.tradeSignificance ? legacy.tradeSignificance : `该路线连接了${origin}与${destination}，反映茶叶贸易带动的区域交流与市场扩展。`,
     sourceRefs: Array.from(new Set(sourceRefs)),
     rawIndex: Number(routeId.replace(/\D/g, '')) || 0,
@@ -669,6 +676,9 @@ var isAnimatingProgress = false
 
 var map = null
 var worldCountriesLayer = null
+var worldRenderer = null
+var chinaBoundaryLayer = null
+var chinaBoundaryHaloLayer = null
 var routeLayer = null
 var routeHitLayer = null
 var nodeLayer = null
@@ -677,6 +687,26 @@ var nodeHitLayer = null
 var nodeRegistry = new Map()
 var lastFrameTime = null
 var animationFrameId = null
+var routeFlowProgress = 0
+var activeCameraAnimation = null
+
+const WORLD_BOUNDARY_STYLE = {
+  color: '#C9C2AD', weight: 0.55, opacity: 0.72,
+  fillColor: '#F5F1E7', fillOpacity: 0.18,
+  lineCap: 'round', lineJoin: 'round', interactive: false,
+}
+const CHINA_OUTER_BORDER_STYLE = {
+  color: '#586B42', weight: 2.1, opacity: 0.96,
+  fillOpacity: 0, lineCap: 'round', lineJoin: 'round', interactive: false,
+}
+const CHINA_BORDER_HALO_STYLE = {
+  color: '#F4ECD8', weight: 4.4, opacity: 0.32,
+  fillOpacity: 0, lineCap: 'round', lineJoin: 'round', interactive: false,
+}
+const NINE_DASH_LINE_STYLE = {
+  ...CHINA_OUTER_BORDER_STYLE,
+  dashArray: '7 5',
+}
 
 // Pre-computed route data with progress ranges
 var routeProgressData = []
@@ -685,9 +715,17 @@ var cameraInitialized = false
 var cameraUserControlled = false
 var programmaticCameraMove = false
 var lastCameraSignature = ''
+var hasTriggeredYuanZoom = false
+var hasEnteredMing = false
+var previousAncientStage = '唐代'
+var ancientInitialCenter = null
+var yuanCameraTarget = null
 
-const INITIAL_ROUTE_ZOOM = 7
-const MIN_ROUTE_ZOOM = 2.25
+const ANCIENT_MIN_ZOOM = 1.75
+const ANCIENT_MAX_ZOOM = 6.5
+const ANCIENT_INITIAL_ZOOM = 4
+const INITIAL_ROUTE_ZOOM = ANCIENT_MAX_ZOOM
+const MIN_ROUTE_ZOOM = 2.5
 const LABEL_FULL_SCALE = 5000000
 const LABEL_HIDDEN_SCALE = 15000000
 
@@ -695,7 +733,15 @@ const LABEL_HIDDEN_SCALE = 15000000
 var activeRouteLayers = new Map()
 
 var dynastyName = computed(function() { return getDynastyByProgress(progress.value).name })
-var currentDynastyInfo = computed(function() { return DYNASTY_INFO[dynastyName.value] })
+const REPUBLIC_INFO = {
+  title: '民国｜时局变迁，茶贸转型',
+  feature: '民国时期，传统茶叶生产与外销在近代交通和工商组织影响下继续调整。全面抗战爆发后，产区、港口和交通网络受阻，茶叶收购、加工与运输逐步转向统筹经营，以维持出口并换取外汇。',
+  channels: '传统出口口岸与集散地继续承担茶叶外运；战事加剧后，部分茶叶转由香港等口岸外销，并开展对苏易货贸易。云南、福建等地建设或改造茶厂，红茶、砖茶等产品经现有路线参与出口和物资交换。',
+  impact: '民国时期的茶叶贸易经历市场波动与战争冲击，逐步加强近代化加工和组织管理。茶叶既关系茶农生计，也在战时承担出口创汇与物资交换功能，推动生产、加工和贸易体系转型。',
+}
+var currentDynastyInfo = computed(function() {
+  return dynastyName.value === '民国' ? REPUBLIC_INFO : DYNASTY_INFO[dynastyName.value]
+})
 var panelKey = computed(function() {
   if (panelMode.value === 'dynasty') return 'dynasty-' + dynastyName.value
   if (selectedRoute.value) return 'route-' + selectedRoute.value.id
@@ -717,6 +763,9 @@ function showDynastyPanel() {
 function jumpToDynasty(tick) {
   pausePlayback()
   showDynastyPanel()
+  if (tick.index >= dynastyTicks.findIndex(function(item) { return item.name === '明代' })) {
+    hasEnteredMing = true
+  }
   animateProgressTo(tick.progress, 500)
 }
 
@@ -761,7 +810,7 @@ var routeViaText = computed(function() {
 })
 var routeModeLabel = computed(function() {
   if (!selectedRoute.value) return ''
-  return selectedRoute.value.routeModeLabel || (selectedRoute.value.routeMode === 'node_arc' ? '节点推定路线' : '历史路线复原')
+  return selectedRoute.value.routeModeLabel || (selectedRoute.value.routeMode === 'node_path' ? '节点顺序路线' : '历史路线复原')
 })
 
 // 五种生命周期状态判断
@@ -780,7 +829,7 @@ const DYNASTY_PLAY_DURATION_MS = {
   '元代': 8000,
   '明代': 9000,
   '清代': 15000,
-  '抗战时期': 8000,
+  '民国': 8000,
 }
 const DYNASTY_SETTLE_MS = 1500
 
@@ -868,19 +917,117 @@ function precomputeRouteProgress() {
 }
 
 function getVisiblePathSegments(fullSegments, routeProgress) {
-  var segments = (fullSegments || []).filter(function(segment) { return segment && segment.length >= 2 })
-  if (routeProgress <= 0 || !segments.length) return []
-  if (routeProgress >= 1) return segments
-  var totalEdges = segments.reduce(function(total, segment) { return total + segment.length - 1 }, 0)
-  var remaining = Math.max(1, Math.floor(totalEdges * routeProgress))
-  var visible = []
-  for (var i = 0; i < segments.length && remaining > 0; i++) {
-    var edgeCount = segments[i].length - 1
-    var take = Math.min(edgeCount, remaining)
-    visible.push(segments[i].slice(0, take + 1))
-    remaining -= take
+  return slicePathSegmentsByFraction(fullSegments, 0, routeProgress)
+}
+
+const BRUSH_CHUNK_COUNT = 24
+const HISTORY_OPACITY_MULTIPLIER = 0.38
+const BRUSH_HEAD_LENGTH_PX = 90
+const FLOW_HIGHLIGHT_RATIO = 0.08
+const FLOW_DURATION = 5000
+const LAND_BODY_STYLE = { color: '#B28F4C', weight: 2.8, opacity: 0.9 }
+const SEA_BODY_STYLE = { color: '#315D47', weight: 2.8, opacity: 0.88 }
+
+function lerp(start, end, progressValue) {
+  return start + (end - start) * progressValue
+}
+
+function interpolateHexColor(fromColor, toColor, amount) {
+  var from = fromColor.match(/\w\w/g).map(function(value) { return parseInt(value, 16) })
+  var to = toColor.match(/\w\w/g).map(function(value) { return parseInt(value, 16) })
+  return '#' + from.map(function(value, channel) {
+    return Math.round(lerp(value, to[channel], amount)).toString(16).padStart(2, '0')
+  }).join('')
+}
+
+function getBrushHeadStyle(routeType, progressValue, opacityMultiplier, highlighted) {
+  var emphasisWeight = highlighted ? 0.75 : 0
+  var body = routeType === 'sea' ? SEA_BODY_STYLE : LAND_BODY_STYLE
+  var tailColor = routeType === 'sea' ? '#B9C7B3' : '#E8D7AD'
+  return {
+    color: interpolateHexColor(body.color, tailColor, progressValue),
+    weight: lerp(2.8, 0.8, progressValue) + emphasisWeight,
+    opacity: lerp(body.opacity, 0.18, progressValue) * opacityMultiplier,
+    dashArray: null,
+    lineCap: 'round',
+    lineJoin: 'round',
   }
-  return visible
+}
+
+function interpolateLatLng(start, end, amount) {
+  return [lerp(Number(start[0]), Number(end[0]), amount), lerp(Number(start[1]), Number(end[1]), amount)]
+}
+
+function slicePathSegmentsByFraction(fullSegments, startFraction, endFraction) {
+  var segments = (fullSegments || []).filter(function(segment) { return segment && segment.length >= 2 })
+  var edges = []
+  var totalDistance = 0
+  segments.forEach(function(segment, segmentIndex) {
+    for (var i = 1; i < segment.length; i++) {
+      var distance = L.latLng(segment[i - 1]).distanceTo(L.latLng(segment[i]))
+      edges.push({ start: segment[i - 1], end: segment[i], distance, segmentIndex, from: totalDistance, to: totalDistance + distance })
+      totalDistance += distance
+    }
+  })
+  if (!edges.length || endFraction <= startFraction) return []
+  var fromDistance = Math.max(0, Math.min(1, startFraction)) * totalDistance
+  var toDistance = Math.max(0, Math.min(1, endFraction)) * totalDistance
+  var output = []
+  var active = null
+  edges.forEach(function(edge) {
+    if (edge.to <= fromDistance || edge.from >= toDistance || edge.distance <= 0) return
+    var localStart = Math.max(0, (fromDistance - edge.from) / edge.distance)
+    var localEnd = Math.min(1, (toDistance - edge.from) / edge.distance)
+    var start = interpolateLatLng(edge.start, edge.end, localStart)
+    var end = interpolateLatLng(edge.start, edge.end, localEnd)
+    if (!active || active.segmentIndex !== edge.segmentIndex) {
+      active = [start, end]
+      active.segmentIndex = edge.segmentIndex
+      output.push(active)
+    } else {
+      active.push(end)
+    }
+  })
+  return output
+}
+
+function projectedPathLength(pathSegments) {
+  if (!map) return 0
+  var total = 0
+  ;(pathSegments || []).forEach(function(segment) {
+    for (var i = 1; i < segment.length; i++) {
+      total += map.latLngToLayerPoint(segment[i - 1]).distanceTo(map.latLngToLayerPoint(segment[i]))
+    }
+  })
+  return total
+}
+
+// 按路线累计距离分成固定数量的非交互笔触，保留全部 GeoJSON 折点与分段。
+function buildBrushChunks(fullSegments) {
+  var edges = []
+  var totalDistance = 0
+  ;(fullSegments || []).forEach(function(segment, segmentIndex) {
+    for (var i = 1; i < segment.length; i++) {
+      var distance = L.latLng(segment[i - 1]).distanceTo(L.latLng(segment[i]))
+      edges.push({ start: segment[i - 1], end: segment[i], distance, segmentIndex, startDistance: totalDistance })
+      totalDistance += distance
+    }
+  })
+  var chunks = Array.from({ length: BRUSH_CHUNK_COUNT }, function() { return [] })
+  edges.forEach(function(edge) {
+    var midpoint = edge.startDistance + edge.distance / 2
+    var index = Math.min(BRUSH_CHUNK_COUNT - 1, Math.floor((midpoint / Math.max(1, totalDistance)) * BRUSH_CHUNK_COUNT))
+    var paths = chunks[index]
+    var current = paths[paths.length - 1]
+    if (!current || current.segmentIndex !== edge.segmentIndex) {
+      current = [edge.start, edge.end]
+      current.segmentIndex = edge.segmentIndex
+      paths.push(current)
+    } else {
+      current.push(edge.end)
+    }
+  })
+  return chunks
 }
 
 var routeFromTo = computed(function() {
@@ -963,56 +1110,56 @@ function initialRouteCoordinate() {
   return L.latLng(31, 103)
 }
 
-function updateMapViewForProgress(targetProgress) {
-  if (!map || !mapEl.value) return
-  if (cameraUserControlled) return
+function clampAncientZoom(zoom) {
+  return Math.min(ANCIENT_MAX_ZOOM, Math.max(ANCIENT_MIN_ZOOM, zoom))
+}
 
-  var cameraRoutes = cameraRoutesAtProgress(targetProgress)
-  var signature = routeFilter.value + ':' + cameraRoutes.map(function(rp) {
-    return routeForVisual(rp).id
-  }).sort().join('|')
-  if (cameraInitialized && signature === lastCameraSignature) return
-
+function getStageCamera(stageName) {
+  if (!map) return { center: L.latLng(31, 103), zoom: MIN_ROUTE_ZOOM }
+  var tick = dynastyTicks.find(function(item) { return item.name === stageName }) || dynastyTicks[0]
+  var routes = cameraRoutesAtProgress(tick.progress + 0.000001)
   var coordinates = []
-  cameraRoutes.forEach(function(rp) {
+  routes.forEach(function(rp) {
     routePathSegments(routeForVisual(rp)).forEach(function(segment) {
       segment.forEach(function(coordinate) { coordinates.push(coordinate) })
     })
   })
-  var targetCenter
-  var targetZoom
-  if (coordinates.length < 2) {
-    targetCenter = initialRouteCoordinate()
-    targetZoom = INITIAL_ROUTE_ZOOM
-  } else {
-    var bounds = L.latLngBounds(coordinates)
-    targetCenter = bounds.getCenter()
-    targetZoom = map.getBoundsZoom(bounds, false, [420, 180])
-    targetZoom = Math.max(MIN_ROUTE_ZOOM, Math.min(INITIAL_ROUTE_ZOOM, targetZoom))
-    // 右侧资料卡会占用地图空间；轻微向东移动镜头中心，使中国落在可视区中部偏右。
-    var projectedCenter = map.project(targetCenter, targetZoom).add(L.point(90, 0))
-    targetCenter = map.unproject(projectedCenter, targetZoom)
-  }
+  if (coordinates.length < 2) return { center: initialRouteCoordinate(), zoom: INITIAL_ROUTE_ZOOM }
+  var bounds = L.latLngBounds(coordinates)
+  var zoom = clampAncientZoom(map.getBoundsZoom(bounds, false, [420, 180]))
+  var center = bounds.getCenter()
+  center = map.unproject(map.project(center, zoom).add(L.point(90, 0)), zoom)
+  return { center, zoom }
+}
 
-  if (!cameraInitialized) {
-    programmaticCameraMove = true
-    map.setView(targetCenter, targetZoom, { animate: false })
-    cameraInitialized = true
-    lastCameraSignature = signature
-    programmaticCameraMove = false
-    return
-  }
-
-  lastCameraSignature = signature
-  programmaticCameraMove = true
+function runSingleYuanCameraAnimation() {
+  if (!map || !yuanCameraTarget) return
   map.stop()
-  map.flyTo(targetCenter, targetZoom, {
+  programmaticCameraMove = true
+  map.flyTo(yuanCameraTarget.center, yuanCameraTarget.zoom, {
     animate: true,
-    duration: 2.2,
+    duration: 3.2,
     easeLinearity: 0.22,
-    noMoveStart: false,
   })
   map.once('moveend', function() { programmaticCameraMove = false })
+}
+
+function handleAncientStageChange(nextStage) {
+  if (nextStage === previousAncientStage) return
+  var mingIndex = dynastyTicks.findIndex(function(item) { return item.name === '明代' })
+  var nextIndex = dynastyTicks.findIndex(function(item) { return item.name === nextStage })
+  if (nextIndex >= mingIndex) hasEnteredMing = true
+  if (nextStage === '元代' && !hasTriggeredYuanZoom && !hasEnteredMing) {
+    hasTriggeredYuanZoom = true
+    runSingleYuanCameraAnimation()
+  }
+  previousAncientStage = nextStage
+}
+
+function restoreAncientInitialView() {
+  if (!map || !ancientInitialCenter) return
+  map.stop()
+  map.setView(ancientInitialCenter, ANCIENT_INITIAL_ZOOM, { animate: false })
 }
 
 function currentScaleDenominator() {
@@ -1079,21 +1226,22 @@ function buildRouteRegistry() {
   routeProgressData.forEach(function(rp) {
     var fullPathSegments = routePathSegments(rp.route)
     if (!fullPathSegments.length) return
-    var baseColor = kind(rp.route) === 'sea' ? '#5C7C3A' : '#B28F4C'
-    var historicalColor = kind(rp.route) === 'sea' ? '#6B8060' : '#8A8270'
-    var primaryLine = L.polyline([], {
-      pane: 'tradeRoutePane', color: baseColor, weight: 2.8, opacity: 0, dashArray: null,
-      smoothFactor: 0.5, lineCap: 'round', lineJoin: 'round', interactive: false,
-    }).addTo(routeLayer)
-    var historicalLine = L.polyline([], {
-      pane: 'tradeRoutePane', color: historicalColor, weight: 1.8, opacity: 0,
-      smoothFactor: 0.5, dashArray: '6 4', lineCap: 'round', lineJoin: 'round', interactive: false,
+    var brushChunks = buildBrushChunks(fullPathSegments)
+    var brushLines = brushChunks.map(function() {
+      return L.polyline([], {
+        pane: 'tradeRoutePane', opacity: 0, smoothFactor: 0.5,
+        lineCap: 'round', lineJoin: 'round', interactive: false,
+      }).addTo(routeLayer)
+    })
+    var flowLine = L.polyline([], {
+      pane: 'tradeRoutePane', weight: 2.2, opacity: 0,
+      lineCap: 'round', lineJoin: 'round', interactive: false,
     }).addTo(routeLayer)
     var hitLine = L.polyline([], {
       pane: 'routeHitPane', color: '#000000', weight: 14, opacity: 0.001,
       interactive: true, bubblingMouseEvents: false,
     }).addTo(routeHitLayer)
-    rp.visual = { fullPathSegments, primaryLine, historicalLine, hitLine, hover: false }
+    rp.visual = { fullPathSegments, brushChunks, brushLines, flowLine, hitLine, hover: false }
     hitLine.on('click', function(event) { openRouteDetail(routeForVisual(rp), event) })
     hitLine.on('mouseover', function() {
       rp.visual.hover = true
@@ -1115,8 +1263,8 @@ function updateRouteVisual(rp, targetProgress) {
   var passes = routePassesFilter(rp.route)
   var state = passes ? getRouteState(rp, targetProgress) : 'hidden'
   if (state === 'hidden') {
-    visual.primaryLine.setLatLngs([])
-    visual.historicalLine.setLatLngs([])
+    visual.brushLines.forEach(function(line) { line.setLatLngs([]) })
+    visual.flowLine.setLatLngs([])
     visual.hitLine.setLatLngs([])
     return
   }
@@ -1126,30 +1274,61 @@ function updateRouteVisual(rp, targetProgress) {
     : 1
   var visiblePath = getVisiblePathSegments(visual.fullPathSegments, local)
   if (!visiblePath.length) {
-    visual.primaryLine.setLatLngs([])
-    visual.historicalLine.setLatLngs([])
+    visual.brushLines.forEach(function(line) { line.setLatLngs([]) })
+    visual.flowLine.setLatLngs([])
     visual.hitLine.setLatLngs([])
     return
   }
   var highlighted = visual.hover || (selectedRoute.value && routeProgressMap.get(String(selectedRoute.value.id)) === rp)
-  var weightBoost = highlighted ? 1.5 : 0
-  var primaryOpacity = state === 'historical' ? 0 : 0.9
-  var historicalOpacity = state === 'historical' ? 0.6 : 0
-  if (state === 'drawing') primaryOpacity = 0.95
+  var opacityMultiplier = state === 'historical' ? HISTORY_OPACITY_MULTIPLIER : 1
   if (state === 'retiring') {
     var retireSpan = Math.max(0.000001, rp.retireEndProgress - rp.retireStartProgress)
     var retire = Math.max(0, Math.min(1, (targetProgress - rp.retireStartProgress) / retireSpan))
-    primaryOpacity = (1 - retire) * 0.9
-    historicalOpacity = retire * 0.6
+    opacityMultiplier = lerp(1, HISTORY_OPACITY_MULTIPLIER, retire)
   }
-  if (highlighted) {
-    if (primaryOpacity > 0) primaryOpacity = 1
-    if (historicalOpacity > 0) historicalOpacity = 0.9
+  var visibleChunkCount = Math.max(1, Math.ceil(local * BRUSH_CHUNK_COUNT))
+  var routeType = kind(rp.route)
+  var bodyStyle = routeType === 'sea' ? SEA_BODY_STYLE : LAND_BODY_STYLE
+  var visiblePixelLength = projectedPathLength(visiblePath)
+  var headRatio = state === 'drawing' ? Math.min(1, BRUSH_HEAD_LENGTH_PX / Math.max(1, visiblePixelLength)) : 0
+  var headStartFraction = local * (1 - headRatio)
+  visual.brushLines.forEach(function(line, index) {
+    if (index >= visibleChunkCount || !visual.brushChunks[index].length) {
+      line.setLatLngs([])
+      return
+    }
+    var rawChunkProgress = local * BRUSH_CHUNK_COUNT
+    var partialChunkProgress = rawChunkProgress - Math.floor(rawChunkProgress)
+    var chunkProgress = index === visibleChunkCount - 1 && local < 1 && partialChunkProgress > 0.000001
+      ? Math.max(0.02, partialChunkProgress)
+      : 1
+    line.setLatLngs(getVisiblePathSegments(visual.brushChunks[index], chunkProgress))
+    var chunkMidpoint = (index + 0.5) / BRUSH_CHUNK_COUNT
+    if (state === 'drawing' && chunkMidpoint > headStartFraction) {
+      var headProgress = Math.max(0, Math.min(1, (chunkMidpoint - headStartFraction) / Math.max(0.000001, local - headStartFraction)))
+      line.setStyle(getBrushHeadStyle(routeType, headProgress, opacityMultiplier, highlighted))
+    } else {
+      line.setStyle({
+        ...bodyStyle,
+        weight: bodyStyle.weight + (highlighted ? 0.75 : 0),
+        opacity: bodyStyle.opacity * opacityMultiplier,
+        dashArray: state === 'historical' ? '8 7' : null,
+        lineCap: 'round', lineJoin: 'round',
+      })
+    }
+  })
+  if (state === 'active') {
+    var flowStart = routeFlowProgress * (1 - FLOW_HIGHLIGHT_RATIO)
+    visual.flowLine.setLatLngs(slicePathSegmentsByFraction(visual.fullPathSegments, flowStart, flowStart + FLOW_HIGHLIGHT_RATIO))
+    visual.flowLine.setStyle({
+      color: routeType === 'sea' ? '#B9C7B3' : '#E8D7AD',
+      weight: 2.2,
+      opacity: routeType === 'sea' ? 0.2 : 0.22,
+      dashArray: null,
+    })
+  } else {
+    visual.flowLine.setLatLngs([])
   }
-  visual.primaryLine.setLatLngs(visiblePath)
-  visual.primaryLine.setStyle({ weight: 2.8 + weightBoost, opacity: primaryOpacity })
-  visual.historicalLine.setLatLngs(state === 'drawing' ? [] : visiblePath)
-  visual.historicalLine.setStyle({ weight: 1.8 + weightBoost, opacity: historicalOpacity })
   visual.hitLine.setLatLngs(visiblePath)
   var detailRoute = routeForVisual(rp)
   visual.hitLine.setTooltipContent((detailRoute.yearText || detailRoute.dynasty) + '｜' + detailRoute.origin + '→' + detailRoute.destination)
@@ -1291,7 +1470,7 @@ function openNodeDetail(node, event) {
 }
 
 function drawRoutesAtProgress(targetProgress) {
-  updateMapViewForProgress(targetProgress)
+  handleAncientStageChange(getDynastyByProgress(targetProgress).name)
   routeProgressData.forEach(function(rp) { updateRouteVisual(rp, targetProgress) })
   updateNodeMarkers(targetProgress)
 }
@@ -1313,6 +1492,7 @@ function startAnimationLoop() {
 
     var deltaTime = currentTime - lastFrameTime
     lastFrameTime = currentTime
+    routeFlowProgress = (routeFlowProgress + deltaTime / FLOW_DURATION) % 1
 
     var activeTick = getDynastyByProgress(progress.value)
     var stage = dynastyStage(activeTick.name)
@@ -1349,6 +1529,11 @@ function togglePlay() {
   if (!isPlaying.value) {
     if (progress.value >= 1.0) {
       progress.value = 0
+      routeFlowProgress = 0
+      hasTriggeredYuanZoom = false
+      hasEnteredMing = false
+      previousAncientStage = '唐代'
+      restoreAncientInitialView()
       cameraInitialized = false
       cameraUserControlled = false
       programmaticCameraMove = false
@@ -1365,14 +1550,24 @@ function togglePlay() {
 
 function resetView() {
   stopAnimationLoop()
+  if (map) map.stop()
+  if (activeCameraAnimation) {
+    cancelAnimationFrame(activeCameraAnimation)
+    activeCameraAnimation = null
+  }
   isAnimatingProgress = false
   isPlaying.value = false
   progress.value = 0
+  routeFlowProgress = 0
+  hasTriggeredYuanZoom = false
+  hasEnteredMing = false
+  previousAncientStage = '唐代'
   cameraInitialized = false
   cameraUserControlled = false
   programmaticCameraMove = false
   lastCameraSignature = ''
   showDynastyPanel()
+  restoreAncientInitialView()
   renderCurrentProgress()
 }
 
@@ -1411,25 +1606,26 @@ function initMap() {
 
     map = L.map(mapEl.value, {
       center: [31, 103],
-      zoom: INITIAL_ROUTE_ZOOM,
-      minZoom: 1.5,
-      maxZoom: 7,
+      zoom: MIN_ROUTE_ZOOM,
+      minZoom: ANCIENT_MIN_ZOOM,
+      maxZoom: ANCIENT_MAX_ZOOM,
       zoomSnap: 0.25,
-      zoomDelta: 0.5,
+      zoomDelta: 0.25,
       worldCopyJump: true,
       zoomControl: false,
       attributionControl: false,
       preferCanvas: true,
     })
+    worldRenderer = L.canvas({ padding: 0.5, tolerance: 3 })
 
     map.createPane('chinaProvincePane')
     map.getPane('chinaProvincePane').style.zIndex = 340
     map.createPane('worldCountriesPane')
     map.getPane('worldCountriesPane').style.zIndex = 220
     map.createPane('chinaBorderHaloPane')
-    map.getPane('chinaBorderHaloPane').style.zIndex = 350
+    map.getPane('chinaBorderHaloPane').style.zIndex = 330
     map.createPane('chinaBorderPane')
-    map.getPane('chinaBorderPane').style.zIndex = 355
+    map.getPane('chinaBorderPane').style.zIndex = 335
     map.createPane('tradeRoutePane')
     map.getPane('tradeRoutePane').style.zIndex = 460
     map.createPane('routeHitPane')
@@ -1472,11 +1668,26 @@ function initMap() {
     buildRouteRegistry()
     buildNodeRegistry()
 
+    // 初始仍展示唐代内容，但首次可见前直接采用宋代阶段的同一镜头计算结果。
+    var songReferenceView = getStageCamera('宋代')
+    ancientInitialCenter = L.latLng(songReferenceView.center.lat, songReferenceView.center.lng)
+    // 元代沿用上一版全局贸易路线目标，并受既有路线镜头下限约束。
+    var globalRouteView = getStageCamera('民国')
+    yuanCameraTarget = { center: globalRouteView.center, zoom: MIN_ROUTE_ZOOM }
+    map.setView(ancientInitialCenter, ANCIENT_INITIAL_ZOOM, { animate: false })
+    if (map.getZoom() !== ANCIENT_INITIAL_ZOOM) {
+      console.warn('[AncientTrade] unexpected initial zoom:', map.getZoom())
+    }
+
     progress.value = 0
-    cameraInitialized = false
+    routeFlowProgress = 0
+    cameraInitialized = true
     cameraUserControlled = false
     programmaticCameraMove = false
-    lastCameraSignature = ''
+    lastCameraSignature = 'initial-song-reference'
+    hasTriggeredYuanZoom = false
+    hasEnteredMing = false
+    previousAncientStage = '唐代'
     nextTick(function() {
       map.invalidateSize()
       renderCurrentProgress()
@@ -1491,33 +1702,6 @@ function initMap() {
     console.error('地图初始化失败:', err)
     ancientError.value = '地图初始化失败: ' + (err.message || '未知错误')
     ancientLoading.value = false
-  }
-}
-
-function fitToShowAllRoutes() {
-  if (!map) return
-
-  // Calculate bounds from all routes
-  var allLatLngs = []
-  routeProgressData.forEach(function(rp) {
-    var route = rp.route
-    try {
-      var segments = routePathSegments(route)
-      segments.forEach(function(segment) {
-        segment.forEach(function(pt) {
-          allLatLngs.push([pt[0], pt[1]])
-        })
-      })
-    } catch (e) {}
-  })
-
-  if (allLatLngs.length > 0) {
-    var bounds = L.latLngBounds(allLatLngs)
-    // Add padding and show most of the world
-    map.fitBounds(bounds.pad(0.3), { duration: 0.5, maxZoom: 4 })
-  } else {
-    // Fallback: show a large area covering China to Europe/Africa
-    map.setView([25, 100], 3)
   }
 }
 
@@ -1560,23 +1744,16 @@ function loadWorldBoundary() {
     })
     .then(function(geo) {
       if (!map || !geo || geo.type !== 'FeatureCollection') return
-      if (worldCountriesLayer) worldCountriesLayer.remove()
-      worldCountriesLayer = L.geoJSON(geo, {
+      if (worldCountriesLayer) return
+      worldCountriesLayer = L.geoJSON({
+        ...geo,
+        features: geo.features.filter(function(feature) { return !isChinaCountryFeature(feature) }),
+      }, {
         pane: 'worldCountriesPane',
+        renderer: worldRenderer,
         interactive: false,
         smoothFactor: 0.7,
-        style: function() {
-          return {
-            color: '#D8CDAF',
-            weight: 0.72,
-            opacity: 0.8,
-            fillColor: '#F7F4EB',
-            fillOpacity: 0.96,
-            lineCap: 'round',
-            lineJoin: 'round',
-            interactive: false,
-          }
-        },
+        style: function() { return WORLD_BOUNDARY_STYLE },
       }).addTo(map)
     })
     .catch(function(error) {
@@ -1598,6 +1775,9 @@ function loadChinaBoundary() {
           console.warn('中国边界数据加载失败，无有效GeoJSON')
           return
         }
+        var boundaryLayers = renderUnifiedChinaOuterBoundary(map, geo, 'chinaBorderHaloPane', 'chinaBorderPane', 'chinaProvincePane')
+        chinaBoundaryHaloLayer = boundaryLayers.haloLayer
+        chinaBoundaryLayer = boundaryLayers.borderLayer
         L.geoJSON(geo, {
           pane: 'chinaProvincePane',
           interactive: false,
@@ -1630,35 +1810,70 @@ function isChinaAreaFeature(feature) {
   return type === 'Polygon' || type === 'MultiPolygon'
 }
 
+function isChinaCountryFeature(feature) {
+  var properties = (feature && feature.properties) || {}
+  return properties.ADMIN === 'China' || properties.SOVEREIGNT === 'China' ||
+    properties.NAME === 'China' || properties.NAME_ZH === '中国' || properties.ADM0_A3 === 'CHN'
+}
+
+function renderUnifiedChinaOuterBoundary(targetMap, chinaGeo, haloPane, borderPane, fillPane) {
+  var haloLayer = L.geoJSON(chinaGeo, {
+    pane: haloPane,
+    interactive: false,
+    filter: isChinaAreaFeature,
+    style: function() { return { ...CHINA_BORDER_HALO_STYLE, weight: CHINA_BORDER_HALO_STYLE.weight * 2 } },
+  }).addTo(targetMap)
+  var borderLayer = L.geoJSON(chinaGeo, {
+    pane: borderPane,
+    interactive: false,
+    filter: isChinaAreaFeature,
+    style: function() { return { ...CHINA_OUTER_BORDER_STYLE, weight: CHINA_OUTER_BORDER_STYLE.weight * 2 } },
+  }).addTo(targetMap)
+  // 同源省级面作为遮罩盖住内部粗描边，只留下合并后全国轮廓的外半边。
+  var maskLayer = L.geoJSON(chinaGeo, {
+    pane: fillPane,
+    interactive: false,
+    filter: isChinaAreaFeature,
+    style: function() {
+      return { color: 'transparent', weight: 0, opacity: 0, fillColor: '#F5F1E7', fillOpacity: 1, interactive: false }
+    },
+  }).addTo(targetMap)
+  return { haloLayer, borderLayer, maskLayer }
+}
+
 function isChinaBoundaryLineFeature(feature) {
   var type = feature && feature.geometry && feature.geometry.type
   return type === 'LineString' || type === 'MultiLineString'
 }
 
+function isNineDashLineFeature(feature) {
+  if (!isChinaBoundaryLineFeature(feature)) return false
+  var coordinates = feature.geometry.type === 'MultiLineString'
+    ? feature.geometry.coordinates
+    : [feature.geometry.coordinates]
+  return coordinates.length >= 8 && coordinates.every(function(line) {
+    return line.every(function(point) { return Number(point[1]) < 25 })
+  })
+}
+
 function addChinaBoundaryLines(targetMap, geo, haloPane, borderPane) {
-  L.geoJSON(geo, {
+  var haloLayer = L.geoJSON(geo, {
     pane: haloPane,
     interactive: false,
-    filter: isChinaBoundaryLineFeature,
-    style: function() {
-      return {
-        color: '#F7F4EB', weight: 4.6, opacity: 0.95,
-        fillOpacity: 0, interactive: false,
-      }
+    filter: isNineDashLineFeature,
+    style: function(feature) {
+      return { ...CHINA_BORDER_HALO_STYLE, dashArray: '7 5' }
     },
   }).addTo(targetMap)
-  return L.geoJSON(geo, {
+  var borderLayer = L.geoJSON(geo, {
     pane: borderPane,
     interactive: false,
-    filter: isChinaBoundaryLineFeature,
-    style: function() {
-      return {
-        color: '#9A712C', weight: 2.5, opacity: 1,
-        dashArray: null, lineCap: 'round', lineJoin: 'round',
-        fillOpacity: 0, interactive: false,
-      }
+    filter: isNineDashLineFeature,
+    style: function(feature) {
+      return NINE_DASH_LINE_STYLE
     },
   }).addTo(targetMap)
+  return { haloLayer, borderLayer }
 }
 
 function onKeydown(e) {
@@ -1704,6 +1919,7 @@ var hoveredProvince = ref(null)
 var modernMap = null
 var modernProvLayer = null
 var modernWorldCountriesLayer = null
+var modernWorldRenderer = null
 var modernChinaBoundaryLayer = null
 var modernFlowLayer = null
 var modernMarkersLayer = null
@@ -1951,6 +2167,16 @@ function ensureModernProvinceLayer() {
   }
   return modernProvinceGeoJsonPromise.then(function(geo) {
     if (!modernMap) return null
+    if (!modernChinaBoundaryLayer) {
+      modernChinaBoundaryLayer = renderUnifiedChinaOuterBoundary(
+        modernMap,
+        geo,
+        'modernChinaBorderHaloPane',
+        'modernChinaBorderPane',
+        'modernProvincePane'
+      )
+      addChinaBoundaryLines(modernMap, geo, 'modernChinaBorderHaloPane', 'modernChinaBorderPane')
+    }
     modernProvLayer = L.geoJSON(geo, {
       pane: 'modernProvincePane',
       interactive: true,
@@ -1987,14 +2213,6 @@ function ensureModernProvinceLayer() {
         })
       },
     }).addTo(modernMap)
-    if (!modernChinaBoundaryLayer) {
-      modernChinaBoundaryLayer = addChinaBoundaryLines(
-        modernMap,
-        geo,
-        'modernChinaBorderHaloPane',
-        'modernChinaBorderPane'
-      )
-    }
     return modernProvLayer
   }).catch(function(error) {
     console.warn(`当代贸易中国边界加载失败（${CHINA_BOUNDARY_URL}）:`, error)
@@ -2081,18 +2299,16 @@ function loadModernWorldBoundary() {
     })
     .then(function(geo) {
       if (!modernMap || !geo || geo.type !== 'FeatureCollection') return
-      if (modernWorldCountriesLayer) modernWorldCountriesLayer.remove()
-      modernWorldCountriesLayer = L.geoJSON(geo, {
+      if (modernWorldCountriesLayer) return
+      modernWorldCountriesLayer = L.geoJSON({
+        ...geo,
+        features: geo.features.filter(function(feature) { return !isChinaCountryFeature(feature) }),
+      }, {
         pane: 'modernWorldCountriesPane',
+        renderer: modernWorldRenderer,
         interactive: false,
         smoothFactor: 0.7,
-        style: function() {
-          return {
-            color: '#D8CDAF', weight: 0.72, opacity: 0.8,
-            fillColor: '#F7F4EB', fillOpacity: 0.96,
-            lineCap: 'round', lineJoin: 'round', interactive: false,
-          }
-        },
+        style: function() { return WORLD_BOUNDARY_STYLE },
       }).addTo(modernMap)
     })
     .catch(function(error) {
@@ -2337,14 +2553,15 @@ function initModernMap() {
     zoomControl: false,
     attributionControl: false,
   })
+  modernWorldRenderer = L.canvas({ padding: 0.5, tolerance: 3 })
   modernMap.createPane('modernWorldCountriesPane')
   modernMap.getPane('modernWorldCountriesPane').style.zIndex = 220
   modernMap.createPane('modernProvincePane')
   modernMap.getPane('modernProvincePane').style.zIndex = 410
   modernMap.createPane('modernChinaBorderHaloPane')
-  modernMap.getPane('modernChinaBorderHaloPane').style.zIndex = 415
+  modernMap.getPane('modernChinaBorderHaloPane').style.zIndex = 400
   modernMap.createPane('modernChinaBorderPane')
-  modernMap.getPane('modernChinaBorderPane').style.zIndex = 418
+  modernMap.getPane('modernChinaBorderPane').style.zIndex = 405
   // 详情模式中的未选中茶叶位于流向线下方，避免遮挡路线。
   modernMap.createPane('modernDetailBubblePane')
   modernMap.getPane('modernDetailBubblePane').style.zIndex = 430
@@ -2438,6 +2655,10 @@ onBeforeUnmount(function() {
 
   stopAnimationLoop()
   isAnimatingProgress = false
+  if (activeCameraAnimation) {
+    cancelAnimationFrame(activeCameraAnimation)
+    activeCameraAnimation = null
+  }
 
   if (window._ch4ResizeObserver) {
     window._ch4ResizeObserver.disconnect()
@@ -2605,10 +2826,10 @@ onBeforeUnmount(function() {
 .route-filter-btn:hover { background: rgba(81, 109, 51, 0.1); }
 .route-filter-btn.active { background: #516D33; color: #F7F4EB; }
 
-/* Legend - compact, bottom-left overlay (raised above floating timeline) */
+/* Legend - compact, bottom-left overlay */
 .map-legend {
   position: absolute;
-  bottom: clamp(248px, 33vh, 300px);
+  bottom: 12px;
   left: 12px;
   z-index: 400;
   background: rgba(247, 244, 235, 0.92);
@@ -2621,7 +2842,10 @@ onBeforeUnmount(function() {
 }
 
 .legend-title {
-  font: 600 11px/1 var(--serif);
+  font-family: var(--font-body);
+  font-size: 11px;
+  line-height: 1;
+  font-weight: 500;
   color: #516D33;
   letter-spacing: 0.12em;
   margin-bottom: 8px;
@@ -2647,8 +2871,8 @@ onBeforeUnmount(function() {
   flex-shrink: 0;
 }
 
-.legend-line.land { background: #B28F4C; }
-.legend-line.sea { background: #5C7C3A; }
+.legend-line.land { background: linear-gradient(90deg, #80601E, #C9A552, #E9DBB5); }
+.legend-line.sea { background: linear-gradient(90deg, #214A39, #53755A, #BCC8B2); }
 .legend-line.digitized { background: #7C765F; height: 2px; }
 .legend-line.inferred {
   height: 0;

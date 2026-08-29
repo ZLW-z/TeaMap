@@ -570,6 +570,8 @@ const chapter = CHAPTER_META.ch5
 const hoveredZone = ref(null)
 const mapReady = ref(false)
 const introDone = ref(false)
+// 九段线（由 Albers 投影坐标逆向投影回经纬度），叠加在右下角南海插图上
+const tendashLines = ref([])
 
 // ---- 地图缩放联动：geo zoom 与 bubble symbolSize 同步 ----
 const DEFAULT_GEO_ZOOM = 1.15
@@ -1203,6 +1205,23 @@ function createRootsGeoOption() {
   ]
 }
 
+// 九段线以 lines 系列叠加在南海插图（geoIndex 1）上，坐标为经纬度，不参与主版图投影。
+function createTendashSeries() {
+  return {
+    type: 'lines',
+    coordinateSystem: 'geo',
+    geoIndex: 1,
+    polyline: true,
+    silent: true,
+    z: 4,
+    lineStyle: {
+      color: 'rgba(178,143,76,0.75)',
+      width: 1,
+    },
+    data: tendashLines.value.map(coords => ({ coords })),
+  }
+}
+
 const rootsMapOption = computed(() => {
   const data = rootsMapData.value
   const yr = rootsYear.value
@@ -1303,7 +1322,9 @@ const rootsMapOption = computed(() => {
           },
         },
         data: scatterList,
-      }],
+      },
+      createTendashSeries(),
+      ],
     }
   }
 
@@ -1383,7 +1404,9 @@ const rootsMapOption = computed(() => {
         },
       },
       data: outputScatterList,
-    }],
+    },
+    createTendashSeries(),
+    ],
   }
 })
 
@@ -1618,7 +1641,7 @@ const branchesSankeyOption = computed(() => {
       nodeAlign: 'justify',
       layoutIterations: 64,
       // 禁用节点拖动，固定左侧省份、右侧目的地位置
-      nodeDraggable: false,
+      draggable: false,
       emphasis: { focus: 'adjacency' },
       data: validNodes.map(n => ({
         name: n.name,
@@ -1840,6 +1863,16 @@ onMounted(async () => {
       ...provGeo,
       features: [southChinaSeaFrame, ...southChinaSeaFeatures],
     })
+
+    // 加载九段线（Albers 投影坐标），逆向投影回经纬度后叠加在南海插图上；失败时静默跳过。
+    try {
+      const dashRes = await fetch(assetUrl('data/1/china_tendash.geojson'))
+      const dashGeo = await dashRes.json()
+      const dashCoords = dashGeo.features?.[0]?.geometry?.coordinates || []
+      tendashLines.value = dashCoords.map(line => line.map(pt => chinaAlbersTransformer.inverse(pt)))
+    } catch (dashErr) {
+      console.warn('九段线数据加载失败:', dashErr)
+    }
 
     mapReady.value = true
   } catch (e) {

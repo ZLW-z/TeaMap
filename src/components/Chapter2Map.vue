@@ -188,6 +188,78 @@
           <button class="return-btn" @click="onReturn">再看一遍</button>
         </div>
       </div>
+
+      <!-- ========= 数据与分类依据注解：常驻 i 按钮 + 浮动面板（避开右侧工具列） ========= -->
+      <div ref="notesRootRef" class="notes-widget">
+        <transition name="notes-fade">
+          <div
+            v-if="notesOpen && activeNote"
+            class="notes-panel"
+            role="dialog"
+            aria-label="数据与分类依据"
+          >
+            <div class="notes-head">
+              <div>
+                <div class="notes-caption">数据与分类依据</div>
+                <div class="notes-factor-title">{{ activeNote.title }}</div>
+              </div>
+              <button
+                class="notes-close"
+                aria-label="关闭注解面板"
+                @click.stop="notesOpen = false"
+              >×</button>
+            </div>
+            <div class="notes-scroll">
+              <div
+                v-for="f in noteFields"
+                :key="f.key"
+                class="note-item"
+              >
+                <div class="note-item-label">{{ f.label }}</div>
+                <div v-if="f.text" class="note-item-text">{{ f.text }}</div>
+                <div v-else-if="f.key === 'classification'" class="note-item-text note-levels">
+                  <div
+                    v-for="lv in noteLevels"
+                    :key="lv.value"
+                    class="note-level"
+                  >
+                    <span class="note-level-sw" :style="{ background: lv.color }"></span>
+                    <span class="note-level-label">{{ lv.label }}</span>
+                    <span v-if="lv.range" class="note-level-range">{{ lv.range }}</span>
+                  </div>
+                  <div v-if="noteLevelExtra" class="note-level-extra">{{ noteLevelExtra }}</div>
+                </div>
+              </div>
+              <div v-if="activeNote.note" class="note-item">
+                <div class="note-item-label">说明</div>
+                <div class="note-item-text">{{ activeNote.note }}</div>
+              </div>
+              <div
+                v-if="activeNote.sources && activeNote.sources.length"
+                class="note-item"
+              >
+                <div class="note-item-label">参考来源</div>
+                <div class="note-source-links">
+                  <a
+                    v-for="s in activeNote.sources"
+                    :key="s.url"
+                    :href="s.url"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >{{ s.label }} ↗</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </transition>
+        <button
+          class="notes-trigger"
+          :class="{ open: notesOpen }"
+          aria-label="数据与分类依据"
+          title="数据与分类依据"
+          @click.stop="notesOpen = !notesOpen"
+        >i</button>
+      </div>
     </div>
 
     <!-- 主图↔缩略图使用真实 DOM（Leaflet 容器 / 缩略图卡）做 CSS transform 缩放，
@@ -211,6 +283,7 @@ import {
   loadFactorBounds,
   BG_IMAGE_FILES,
 } from '../config/ch2.js'
+import { FACTOR_NOTES, getFactorLevels, CLASSIFICATION_EXTRA } from '../config/ch2Notes.js'
 import { getMapOptions } from '../utils/crs.js'
 
 const WHEEL_ORDER = ['ph', 'precip', 'temp', 'accum', 'rad']
@@ -1676,9 +1749,54 @@ function onReturn() {
 }
 
 /* =========================================================
+ * 数据与分类依据注解面板
+ *   - 内容随当前主图因子实时联动（activeFactorId / viewMode）
+ *   - 分级阈值直接读取 ch2.js levels，与图例同源
+ *   - 不参与任何地图计算与布局
+ * ========================================================= */
+const notesOpen = ref(false)
+const notesRootRef = ref(null)
+
+const activeNoteKey = computed(() => {
+  if (viewMode.value === 'composite') return 'composite'
+  if (activeFactorId.value && FACTOR_NOTES[activeFactorId.value]) return activeFactorId.value
+  return 'composite'
+})
+const activeNote = computed(() => FACTOR_NOTES[activeNoteKey.value] || null)
+
+const noteLevels = computed(() => getFactorLevels(activeNoteKey.value))
+const noteLevelExtra = computed(() => CLASSIFICATION_EXTRA[activeNoteKey.value] || '')
+
+const noteFields = computed(() => {
+  const n = activeNote.value
+  if (!n) return []
+  return [
+    { key: 'dataName',     label: '数据名称',   text: n.dataName },
+    { key: 'dataSource',   label: '数据来源',   text: n.dataSource },
+    { key: 'timeRange',    label: '时间范围',   text: n.timeRange },
+    { key: 'resolution',   label: '空间分辨率', text: n.resolution },
+    { key: 'unit',         label: '原始单位',   text: n.unit },
+    { key: 'processing',   label: '处理方法',   text: n.processing },
+    { key: 'classification', label: '当前地图分级', text: '' },
+    { key: 'basis',        label: '分类依据',   text: n.basis },
+  ]
+})
+
+// 点击面板/按钮外部关闭
+function _onNotesDocMousedown(e) {
+  if (!notesOpen.value) return
+  const root = notesRootRef.value
+  if (root && !root.contains(e.target)) notesOpen.value = false
+}
+onMounted(() => {
+  document.addEventListener('mousedown', _onNotesDocMousedown)
+})
+
+/* =========================================================
  * 生命周期
  * ========================================================= */
 onBeforeUnmount(() => {
+  document.removeEventListener('mousedown', _onNotesDocMousedown)
   clearSpinTimers(); clearHardKill()
   _cleanupMapFlight()
   _bgSwitchTimers.forEach(h => clearTimeout(h))
@@ -2242,6 +2360,193 @@ onBeforeUnmount(() => {
   box-shadow: 0 4px 14px rgba(81, 109, 51, 0.45);
 }
 
+/* ===== 数据与分类依据注解：i 按钮 + 浮动面板（固定在页面右下角） ===== */
+.notes-widget {
+  position: absolute;
+  right: 16px;
+  bottom: clamp(24px, 2.6vw, 40px);
+  z-index: 710;
+  pointer-events: none;
+}
+#app-root .notes-trigger[data-v-56188f1a] {
+  pointer-events: auto;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  padding: 0;
+  background: #516D33;
+  color: #FFFFFF;
+  font-family: var(--font-body), serif !important;
+  font-style: normal;
+  font-weight: 700;
+  font-size: 24px !important;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(81, 109, 51, 0.32);
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+.notes-trigger:hover {
+  filter: brightness(1.12);
+  transform: scale(1.04);
+}
+.notes-trigger.open { filter: brightness(1.12); }
+
+.notes-panel {
+  pointer-events: auto;
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 12px);
+  width: 400px;
+  max-width: calc(100vw - 32px);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  max-height: 60vh;
+  background: rgba(255, 253, 247, 0.94);
+  border: 1px solid rgba(81, 109, 51, 0.16);
+  border-radius: 15px;
+  box-shadow: 0 6px 24px rgba(81, 109, 51, 0.16);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  font-family: var(--font-body), serif !important;
+  font-style: normal;
+  overflow: hidden;
+}
+.notes-head {
+  flex: none;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 14px 16px 10px 20px;
+  border-bottom: 1px solid rgba(81, 109, 51, 0.12);
+}
+#app-root .notes-caption[data-v-56188f1a] {
+  font-size: 11.5px;
+  letter-spacing: 2px;
+  color: #7a6f55;
+  margin-bottom: 3px;
+  font-family: var(--font-body), serif !important;
+}
+#app-root .notes-factor-title[data-v-56188f1a] {
+  font-size: 15.5px;
+  font-weight: 700;
+  color: #4b5d2b;
+  letter-spacing: 1px;
+  font-family: var(--font-body), serif !important;
+}
+.notes-close {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(81, 109, 51, 0.10);
+  color: #4b5d2b;
+  font-size: 15px;
+  line-height: 24px;
+  padding: 0;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.notes-close:hover {
+  background: rgba(81, 109, 51, 0.22);
+}
+.notes-scroll {
+  min-height: 0;
+  overflow-y: auto;
+  padding: 12px 20px 16px;
+}
+.note-item {
+  margin-bottom: 11px;
+}
+.note-item:last-child {
+  margin-bottom: 0;
+}
+.note-item-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: #4b5d2b;
+  margin-bottom: 3px;
+}
+.note-item-text {
+  font-size: 13px;
+  line-height: 1.65;
+  color: #5a4f38;
+  text-align: justify;
+}
+.note-levels {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.note-level {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  font-size: 13px;
+  color: #5a4f38;
+  line-height: 1.5;
+}
+.note-level-sw {
+  flex: none;
+  width: 14px;
+  height: 10px;
+  border-radius: 2px;
+  border: 0.5px solid rgba(0, 0, 0, 0.06);
+  align-self: center;
+}
+.note-level-label {
+  flex: none;
+  font-weight: 600;
+  color: #4b5d2b;
+}
+.note-level-range {
+  font-size: 11.5px;
+  color: #7a6f55;
+}
+.note-level-extra {
+  margin-top: 6px;
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: #7a6f55;
+}
+.note-source-links {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.note-source-links a {
+  font-size: 12.5px;
+  color: #516D33;
+  text-decoration: none;
+  line-height: 1.5;
+  word-break: break-all;
+  transition: color 0.2s ease;
+  width: fit-content;
+}
+.note-source-links a:hover {
+  color: #3d5426;
+  text-decoration: underline;
+}
+
+/* 面板淡入淡出 + 轻微位移动画 */
+.notes-fade-enter-active,
+.notes-fade-leave-active {
+  transition: opacity 0.24s ease, transform 0.24s ease;
+}
+.notes-fade-enter-from,
+.notes-fade-leave-to {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+
 /* 响应式 */
 @media (max-width: 1200px) {
   .chapter-body {
@@ -2277,5 +2582,20 @@ onBeforeUnmount(() => {
   .composite-conclusion { font-size: 13.5px; line-height: 1.8; }
   .thumb-name { font-size: 11px; }
   .label-name { font-size: 12.5px; }
+  .notes-widget {
+    right: calc(var(--ch2-page-edge) + var(--ch2-right-safe-width) + 10px);
+    bottom: 20px;
+  }
+  .notes-panel { width: 340px; }
+}
+@media (max-width: 600px) {
+  .notes-panel {
+    position: fixed;
+    left: 16px;
+    right: 16px;
+    bottom: 76px;
+    width: auto;
+    max-width: none;
+  }
 }
 </style>
