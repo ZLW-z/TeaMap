@@ -1222,6 +1222,24 @@ function createTendashSeries() {
   }
 }
 
+// 九段线叠加在主地图（geoIndex 0，Albers 投影）上；坐标为经纬度，ECharts 内部经 CHINA_ALBERS_PROJECTION 自动投影。
+function createTendashMainSeries() {
+  return {
+    type: 'lines',
+    coordinateSystem: 'geo',
+    geoIndex: 0,
+    polyline: true,
+    silent: true,
+    z: 2,
+    lineStyle: {
+      color: '#AA853C',
+      width: 0.8,
+      type: 'dashed',
+    },
+    data: tendashLines.value.map(coords => ({ coords })),
+  }
+}
+
 const rootsMapOption = computed(() => {
   const data = rootsMapData.value
   const yr = rootsYear.value
@@ -1323,6 +1341,7 @@ const rootsMapOption = computed(() => {
         },
         data: scatterList,
       },
+      createTendashMainSeries(),
       createTendashSeries(),
       ],
     }
@@ -1405,6 +1424,7 @@ const rootsMapOption = computed(() => {
       },
       data: outputScatterList,
     },
+    createTendashMainSeries(),
     createTendashSeries(),
     ],
   }
