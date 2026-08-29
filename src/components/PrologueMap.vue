@@ -31,10 +31,6 @@
       <!-- 进入提示 -->
       <div class="prologue-hint" ref="hintRef">
         <span class="hint-text">滑动或点击按钮 · 开启图志</span>
-        <button class="hint-btn" @click="goNext">
-          <span class="btn-label">进入第一章</span>
-          <span class="btn-arrow">→</span>
-        </button>
       </div>
     </div>
   </section>
