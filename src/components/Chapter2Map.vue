@@ -2490,14 +2490,14 @@ onBeforeUnmount(() => {
   padding: 14px 16px 10px 20px;
   border-bottom: 1px solid rgba(81, 109, 51, 0.12);
 }
-#app-root .notes-caption[data-v-56188f1a] {
+#app-root .notes-caption {
   font-size: 11.5px;
   letter-spacing: 2px;
   color: #7a6f55;
   margin-bottom: 3px;
   font-family: var(--font-body), serif !important;
 }
-#app-root .notes-factor-title[data-v-56188f1a] {
+#app-root .notes-factor-title {
   font-size: 15.5px;
   font-weight: 700;
   color: #4b5d2b;
