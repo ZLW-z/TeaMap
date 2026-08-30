@@ -2422,32 +2422,43 @@ onBeforeUnmount(() => {
   z-index: 710;
   pointer-events: none;
 }
-#app-root .notes-trigger[data-v-56188f1a] {
+#app-root .notes-trigger {
   pointer-events: auto;
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
+  box-sizing: border-box;
   border-radius: 50%;
   border: none;
   padding: 0;
   background: #516D33;
   color: #FFFFFF;
-  font-family: var(--font-body), serif !important;
+  font-family: Georgia, 'Times New Roman', serif !important;
   font-style: normal;
   font-weight: 700;
-  font-size: 24px !important;
+  font-size: 27px !important;
   line-height: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(81, 109, 51, 0.32);
-  transition: transform 0.2s ease, filter 0.2s ease;
+  appearance: none;
+  -webkit-appearance: none;
+  box-shadow: 0 4px 12px rgba(56, 72, 39, 0.22);
+  transition: transform 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
 }
-.notes-trigger:hover {
-  filter: brightness(1.12);
-  transform: scale(1.04);
+#app-root .notes-trigger:hover {
+  background: #5C7C3A;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(56, 72, 39, 0.28);
 }
-.notes-trigger.open { filter: brightness(1.12); }
+#app-root .notes-trigger:active {
+  transform: translateY(0) scale(0.96);
+}
+#app-root .notes-trigger:focus-visible {
+  outline: 3px solid rgba(178, 143, 76, 0.55);
+  outline-offset: 3px;
+}
+#app-root .notes-trigger.open { background: #5C7C3A; }
 
 .notes-panel {
   pointer-events: auto;
