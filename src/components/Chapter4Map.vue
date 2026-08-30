@@ -747,12 +747,13 @@ const WORLD_BOUNDARY_STYLE = {
   fillColor: '#F5F1E7', fillOpacity: 0.18,
   lineCap: 'round', lineJoin: 'round', interactive: false,
 }
+const CHINA_BOUNDARY_COLOR = '#62645C'
 const CHINA_OUTER_BORDER_STYLE = {
-  color: '#586B42', weight: 2.1, opacity: 0.96,
+  color: CHINA_BOUNDARY_COLOR, weight: 2.1, opacity: 0.96,
   fillOpacity: 0, lineCap: 'round', lineJoin: 'round', interactive: false,
 }
 const CHINA_BORDER_HALO_STYLE = {
-  color: '#F4ECD8', weight: 4.4, opacity: 0.32,
+  color: '#E7E2D5', weight: 4.4, opacity: 0.32,
   fillOpacity: 0, lineCap: 'round', lineJoin: 'round', interactive: false,
 }
 const NINE_DASH_LINE_STYLE = {
@@ -768,6 +769,8 @@ var cameraUserControlled = false
 var programmaticCameraMove = false
 var lastCameraSignature = ''
 var hasTriggeredYuanZoom = false
+const YUAN_NORTH_OFFSET_PX = 15
+var hasAppliedYuanNorthOffset = false
 var hasCompletedInitialPlayZoom = false
 var hasEnteredMing = false
 var previousAncientStage = '唐代'
@@ -1227,7 +1230,15 @@ function runSingleYuanCameraAnimation() {
     duration: 3.2,
     easeLinearity: 0.22,
   })
-  map.once('moveend', function() { programmaticCameraMove = false })
+  map.once('moveend', function() {
+    if (!map || hasAppliedYuanNorthOffset) {
+      programmaticCameraMove = false
+      return
+    }
+    hasAppliedYuanNorthOffset = true
+    map.panBy([0, YUAN_NORTH_OFFSET_PX], { animate: false })
+    programmaticCameraMove = false
+  })
 }
 
 function handleAncientStageChange(nextStage) {
@@ -1763,6 +1774,7 @@ function resetView() {
   progress.value = 0
   routeFlowProgress = 0
   hasTriggeredYuanZoom = false
+  hasAppliedYuanNorthOffset = false
   hasCompletedInitialPlayZoom = false
   hasEnteredMing = false
   previousAncientStage = '唐代'
@@ -1901,6 +1913,7 @@ function initMap() {
     programmaticCameraMove = false
     lastCameraSignature = 'initial-song-reference'
     hasTriggeredYuanZoom = false
+    hasAppliedYuanNorthOffset = false
     hasCompletedInitialPlayZoom = false
     hasEnteredMing = false
     previousAncientStage = '唐代'
@@ -4002,7 +4015,13 @@ onBeforeUnmount(function() {
 .modern-country-panel .panel-scroll::-webkit-scrollbar { width: 5px; }
 .modern-country-panel .panel-scroll::-webkit-scrollbar-thumb { background: rgba(178,143,76,0.3); border-radius: 3px; }
 
-.modern-tag { background: var(--c-olive) !important; }
+.modern-tag {
+  background: var(--c-olive) !important;
+}
+.modern-tag,
+.modern-tag span {
+  color: #FFFFFF !important;
+}
 
 @media (max-width: 1200px) {
   .modern-topbar.is-detail-mode {

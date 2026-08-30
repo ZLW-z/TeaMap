@@ -11,9 +11,9 @@ const FACTORS = {
     boundsUrl: assetUrl('data/2/precip_bounds.json'),
     desc: '茶树喜湿润，年降水量 1200–1800 mm 为最适宜区',
     levels: [
-      { value: 0, label: '不适宜', color: '#E8E2D0', range: '年降水量<800mm、>2200mm' },
-      { value: 1, label: '限制适宜', color: '#A8C5A0', range: '年降水量800-1000、2000-2200mm' },
-      { value: 2, label: '较适宜', color: '#6BA368', range: '年降水量1000-1200、1800-2000mm' },
+      { value: 0, label: '不适宜', color: '#E8E2D0', range: '年降水量<800mm或>2200mm' },
+      { value: 1, label: '限制适宜', color: '#A8C5A0', range: '年降水量800-1000或2000-2200mm' },
+      { value: 2, label: '较适宜', color: '#6BA368', range: '年降水量1000-1200或1800-2000mm' },
       { value: 3, label: '最适宜', color: '#2F6B2F', range: '年降水量1200-1800mm' },
     ],
   },
@@ -42,8 +42,8 @@ const FACTORS = {
     desc: '≥10℃ 年活动积温 4000℃·d 以上方可满足茶树生长需求',
     levels: [
       { value: 0, label: '不适宜', color: '#E8E2D0', range: '活动积温<4000℃·d' },
-      { value: 1, label: '限制适宜', color: '#D4B44C', range: '活动积温4000-6000℃·d' },
-      { value: 2, label: '较适宜', color: '#93B55A', range: '活动积温≥6000℃·d' },
+      { value: 1, label: '限制适宜', color: '#D4B44C', range: '活动积温4000-5000℃·d' },
+      { value: 2, label: '较适宜', color: '#93B55A', range: '活动积温≥5000℃·d' },
       { value: 3, label: '最适宜', color: '#516D33', range: '活动积温≥6000℃·d' },
     ],
   },

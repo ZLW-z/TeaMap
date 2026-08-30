@@ -30,7 +30,7 @@
 
       <!-- 进入提示 -->
       <div class="prologue-hint" ref="hintRef">
-        <span class="hint-text">滑动或点击按钮 · 开启图志</span>
+        <span class="hint-text">点击按钮 · 开启图志</span>
       </div>
     </div>
   </section>
@@ -149,17 +149,6 @@ onMounted(async () => {
     })
   }
 
-  // 滚动到接近底部时自动跳转
-  const nearBottom = () => {
-    const h = document.documentElement
-    if (h.scrollHeight - h.scrollTop - h.clientHeight < 120) {
-      if (router.currentRoute.value.path === '/prologue') {
-        window.removeEventListener('scroll', nearBottom, true)
-        goNext()
-      }
-    }
-  }
-  window.addEventListener('scroll', nearBottom, { passive: true, capture: true })
 })
 
 onBeforeUnmount(() => {

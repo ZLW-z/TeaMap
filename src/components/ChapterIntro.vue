@@ -38,6 +38,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['done'])
+const CHAPTER_INTRO_HOLD_MS = 2500
 
 const visible = ref(true)
 const introRef = ref(null)
@@ -62,7 +63,6 @@ onMounted(async () => {
   gsap.set(chNoRef.value, { opacity: 0, y: -18, scale: 0.72, filter: 'blur(3px)' })
   gsap.set(descLineRefs, { opacity: 0, y: 18, filter: 'blur(3px)' })
 
-  const transitionAt = Math.max(7, props.duration)
   const charStagger = Math.min(0.13, 0.6 / Math.max(1, titleChars.length))
 
   tl = gsap.timeline({
@@ -102,8 +102,8 @@ onMounted(async () => {
     ease: 'power2.out'
   }, '-=0.1')
 
-  // 4. 保证开场从出现到开始切换约停留 7 秒
-  tl.to({}, { duration: Math.max(0.6, transitionAt - tl.duration()) })
+  // 4. 最后一行简介完全显现后，静态停留 2.5 秒。
+  tl.to({}, { duration: CHAPTER_INTRO_HOLD_MS / 1000 })
 
   // 在淡出开始时让正文页同步淡入，形成较慢的交叉转场。
   tl.call(() => {

@@ -322,6 +322,7 @@ function onIntroDone() {
  * ========================================================= */
 const drawPhase = ref(/** @type {'idle'|'ready'|'spinning'|'committing'|'complete'|'comprehensive'} */ ('idle'))
 const drawOrder = ref([])
+const archivedFactorIds = ref([])
 const selectedFactors = ref(new Set())
 const activeFactorId = ref(null)
 const lastDrawnFactorId = ref(null)
@@ -340,7 +341,7 @@ const remainingFactors = computed(() => {
 //                  composite 模式下 = 全部 5 张
 const thumbSlot = computed(() => {
   if (viewMode.value === 'composite') return [...drawOrder.value]
-  return drawOrder.value.filter(fid => fid !== activeFactorId.value)
+  return drawOrder.value.filter(fid => archivedFactorIds.value.includes(fid))
 })
 
 const currentConfig = computed(() => {
@@ -1127,6 +1128,39 @@ watch(thumbSlot, () => {
   })
 }, { flush: 'post' })
 
+async function waitForThumbnailFirstFrame(factorKey) {
+  await nextTick()
+  for (let attempt = 0; attempt < 90 && thumbnailSystemActive; attempt++) {
+    await new Promise(resolve => requestAnimationFrame(resolve))
+    const container = document.querySelector(
+      '.thumbnail-map[data-factor-id="' + factorKey + '"]'
+    )
+    if (!container) continue
+    const rect = container.getBoundingClientRect()
+    if (rect.width <= 0 || rect.height <= 0) continue
+    setThumbnailMapContainer(factorKey, container)
+    const record = thumbnailMapInstances.get(factorKey)
+    if (!record) continue
+    record.map.invalidateSize({ pan: false, animate: false })
+    scheduleThumbnailFit(record)
+    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))
+    return true
+  }
+  return false
+}
+
+async function commitArchivedThumbnail(snapshot) {
+  const factorKey = snapshot?.factorKey
+  if (!factorKey || !thumbnailSystemActive) return false
+  if (archivedFactorIds.value.includes(factorKey)) {
+    return waitForThumbnailFirstFrame(factorKey)
+  }
+
+  const committed = new Set([...archivedFactorIds.value, factorKey])
+  archivedFactorIds.value = drawOrder.value.filter(fid => committed.has(fid))
+  return waitForThumbnailFirstFrame(factorKey)
+}
+
 /* =========================================================
  * 主图↔缩略图动画：
  *   不生成 PNG。直接对"真实地图元素"做 fixed-position + CSS transform 缩放：
@@ -1223,6 +1257,24 @@ function _animateDomToRect(el, sourceRect, targetRect, {
 }
 
 function _sleep(ms) { return new Promise(r => setTimeout(r, ms)) }
+
+function _waitForTransformEnd(el, durationMs) {
+  return new Promise(resolve => {
+    let settled = false
+    const finish = () => {
+      if (settled) return
+      settled = true
+      el?.removeEventListener('transitionend', onEnd)
+      clearTimeout(fallback)
+      resolve()
+    }
+    const onEnd = event => {
+      if (event.target === el && event.propertyName === 'transform') finish()
+    }
+    el?.addEventListener('transitionend', onEnd)
+    const fallback = setTimeout(finish, durationMs + 180)
+  })
+}
 
 /** 空卡槽在业务状态提交前还没有 .thumbnail-map，因此按卡槽中实际的地图图片区
  *  计算动画终点（排除底部 32px 标签栏）。归档动画只落入地图图片区。 */
@@ -1346,10 +1398,10 @@ function _getMainLcEl() {
 /** 主图归档到第 N 个缩略图卡槽：在状态切换前冻结上一因子的 Leaflet 图层快照。
  *   - 动画主体始终是上一因子，而不会被 activeFactorId 更新为新抽中因子
  *   - 快照只含 leaflet-map-pane，背景艺术图、纯色蒙版和控件均不参与动画
- *   - 末段 950ms 起透明度渐隐（露出下方真实缩略图卡片），终点不跳变
+ *   - 动画抵达后保持在终点，等真实缩略图首帧就绪后再销毁，终点不跳变
  *   - 动画结束：仅销毁临时快照，不触碰真实主地图和背景层
  *   - fid 仅作为语义说明：被归档的因子 id（即上一个 activeFactorId） */
-async function playArchiveAnimation({ fid, targetSlotIndex0Based }) {
+async function playArchiveAnimation({ fid, targetSlotIndex0Based, onArrive }) {
   const sourceRect = _getMainMapRect()
   const targetRect = _getThumbMapRect(targetSlotIndex0Based)
   if (!sourceRect || !targetRect) return { ok: false }
@@ -1363,12 +1415,11 @@ async function playArchiveAnimation({ fid, targetSlotIndex0Based }) {
     _animateDomToRect(snapshot, sourceRect, targetRect, {
       durationMs: 1400,
       ease: 'cubic-bezier(0.45, 0.05, 0.35, 0.95)',
-      fadeOut: true,
-      fadeStartMs: 950,
-      fadeDurationMs: 500,
+      fadeOut: false,
     })
-    _scheduleMapFlightCleanup(snapshot, 1400)
-    await _sleep(1500)
+    // 飞行层抵达目标位置后仍保持可见，直到真实 Leaflet 缩略图完成首帧。
+    await _waitForTransformEnd(snapshot, 1400)
+    if (typeof onArrive === 'function') await onArrive()
   } finally {
     _cleanupMapFlight(snapshot)
   }
@@ -1559,6 +1610,24 @@ async function runSpinAnimation() {
   const newFid = WHEEL_ORDER[targetIndex]
   const previousActive = activeFactorId.value
 
+  // “继续抽取”一经点击就冻结当前因子，动画到达卡槽时独立提交缩略图；
+  // 后续转盘只负责确定新主图，不再承担上一张缩略图的写入。
+  if (previousActive && previousActive !== newFid) {
+    const targetSlotIdx = drawOrder.value.indexOf(previousActive)
+    if (targetSlotIdx >= 0) {
+      const archiveSnapshot = Object.freeze({
+        factorKey: previousActive,
+        targetSlotIndex0Based: targetSlotIdx,
+        operationId: myOpId,
+      })
+      playArchiveAnimation({
+        fid: archiveSnapshot.factorKey,
+        targetSlotIndex0Based: targetSlotIdx,
+        onArrive: () => commitArchivedThumbnail(archiveSnapshot),
+      }).catch(() => {})
+    }
+  }
+
   drawPhase.value = 'spinning'
   scanIndex.value = -1
   lockedFactor.value = null
@@ -1590,25 +1659,6 @@ async function runSpinAnimation() {
     drawPhase.value = 'committing'
     lockedFactor.value = newFid
     scanIndex.value = -1
-
-    // 播放旧主图归档动画（如果存在 previousActive）
-    if (previousActive && previousActive !== newFid) {
-      const futureDrawOrder = [...drawOrder.value, newFid]
-      const futureThumb     = futureDrawOrder.filter(x => x !== newFid)
-      const targetSlotIdx   = futureThumb.indexOf(previousActive)
-
-      if (targetSlotIdx >= 0) {
-        // 真 DOM 缩放：等动画层（图钉）状态生效（首帧 transform 已应用）后再提交状态，
-        // 保证归档动画起始画面与主图一致，无跳变；最坏 1.5s 超时。
-        playArchiveAnimation({
-          fid: previousActive,
-          targetSlotIndex0Based: targetSlotIdx,
-        }).catch(() => {})
-        await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(() => r())))
-      } else {
-        await new Promise(r => requestAnimationFrame(() => r()))
-      }
-    }
 
     // 提交业务状态（原子化，同步）
     selectedFactors.value = new Set([...selectedFactors.value, newFid])
@@ -1673,6 +1723,9 @@ async function onThumbClick(targetFid) {
     futureDrawOrder,
     futureView: 'detail',
   }).catch(() => {})
+
+  // 点击缩略图切换主图时，原主图立即成为已归档项；被点击项转为主图。
+  archivedFactorIds.value = futureDrawOrder.filter(fid => fid !== targetFid)
 
   // 保持原有 220ms 的最小节奏。
   const startedAt = performance.now()
@@ -1744,6 +1797,7 @@ function onReturn() {
   const fifthFid = drawOrder.value[4]
   viewMode.value = 'detail'
   activeFactorId.value = fifthFid
+  archivedFactorIds.value = drawOrder.value.filter(fid => fid !== fifthFid)
   drawPhase.value = 'complete'
   nextTick(() => { if (map) map.invalidateSize(false) })
 }

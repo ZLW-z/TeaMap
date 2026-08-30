@@ -201,7 +201,7 @@
 
               <!-- TOP10 排名 -->
               <div class="ch5-card small-card wf-rank-card">
-                <div class="card-title-sm">{{ rootsYear }}年中国{{ metricLabel }} TOP 10</div>
+                <div class="card-title-sm">{{ rootsYear }}年中国{{ metricLabel }}前十</div>
                 <div class="ch5-chart-unit">单位：{{ metricUnit }}</div>
                 <div class="chart-container chart-ranking small">
                   <EChart :option="rootsRankingOption" style="height:240px" />
