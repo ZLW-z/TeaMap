@@ -1342,7 +1342,7 @@ onBeforeUnmount(() => {
   position: fixed;
   inset: 0;
   z-index: 9999;
-  background: rgba(20, 18, 12, 0.92);
+  background: rgba(20, 18, 12, 0.74);
   backdrop-filter: blur(6px);
   display: flex;
   flex-direction: column;
